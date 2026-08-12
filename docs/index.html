@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Applications Index</title><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+    .week-section {
+          margin-bottom: 2.5rem;
+        }
+        .week-section h2 {
+          font-size: 1.25rem;
+          margin-bottom: 1rem;
+          padding-bottom: 0.5rem;
+          border-bottom: 2px solid var(--line);
+          color: var(--olympic);
+        }
+        .app-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 16px;
+        }
+        .app-card {
+          background: var(--panel-alt);
+          border: 1px solid var(--line);
+          border-radius: 6px;
+          padding: 16px;
+          transition: border-color 0.2s, transform 0.1s;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+        .app-card:hover {
+          border-color: var(--uga-red);
+          transform: translateY(-2px);
+          background: #fff;
+        }
+        .app-card h3 {
+          font-size: 1rem;
+          margin-bottom: 6px;
+        }
+        .app-card p {
+          font-size: 0.85rem;
+          color: var(--muted);
+          font-family: "IBM Plex Mono", monospace;
+          margin-bottom: 16px;
+        }
+        .btn-uga {
+            background-color: var(--uga-red);
+            border: none;
+            color: #fff;
+            font-family: 'Merriweather Sans', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            transition: opacity 0.2s;
+        }
+        .btn-uga:hover {
+            opacity: 0.9;
+            background-color: var(--uga-red);
+            color: #fff;
+        }
+        .statusbar {
+          margin-top: 36px;
+          padding-top: 16px;
+          border-top: 1px solid var(--line);
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 10px;
+          font-size: 11px;
+          color: var(--muted);
+          font-family: "IBM Plex Mono", monospace;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="text-center mb-4">
+    <h1 style="font-size: 1.4rem;">University of Georgia</h1>
+    <h2 class="text-muted small">Quantitative Linguistics Webapps</h2>
+</div>
+
+    <div class="wrap">
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-text">
+                <h1><span>LING2150</span> Demystifying Converational AI </h1>
+                <p>Explore the collection of interactive web applications developed throughout the semester, organized chronologically by week.</p>
+            </div>
+        </header>
+
+        <!-- Week 1 -->
+        <section class="week-section">
+            <h2>Week 2: Processes in Converastional AI</h2>
+            <div class="app-grid">
+                <div class="app-card">
+                    <div>
+                        <h3>Modular Conversational AI systems</h3>
+                        <p>Explore the basic five-stage conversational AI pipeline.</p>
+                    </div>
+                    <a href="week_2/1_five_stage_pipeline.html" class="btn-uga">Launch App</a>
+                </div>
+                <div class="app-card">
+                    <div>
+                        <h3>Applet 2</h3>
+                        <p>Description.</p>
+                    </div>
+                    <a href="#" class="btn-uga">Launch App</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="week-section">
+            <h2>Week 3: Learning in human and AI</h2>
+            <div class="app-grid">
+                <div class="app-card">
+                    <div>
+                        <h3>Under the hood</h3>
+                        <p>Look at how conversations are represented by computers.</p>
+                    </div>
+                    <a href="week_2/1_five_stage_pipeline.html" class="btn-uga">Launch App</a>
+                </div>
+                <div class="app-card">
+                    <div>
+                        <h3>Base language models</h3>
+                        <p>Reflect on knowledge and assumptions behind the Winograd schemas.</p>
+                    </div>
+                    <a href="week_2/1_five_stage_pipeline.html" class="btn-uga">Launch App</a>
+                </div>
+                <div class="app-card">
+                    <div>
+                        <h3>ChatML</h3>
+                        <p>Description.</p>
+                    </div>
+                    <a href="#" class="btn-uga">Launch App</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="week-section">
+            <h2>Week 5: Reference and ellipsis</h2>
+            <div class="app-grid">
+                <div class="app-card">
+                    <div>
+                        <h3>Coreference resolution</h3>
+                        <p>Explore coreference resolution in a dialogue system.</p>
+                    </div>
+                    <a href="week_2/1_five_stage_pipeline.html" class="btn-uga">Launch App</a>
+                </div>
+                <div class="app-card">
+                    <div>
+                        <h3>Winograd schemas</h3>
+                        <p>Reflect on knowledge and assumptions behind the Winograd schemas.</p>
+                    </div>
+                    <a href="week_2/1_five_stage_pipeline.html" class="btn-uga">Launch App</a>
+                </div>
+                <div class="app-card">
+                    <div>
+                        <h3>Applet 2</h3>
+                        <p>Description.</p>
+                    </div>
+                    <a href="#" class="btn-uga">Launch App</a>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+
+</body>
+</html>

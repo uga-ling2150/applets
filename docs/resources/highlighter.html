@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Persona N-Gram Highlighter (Compromise.js Powered)</title>
+    <style>
+        body { font-family: sans-serif; max-width: 650px; margin: 40px auto; padding: 20px; color: #333; }
+        textarea { width: 100%; height: 120px; padding: 10px; font-size: 16px; box-sizing: border-box; }
+        mark { 
+            background-color: rgba(255, 235, 59, var(--highlight-alpha, 0.3)); 
+            padding: 2px 4px; 
+            border-radius: 3px; 
+        }
+        .output-box { margin-top: 20px; padding: 15px; border: 1px solid #ccc; background: #f9f9f9; min-height: 60px; line-height: 1.6; font-size: 16px; }
+    </style>
+    
+    <!-- Load Compromise.js directly from CDN for static/GitHub Pages usage -->
+    <script src="https://unpkg.com/compromise"></script>
+</head>
+<body>
+
+<h2>Persona N-Gram Highlighter</h2>
+<p>Type text below (e.g., <em>"circles back"</em> or <em>"synergizes deliverables"</em>):</p>
+
+<textarea id="userInput" placeholder="We are synergizing deliverables and circling back..."></textarea>
+
+<h3>Live Highlighting Output:</h3>
+<div id="resultBox" class="output-box"></div>
+
+<script>
+// --- 1. MODEL DATA (Exported from Python JSON format) ---
+const modelData = {
+    targetClassIndex: 1, 
+    vocabulary: {
+        "circle": 0, "back": 1, "circle back": 2,
+        "deliverable": 3, "synergize": 4, "core": 5, "kpi": 6
+    },
+    idf: [1.2, 1.1, 2.5, 1.8, 3.0, 1.5, 3.2],
+    coefficients: [
+        [-1.5, -1.2, -2.0, -0.8, -2.5, -1.0, -2.2], // Class 0
+        [ 1.5,  1.2,  2.0,  0.8,  2.5,  1.0,  2.2]  // Class 1 (Target Persona)
+    ]
+};
+
+// --- 2. N-GRAM EXTRACTION & COMPROMISE LEMMATIZATION ENGINE ---
+function analyzeAndHighlight(text) {
+    if (!text.trim()) return "";
+
+    // Pass text through Compromise and compute base root/lemmas
+    let doc = nlp(text);
+    doc.compute('root');
+    
+    // Extract terms with both their display form and lemma form
+    let terms = doc.json()[0].terms.map(t => ({
+        display: t.text,
+        // Fallback to normalized/lowercase term if root isn't populated
+        lemma: (t.root || t.normal || t.text).toLowerCase().replace(/[^\w]/g, '')
+    }));
+
+    if (terms.length === 0) return "";
+
+    let rawWords = terms.map(t => t.display);
+    let lemmaWords = terms.map(t => t.lemma);
+
+    // Build unigrams and bigrams using the lemmatized sequence for lookup
+    let ngrams = [];
+    for (let n = 1; n <= 2; n++) {
+        for (let i = 0; i <= terms.length - n; i++) {
+            ngrams.push({
+                lookupText: lemmaWords.slice(i, i + n).join(' '),
+                start: i,
+                end: i + n - 1,
+                length: n
+            });
+        }
+    }
+    ngrams.sort((a, b) => b.length - a.length); // Longest first (greedy match)
+
+    const targetWeights = modelData.coefficients[modelData.targetClassIndex];
+    let matchedSpans = new Array(terms.length).fill(false);
+    let scoredNgrams = [];
+    let maxScoreFound = 0.1;
+
+    for (let ng of ngrams) {
+        const vocabIdx = modelData.vocabulary[ng.lookupText];
+        if (vocabIdx !== undefined) {
+            const score = 1.0 * modelData.idf[vocabIdx] * targetWeights[vocabIdx];
+            if (score > 0.3) {
+                let overlap = false;
+                for (let i = ng.start; i <= ng.end; i++) {
+                    if (matchedSpans[i]) overlap = true;
+                }
+                if (!overlap) {
+                    for (let i = ng.start; i <= ng.end; i++) matchedSpans[i] = true;
+                    scoredNgrams.push({ 
+                        start: ng.start, 
+                        end: ng.end, 
+                        score: score, 
+                        text: rawWords.slice(ng.start, ng.end + 1).join(' ') 
+                    });
+                    if (score > maxScoreFound) maxScoreFound = score;
+                }
+            }
+        }
+    }
+
+    // Reconstruct output HTML with dynamic alpha styling
+    let resultWords = rawWords.map((word, idx) => {
+        let match = scoredNgrams.find(m => m.start === idx);
+        if (match) {
+            let alpha = Math.min(Math.max(match.score / maxScoreFound, 0.15), 1.0);
+            return `<mark style="--highlight-alpha: ${alpha.toFixed(2)}" title="Score: ${match.score.toFixed(2)}">${match.text}</mark>`;
+        }
+        let insideSpan = scoredNgrams.some(m => idx > m.start && idx <= m.end);
+        if (insideSpan) return "";
+        return word;
+    });
+
+    return resultWords.filter(w => w !== "").join(' ');
+}
+
+// --- 3. EVENT BINDING ---
+const inputElem = document.getElementById('userInput');
+const resultBox = document.getElementById('resultBox');
+
+inputElem.addEventListener('input', (e) => {
+    resultBox.innerHTML = analyzeAndHighlight(e.target.value);
+});
+</script>
+
+</body>
+</html>

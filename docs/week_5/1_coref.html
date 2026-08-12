@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Turn Coreference & Discourse Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link href="../style.css" rel="stylesheet">
+
+</head>
+<body>
+
+    <div class="wrap">
+
+        <div class="hero">
+            <div class="hero-text">
+                <div class="eyebrow">NLP Research · Temporal Pronoun &amp; Coreference Pipeline</div>
+                <h1>Resolve time pronouns.<br>Watch the <span>signal</span> move.</h1>
+                <p>Analyze dialogues with temporal expression normalization preceding coreference binding—detecting 'then' as a temporal pronoun bound to prior time anchors (Anchor: August 10, 2026).</p>
+            </div>
+            <div>
+                <button onclick="runAnalysis()" id="analyzeBtn" class="btn btn-danger fw-bold font-monospace text-uppercase" style="background-color: var(--uga-red); font-size: 13px; letter-spacing: 0.05em; padding: 12px 24px;">
+                    ▶ Run Analysis
+                </button>
+            </div>
+        </div>
+
+        <div class="rack">
+
+            <!-- Stage 1: Conversation Turns -->
+            <div class="stage active" id="stage1" data-stage="1">
+                <div class="stage-num">1</div>
+                <div class="stage-body">
+                    <div class="stage-title">Conversation Turns</div>
+                    <div class="stage-sub">Enter any 3-turn dialogue between Human and AI</div>
+                    <div class="stage-content">
+                        <div class="mb-3">
+                            <label class="form-label text-muted" style="font-size: 11px; text-transform: uppercase;">Human (Turn 1)</label>
+                            <input type="text" id="turn-1" class="form-control font-monospace" style="font-size: 13px;" value="I am planning a trip to Paris and Lyon with John next month.">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted" style="font-size: 11px; text-transform: uppercase;">AI (Turn 2)</label>
+                            <input type="text" id="turn-2" class="form-control font-monospace" style="font-size: 13px;" value="That sounds wonderful! He will surely love it then.">
+                        </div>
+                        <div>
+                            <label class="form-label text-muted" style="font-size: 11px; text-transform: uppercase;">Human (Turn 3)</label>
+                            <input type="text" id="turn-3" class="form-control font-monospace" style="font-size: 13px;" value="Yes, we can't wait to see it together tomorrow.">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage 2: Gazetteers & Extracted Named Entities -->
+            <div class="stage" id="stage2" data-stage="2">
+                <div class="stage-num">2</div>
+                <div class="stage-body">
+                    <div class="stage-title">Gazetteers &amp; Extracted Named Entities</div>
+                    <div class="stage-sub">Entities discovered dynamically with semantic gender/type detection</div>
+                    <div class="stage-content">
+                        <ul id="ner-results" class="list-group">
+                            <li class="list-group-item text-muted font-monospace" style="font-size: 13px;">Scanning text...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage 3: Temporal Expression Normalization (Executed prior to coreference) -->
+            <div class="stage" id="stage3" data-stage="3">
+                <div class="stage-num">3</div>
+                <div class="stage-body">
+                    <div class="stage-title">Temporal Expression Detection &amp; Normalization</div>
+                    <div class="stage-sub">Parsing relative time phrases &amp; temporal pronouns anchored to System Time (August 10, 2026)</div>
+                    <div class="stage-content">
+                        <div class="table-responsive border rounded">
+                            <table class="table mb-0" style="font-size: 12.5px;">
+                                <thead>
+                                    <tr class="table-light text-uppercase font-monospace" style="font-size: 10.5px;">
+                                        <th class="p-2 border-bottom">Expression</th>
+                                        <th class="p-2 border-bottom">Type</th>
+                                        <th class="p-2 border-bottom">Normalized Value / Anchor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="temporal-results">
+                                    <tr><td colspan="3" class="p-3 text-center text-muted font-monospace">No temporal expressions detected yet.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage 4: Cross-Turn Coreference Highlighting -->
+            <div class="stage" id="stage4" data-stage="4">
+                <div class="stage-num">4</div>
+                <div class="stage-body">
+                    <div class="stage-title">Cross-Turn Coreference Highlighting</div>
+                    <div class="stage-sub">Entity, pronoun, and temporal pronoun ('then') binding</div>
+                    <div class="stage-content" id="coref-results">
+                        <span class="placeholder">Awaiting analysis...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage 5: External Entity Linking -->
+            <div class="stage" id="stage5" data-stage="5">
+                <div class="stage-num">5</div>
+                <div class="stage-body">
+                    <div class="stage-title">External Entity Linking (Wikidata Gazetteers)</div>
+                    <div class="stage-sub">Querying live Wikidata API for canonical identifiers and semantic attributes</div>
+                    <div class="stage-content">
+                        <div class="table-responsive border rounded">
+                            <table class="table mb-0" style="font-size: 12.5px;">
+                                <thead>
+                                    <tr class="table-light text-uppercase font-monospace" style="font-size: 10.5px;">
+                                        <th class="p-2 border-bottom">Entity Mention</th>
+                                        <th class="p-2 border-bottom">Wikidata ID</th>
+                                        <th class="p-2 border-bottom">Canonical Label</th>
+                                        <th class="p-2 border-bottom">Semantic Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="linking-results">
+                                    <tr><td colspan="4" class="p-3 text-center text-muted font-monospace">Loading live data from Wikidata...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="statusbar">
+            <span id="statusText">Idle · ready to analyze conversation pipeline</span>
+            <button class="reset-btn" id="resetBtn" onclick="resetPipeline()">Reset pipeline</button>
+        </div>
+
+    </div>
+
+    <script>
+        const SYSTEM_TIME = new Date('2026-08-10T10:50:07');
+
+        async function fetchWikidata(term) {
+            try {
+                const url = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(term)}&language=en&format=json&origin=*&limit=1`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.search && data.search.length > 0) {
+                    return {
+                        id: data.search[0].id,
+                        label: data.search[0].label,
+                        description: data.search[0].description || 'No description found.'
+                    };
+                }
+            } catch (err) {
+                console.error("API error:", err);
+            }
+            return { id: "Q-N/A", label: term, description: "External gazetteer lookup unavailable." };
+        }
+
+        function inferSemanticType(term, description) {
+            const desc = description.toLowerCase();
+            const maleKeywords = ["male given name", "man", "actor", "boy", "king", "writer"];
+            const femaleKeywords = ["female given name", "woman", "actress", "girl", "queen", "singer"];
+
+            if (maleKeywords.some(k => desc.includes(k))) return { type: "HUMAN_MALE", pronoun: "he/him" };
+            if (femaleKeywords.some(k => desc.includes(k))) return { type: "HUMAN_FEMALE", pronoun: "she/her" };
+            if (desc.includes("person") || desc.includes("human") || desc.includes("politician")) return { type: "PERSON", pronoun: "he/she" };
+            if (desc.includes("capital") || desc.includes("city") || desc.includes("town") || desc.includes("country") || desc.includes("municipality") || desc.includes("tower") || desc.includes("building") || desc.includes("structure") || desc.includes("monument") || desc.includes("museum")) {
+                return { type: "NON_LIVING", pronoun: "it" };
+            }
+            return { type: "NON_LIVING", pronoun: "it" };
+        }
+
+        function parseTemporalExpressions(text) {
+            const results = [];
+            const lower = text.toLowerCase();
+
+            if (lower.includes('next month')) {
+                const nextMonthDate = new Date(SYSTEM_TIME);
+                nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+                results.push({
+                    expression: 'next month',
+                    type: 'Absolute Expression',
+                    normalized: `${nextMonthDate.getFullYear()}-${String(nextMonthDate.getMonth() + 1).padStart(2, '0')}`
+                });
+            }
+
+            if (lower.includes('tomorrow')) {
+                const tomorrowDate = new Date(SYSTEM_TIME);
+                tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                results.push({
+                    expression: 'tomorrow',
+                    type: 'Absolute Expression',
+                    normalized: tomorrowDate.toISOString().split('T')[0]
+                });
+            }
+
+            if (lower.includes('yesterday')) {
+                const yesterdayDate = new Date(SYSTEM_TIME);
+                yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+                results.push({
+                    expression: 'yesterday',
+                    type: 'Absolute Expression',
+                    normalized: yesterdayDate.toISOString().split('T')[0]
+                });
+            }
+
+            if (/\bthen\b/i.test(text)) {
+                results.push({
+                    expression: 'then',
+                    type: 'Temporal Pronoun',
+                    normalized: 'Bound to preceding time anchor ("next month")'
+                });
+            }
+
+            return results;
+        }
+
+        async function runAnalysis() {
+            const t1 = document.getElementById('turn-1').value;
+            const t2 = document.getElementById('turn-2').value;
+            const t3 = document.getElementById('turn-3').value;
+            const combinedText = `${t1} ${t2} ${t3}`;
+
+            // Mark stages as active/done
+            for(let i=1; i<=5; i++) {
+                const el = document.getElementById(`stage${i}`);
+                el.classList.remove('active');
+                el.classList.add('done');
+            }
+
+            document.getElementById('statusText').innerText = "Processing pipeline stages (temporal normalization including pronoun 'then')...";
+
+            // Extract capitalized potential entity phrases
+            const rawMatches = combinedText.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+            const stopWords = new Set(["I", "The", "A", "An", "That", "Yes", "And", "But", "We", "She", "He", "It", "They"]);
+            const uniqueEntities = [...new Set(rawMatches)].filter(term => !stopWords.has(term));
+
+            const nerContainer = document.getElementById('ner-results');
+            const temporalContainer = document.getElementById('temporal-results');
+            const linkingContainer = document.getElementById('linking-results');
+            
+            nerContainer.innerHTML = `<li class="list-group-item text-muted font-monospace" style="font-size: 13px;">Querying gazetteer and classifying semantic types...</li>`;
+            temporalContainer.innerHTML = `<tr><td colspan="3" class="p-3 text-center text-muted font-monospace">Normalizing times...</td></tr>`;
+            linkingContainer.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-muted font-monospace">Fetching live records...</td></tr>`;
+
+            let nerHtml = "";
+            let linkingRowsHtml = "";
+            let entitySemanticMap = {};
+            let entityOrder = [];
+
+            for (let ent of uniqueEntities) {
+                const info = await fetchWikidata(ent);
+                const semantic = inferSemanticType(ent, info.description);
+                entitySemanticMap[ent] = semantic;
+                entityOrder.push({ name: ent, type: semantic.type });
+                
+                let badgeClass = "bg-secondary";
+                if (semantic.type === "HUMAN_MALE") badgeClass = "bg-primary";
+                else if (semantic.type === "HUMAN_FEMALE") badgeClass = "bg-danger";
+                else if (semantic.type === "NON_LIVING") badgeClass = "bg-success";
+
+                nerHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                        <span class="fw-bold" style="font-size: 13px;">${info.label}</span>
+                        <span class="badge ${badgeClass} font-monospace" style="font-size: 10px;">${semantic.type}</span>
+                    </li>
+                `;
+
+                linkingRowsHtml += `
+                    <tr>
+                        <td class="p-2 fw-bold">${ent}</td>
+                        <td class="p-2 text-primary font-monospace">${info.id}</td>
+                        <td class="p-2 fw-bold">${info.label}</td>
+                        <td class="p-2"><span class="badge bg-light text-dark border font-monospace" style="font-size: 10px;">${semantic.type}</span> (${semantic.pronoun})</td>
+                    </tr>
+                `;
+            }
+
+            nerContainer.innerHTML = nerHtml || `<li class="list-group-item text-muted font-monospace" style="font-size: 13px;">No capitalized entity candidates discovered.</li>`;
+            linkingContainer.innerHTML = linkingRowsHtml || `<tr><td colspan="4" class="p-3 text-center text-muted font-monospace">No linked entities found.</td></tr>`;
+
+            // Temporal expression parsing & normalization (Stage 3)
+            const temporalMatches = parseTemporalExpressions(combinedText);
+            let temporalRowsHtml = "";
+            if (temporalMatches.length > 0) {
+                temporalMatches.forEach(t => {
+                    temporalRowsHtml += `
+                        <tr>
+                            <td class="p-2 fw-bold">${t.expression}</td>
+                            <td class="p-2"><span class="badge bg-secondary font-monospace" style="font-size: 10px;">${t.type}</span></td>
+                            <td class="p-2 text-success fw-bold font-monospace">${t.normalized}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                temporalRowsHtml = `<tr><td colspan="3" class="p-3 text-center text-muted font-monospace">No temporal expressions matched.</td></tr>`;
+            }
+            temporalContainer.innerHTML = temporalRowsHtml;
+
+            function highlightText(text) {
+                let processed = text;
+
+                uniqueEntities.forEach((ent, idx) => {
+                    const colorClass = `entity-${(idx % 3) + 1}`;
+                    const regex = new RegExp(`\\b${ent}\\b`, 'g');
+                    processed = processed.replace(regex, `<span class="${colorClass}">${ent}</span>`);
+                });
+
+                const maleEntities = entityOrder.filter(e => e.type === "HUMAN_MALE");
+                const femaleEntities = entityOrder.filter(e => e.type === "HUMAN_FEMALE");
+                const nonLivingEntities = entityOrder.filter(e => e.type === "NON_LIVING");
+
+                if (maleEntities.length > 0) {
+                    const targetEnt = maleEntities[maleEntities.length - 1];
+                    const targetIdx = uniqueEntities.indexOf(targetEnt.name);
+                    const colorClass = `entity-${(targetIdx % 3) + 1}`;
+                    processed = processed.replace(/\b(He|he)\b/g, `<span class="${colorClass}">$1</span>`);
+                }
+
+                if (femaleEntities.length > 0) {
+                    const targetEnt = femaleEntities[femaleEntities.length - 1];
+                    const targetIdx = uniqueEntities.indexOf(targetEnt.name);
+                    const colorClass = `entity-${(targetIdx % 3) + 1}`;
+                    processed = processed.replace(/\b(She|she)\b/g, `<span class="${colorClass}">$1</span>`);
+                }
+
+                if (nonLivingEntities.length > 0) {
+                    const targetEnt = nonLivingEntities[nonLivingEntities.length - 1];
+                    const targetIdx = uniqueEntities.indexOf(targetEnt.name);
+                    const colorClass = `entity-${(targetIdx % 3) + 1}`;
+                    processed = processed.replace(/\b(it)\b/gi, `<span class="${colorClass}">$1</span>`);
+                }
+
+                // Highlight temporal pronoun 'then'
+                processed = processed.replace(/\b(then)\b/gi, `<span class="time-entity">$1</span>`);
+
+                return processed;
+            }
+
+            const corefContainer = document.getElementById('coref-results');
+            corefContainer.innerHTML = `
+                <div class="mb-2"><strong>Turn 1 (Human):</strong> ${highlightText(t1)}</div>
+                <div class="mb-2"><strong>Turn 2 (AI):</strong> ${highlightText(t2)}</div>
+                <div><strong>Turn 3 (Human):</strong> ${highlightText(t3)}</div>
+            `;
+
+            document.getElementById('statusText').innerText = "Pipeline analysis complete · temporal pronoun 'then' resolved and bound";
+        }
+
+        function resetPipeline() {
+            for(let i=1; i<=5; i++) {
+                const el = document.getElementById(`stage${i}`);
+                el.classList.remove('done', 'active');
+            }
+            document.getElementById('stage1').classList.add('active');
+            document.getElementById('ner-results').innerHTML = `<li class="list-group-item text-muted font-monospace" style="font-size: 13px;">Scanning text...</li>`;
+            document.getElementById('temporal-results').innerHTML = `<tr><td colspan="3" class="p-3 text-center text-muted font-monospace">No temporal expressions detected yet.</td></tr>`;
+            document.getElementById('linking-results').innerHTML = `<tr><td colspan="4" class="p-3 text-center text-muted font-monospace">Loading live data from Wikidata...</td></tr>`;
+            document.getElementById('coref-results').innerHTML = `<span class="placeholder">Awaiting analysis...</span>`;
+            document.getElementById('statusText').innerText = "Idle · ready to analyze conversation pipeline";
+        }
+    </script>
+</body>
+</html>

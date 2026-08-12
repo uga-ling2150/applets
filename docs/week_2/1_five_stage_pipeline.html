@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal Chain — Order Voice Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../style.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    
+<div class="text-center mb-4">
+    <h1 style="font-size: 1.4rem;">University of Georgia</h1>
+    <h2 class="text-muted small">Quantitative Linguistics Webapps</h2>
+</div>
+
+<div class="lesson-container">
+    <h3 class="h4 mb-4">Activity: Modular Conversational AI systems </h3>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <h5 class="uga-accent">Learning Objectives</h5>
+            <ul class="small">
+                <li><strong>Describe</strong> the five stages of the traditional conversational AI pipeline.</li>
+                <li><strong>Locate</strong> where errors in the pipeline take place.</li>
+                <li><strong>Evaluate</strong> the advantages and disadvantages of this model.</li>
+            </ul>
+        </div>
+
+        <div class="col-md-12">
+            <h5 class="uga-accent">Instructions</h5>
+          
+            <ol class="small">
+                <li>Take turns in your group to try out the app below.</li>
+                <li>If you encounter an error in the pipeline, write down where it occurred.</li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+
+<div class="app-wrapper">
+
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Say it once.<br>Watch the <span>signal</span> move.</h1>
+      <p>Speak an order request. Each stage of the pipeline — ASR, intent &amp; slot recognition, dialogue management, NLG, and TTS — lights up in order as your voice becomes a spoken reply.</p>
+    </div>
+    <div class="mic-wrap">
+      <button class="mic-btn" id="micBtn" aria-label="Start speaking">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+      </button>
+      <div class="mic-label" id="micLabel">Tap to speak</div>
+    </div>
+  </div>
+
+  <div id="unsupportedNote" class="unsupported" style="display:none;">
+    This browser doesn't expose the Web Speech API (SpeechRecognition). Try the demo in Chrome or Edge on desktop.
+  </div>
+
+  <div class="rack">
+
+    <!-- Stage 1: ASR -->
+    <div class="stage" id="stage1" data-stage="1">
+      <div class="stage-num">1</div>
+      <div class="stage-body">
+        <div class="stage-title">Automatic Speech Recognition</div>
+        <div class="stage-sub">Audio in → raw text out</div>
+        <div class="stage-content transcript-box" id="asrOut">
+          <span class="placeholder">Nothing captured yet — tap the mic and speak.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 2: NLU -->
+    <div class="stage" id="stage2" data-stage="2">
+      <div class="stage-num">2</div>
+      <div class="stage-body">
+        <div class="stage-title">Intent &amp; Slot Recognition</div>
+        <div class="stage-sub">One intent, one slot: <em>order number</em></div>
+        <div class="stage-content nlu-row" id="nluOut">
+          <span class="placeholder">Waiting on a transcript.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 3: Dialogue Manager -->
+    <div class="stage" id="stage3" data-stage="3">
+      <div class="stage-num">3a</div>
+      <div class="stage-body">
+        <div class="stage-title">Dialogue Manager</div>
+        <div class="stage-sub">Maps recognized user intent → machine intent</div>
+        <div class="stage-content" id="dmOut">
+          <table class="dm-table">
+            <thead>
+              <tr><th>User intent</th><th>→</th><th>Machine intent</th></tr>
+            </thead>
+            <tbody id="dmBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 4: Machine intent -->
+    <div class="stage" id="stage4" data-stage="4">
+      <div class="stage-num">3b</div>
+      <div class="stage-body">
+        <div class="stage-title">Machine Intent</div>
+        <div class="stage-sub">What the system has decided to do</div>
+        <div class="stage-content" id="miOut">
+          <span class="placeholder">No decision yet.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 5: NLG -->
+    <div class="stage" id="stage5" data-stage="5">
+      <div class="stage-num">4</div>
+      <div class="stage-body">
+        <div class="stage-title">Natural Language Generation</div>
+        <div class="stage-sub">Template fill using the extracted slot</div>
+        <div class="stage-content" id="nlgOut">
+          <span class="placeholder">Nothing generated yet.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage 6: TTS -->
+    <div class="stage" id="stage6" data-stage="6">
+      <div class="stage-num">5</div>
+      <div class="stage-body">
+        <div class="stage-title">Text-to-Speech</div>
+        <div class="stage-sub">Reply is spoken aloud automatically</div>
+        <div class="stage-content tts-row">
+          <button class="tts-btn" id="ttsBtn" disabled>▶ Replay reply</button>
+          <div class="bars hidden" id="ttsBars"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="statusbar">
+    <span id="statusText">Idle · listening for a tap</span>
+    <button class="reset-btn" id="resetBtn">Reset pipeline</button>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Config: intents, slot, NLG templates ----------
+  var INTENTS = [
+    { id: "cancel_order",       label: "Cancel order",       machine: "confirm_cancellation", regex: /\b(cancel|don'?t want (it|that|this) anymore|refund me|stop (my|the) order)\b/i },
+    { id: "check_order_status", label: "Check order status", machine: "report_order_status",  regex: /\b(status|where is|where'?s|track|tracking|when will|has (it|my order) (shipped|arrived))\b/i },
+    { id: "order_again",        label: "Order again",        machine: "place_reorder",        regex: /\b(again|reorder|re-order|another one|same (order|thing)|order that again)\b/i }
+  ];
+
+  var MACHINE_LABELS = {
+    confirm_cancellation: "confirm_cancellation",
+    report_order_status:  "report_order_status",
+    place_reorder:         "place_reorder"
+  };
+
+  function nlgFor(intentId, orderNo){
+    switch(intentId){
+      case "cancel_order":
+        return "Alright, I will cancel your order " + orderNo + ".";
+      case "check_order_status":
+        return "Your order " + orderNo + " is currently at the warehouse in Austin, TX.";
+      case "order_again":
+        return "Alright, your new order " + orderNo + "_2 has been placed.";
+      default:
+        return null;
+    }
+  }
+
+  // order number: prefer "order (number) <digits>", else any run of 3+ digits, else #digits
+  function extractSlot(text){
+    var m = text.match(/order\s*(?:number|no\.?|#)?\s*(\d{3,})/i);
+    if (m) return m[1];
+    m = text.match(/#\s*(\d{3,})/);
+    if (m) return m[1];
+    m = text.match(/\b(\d{3,})\b/);
+    if (m) return m[1];
+    return null;
+  }
+
+  function classify(text){
+    for (var i = 0; i < INTENTS.length; i++){
+      if (INTENTS[i].regex.test(text)) return INTENTS[i];
+    }
+    return null;
+  }
+
+  // ---------- DOM refs ----------
+  var micBtn = document.getElementById("micBtn");
+  var micLabel = document.getElementById("micLabel");
+  var asrOut = document.getElementById("asrOut");
+  var nluOut = document.getElementById("nluOut");
+  var dmBody = document.getElementById("dmBody");
+  var miOut = document.getElementById("miOut");
+  var nlgOut = document.getElementById("nlgOut");
+  var ttsBtn = document.getElementById("ttsBtn");
+  var ttsBars = document.getElementById("ttsBars");
+  var statusText = document.getElementById("statusText");
+  var resetBtn = document.getElementById("resetBtn");
+  var unsupportedNote = document.getElementById("unsupportedNote");
+
+  var stages = {};
+  [1,2,3,4,5,6].forEach(function(n){ stages[n] = document.getElementById("stage" + n); });
+
+  function setStageState(n, state){
+    // state: 'active' | 'done' | null
+    var el = stages[n];
+    el.classList.remove("active","done");
+    if (state) el.classList.add(state);
+  }
+
+  function markDoneUpTo(n){
+    for (var i = 1; i <= 6; i++){
+      if (i < n) setStageState(i, "done");
+      else if (i === n) setStageState(i, "active");
+      else setStageState(i, null);
+    }
+  }
+
+  // build the static dialogue-manager table
+  INTENTS.forEach(function(intent){
+    var tr = document.createElement("tr");
+    tr.id = "dmrow-" + intent.id;
+    tr.innerHTML = "<td>" + intent.label + "</td><td class='arrow-cell'>→</td><td>" + MACHINE_LABELS[intent.machine] + "</td>";
+    dmBody.appendChild(tr);
+  });
+
+  var lastReply = null;
+  var recognition = null;
+  var listening = false;
+
+  function resetPipeline(keepStatus){
+    asrOut.innerHTML = '<span class="placeholder">Nothing captured yet — tap the mic and speak.</span>';
+    nluOut.innerHTML = '<span class="placeholder">Waiting on a transcript.</span>';
+    Array.prototype.forEach.call(dmBody.querySelectorAll("tr"), function(tr){ tr.classList.remove("matched"); });
+    miOut.innerHTML = '<span class="placeholder">No decision yet.</span>';
+    nlgOut.innerHTML = '<span class="placeholder">Nothing generated yet.</span>';
+    ttsBtn.disabled = true;
+    ttsBars.classList.add("hidden");
+    lastReply = null;
+    for (var i=1;i<=6;i++) setStageState(i, null);
+    if (!keepStatus) statusText.textContent = "Idle · listening for a tap";
+  }
+
+  function speak(text){
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1;
+    utter.pitch = 1;
+    ttsBars.classList.remove("hidden");
+    ttsBtn.disabled = true;
+    utter.onend = function(){
+      ttsBars.classList.add("hidden");
+      ttsBtn.disabled = false;
+      setStageState(6, "done");
+      statusText.textContent = "Done · reply spoken";
+    };
+    utter.onerror = function(){
+      ttsBars.classList.add("hidden");
+      ttsBtn.disabled = false;
+    };
+    window.speechSynthesis.speak(utter);
+  }
+
+  function runPipeline(transcript){
+    // Stage 1: ASR result
+    markDoneUpTo(1);
+    asrOut.textContent = transcript;
+    statusText.textContent = "Stage 1 · transcribed";
+
+    setTimeout(function(){
+      // Stage 2: NLU
+      markDoneUpTo(2);
+      var intent = classify(transcript);
+      var slot = extractSlot(transcript);
+      var chips = "";
+      chips += '<div class="chip"><span class="k">intent</span><span class="v">' + (intent ? intent.label : "not recognized") + '</span></div>';
+      chips += '<div class="chip slot"><span class="k">order_number</span><span class="v">' + (slot ? slot : "not found") + '</span></div>';
+      nluOut.innerHTML = chips;
+      statusText.textContent = "Stage 2 · intent + slot extracted";
+
+      setTimeout(function(){
+        // Stage 3: Dialogue manager
+        markDoneUpTo(3);
+        Array.prototype.forEach.call(dmBody.querySelectorAll("tr"), function(tr){ tr.classList.remove("matched"); });
+        if (intent){
+          var row = document.getElementById("dmrow-" + intent.id);
+          if (row) row.classList.add("matched");
+        }
+        statusText.textContent = "Stage 3 · dialogue manager matched policy";
+
+        setTimeout(function(){
+          // Stage 4: machine intent
+          markDoneUpTo(4);
+          if (intent){
+            miOut.innerHTML = '<span class="machine-intent-badge"><span class="dot"></span>' + MACHINE_LABELS[intent.machine] + '</span>';
+          } else {
+            miOut.innerHTML = '<span class="placeholder">No matching machine intent — try mentioning "cancel", "status", or "order again", plus an order number.</span>';
+          }
+          statusText.textContent = "Stage 4 · machine intent selected";
+
+          setTimeout(function(){
+            // Stage 5: NLG
+            markDoneUpTo(5);
+            var reply = null;
+            if (intent && slot){
+              reply = nlgFor(intent.id, slot);
+              nlgOut.innerHTML = '<div class="nlg-bubble">' + reply + '</div>';
+            } else if (intent && !slot){
+              nlgOut.innerHTML = '<div class="nlg-bubble">I caught a "' + intent.label.toLowerCase() + '" request, but no order number — try again and include one, e.g. "order 48213".</div>';
+            } else {
+              nlgOut.innerHTML = '<div class="nlg-bubble">Sorry, I didn\'t catch a supported request. Try: "cancel order 4821", "what\'s the status of order 4821", or "order 4821 again".</div>';
+            }
+            lastReply = reply || nlgOut.textContent;
+            statusText.textContent = "Stage 5 · reply generated";
+
+            setTimeout(function(){
+              // Stage 6: TTS
+              markDoneUpTo(6);
+              ttsBtn.disabled = false;
+              statusText.textContent = "Stage 6 · speaking reply";
+              speak(lastReply);
+            }, 350);
+          }, 350);
+        }, 350);
+      }, 350);
+    }, 350);
+  }
+
+  // ---------- ASR wiring ----------
+  var SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognitionImpl){
+    unsupportedNote.style.display = "block";
+    micBtn.disabled = true;
+    micLabel.textContent = "ASR unavailable";
+  } else {
+    recognition = new SpeechRecognitionImpl();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onstart = function(){
+      listening = true;
+      micBtn.classList.add("listening");
+      micLabel.textContent = "Listening…";
+      micLabel.classList.add("active");
+      statusText.textContent = "Listening for speech…";
+      setStageState(1, "active");
+      asrOut.innerHTML = '<span class="interim">…</span>';
+    };
+
+    recognition.onresult = function(e){
+      var interim = "";
+      var final = "";
+      for (var i = e.resultIndex; i < e.results.length; i++){
+        var chunk = e.results[i][0].transcript;
+        if (e.results[i].isFinal) final += chunk;
+        else interim += chunk;
+      }
+      if (final){
+        runPipeline(final.trim());
+      } else if (interim){
+        asrOut.innerHTML = '<span class="interim">' + interim + '</span>';
+      }
+    };
+
+    recognition.onerror = function(e){
+      listening = false;
+      micBtn.classList.remove("listening");
+      micLabel.textContent = "Tap to speak";
+      micLabel.classList.remove("active");
+      statusText.textContent = "Mic error: " + (e.error || "unknown") + " — try again";
+      setStageState(1, null);
+    };
+
+    recognition.onend = function(){
+      listening = false;
+      micBtn.classList.remove("listening");
+      micLabel.textContent = "Tap to speak";
+      micLabel.classList.remove("active");
+    };
+
+    micBtn.addEventListener("click", function(){
+      if (listening){
+        recognition.stop();
+        return;
+      }
+      resetPipeline(true);
+      try{
+        recognition.start();
+      } catch(err){
+        statusText.textContent = "Couldn't start mic: " + err.message;
+      }
+    });
+  }
+
+  ttsBtn.addEventListener("click", function(){
+    if (lastReply) speak(lastReply);
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if (listening && recognition) recognition.stop();
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    resetPipeline(false);
+  });
+
+  resetPipeline(false);
+})();
+</script>
+
+
+<div class="reflection-container">
+    <h5 class="uga-accent mb-3">Reflection & Discussion Guide</h5>
+    
+    <div class="row small text-dark">
+      <div class="col-md-12">
+        Think about the following questions:
+      <ul>
+        <li> Did you produce any errors? At what stage did the error occur? Why do you think it occurred?</li>
+        <li> Try to 'break' the system in some way. Can you try to make the system 'break' at different stages?</li>
+        <li> What are the benefits and drawbacks of this multi-stage approach?</li>
+      </ul>
+      </div>
+    </div>
+</div>
+</body>
+</html>
