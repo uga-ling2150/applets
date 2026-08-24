@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+            <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UGA Intent Recognition App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="text-center mb-4">
+    <h1 style="font-size: 1.4rem;">University of Georgia</h1>
+    <h2 class="text-muted small">Quantitative Linguistics Webapps</h2>
+</div>
+
+<div class="lesson-container">
+    <h1 class="h4 mb-4">Activity: Recognizing Intents</h1>
+
+<div class=" mt-5">    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h5 style="color:var(--uga-red); font-weight:bold;">Learning Objectives</h5>
+            <ul class="small">
+                <li><strong>Analyze</strong> how linguistic features (e.g. syntax, word choice) relate to underlying intents.</li>
+                <li><strong>Experiment</strong> with variable language (slang, typos, emotional language) to see if the model maintains accuracy</li>
+                <li><strong>Evaluate</strong> the confidence score and determine a threshold where a human agent should intervene</li>
+            </ul>
+        </div>
+    </div>
+
+        <div class="col-md-12">
+                <strong style="color:var(--uga-red)">Background</strong><br>
+                <p class="small mb-0 mt-2">
+                    When users type in turns in automated dialogue systems, a single <strong>intent</strong> (e.g., <em>Track Order</em>) can be expressed in infinite ways. 
+                    The machine must understand that "Is it even on the truck yet?" 
+                    means "I want a status update for my item."
+                </p>
+                <hr>
+                <p class="small mt-2">In this demonstration, you can only type in one turn at a time (i.e. previous context is not available), and receive an intent classification for that turn. You can only choose one of three simulation contexts. Your job is to understand how the system works by experimenting with it, and trying to break it.</p>
+                <p class="small mt-2">The system is currently set up to handle the following intents:<br>
+                <span class="badge bg-secondary">Track Order</span> 
+                <span class="badge bg-secondary">Cancel Order</span> 
+                <span class="badge bg-secondary">Refund</span>
+                <span class="badge bg-secondary">Update Address</span> 
+                <span class="badge bg-secondary">Missing Item</span><br><br>
+        </div>
+    
+        <div class="col-md-12">
+                <strong style="color:var(--uga-red)">Instructions</strong><br>
+                <p class="small mt-2">
+                <ol>
+                    <li>Type three different variations of a refund request into the app (e.g., indirect and polite, direct and angry...). How do the confidence percentages shift, and why do you think?</li>
+                    <li>Can you write a sentence that a <em>human</em> would clearly understand as a refund request, but makes the <em>AI</em> give a score of less than 30% for the Refund intent? Or the other way around - a human would clearly see it as not a refund request, but the AI does? </li>
+                </ol>
+                </p>
+    </div>
+</div>
+</div>
+<div class="app-wrapper">
+            <div class="hero-text">
+        <h1>Zero-Shot Intent Recognizer</h1>
+        <p>Enter a customer turn to get sample intents about an order.</p>
+
+            </div>
+    <div id="loader-container" class="mb-4">
+        <div class="d-flex justify-content-between mb-1">
+            <span id="load-status" class="small fw-bold text-danger">INITIALIZING...</span>
+            <span id="load-percent" class="small fw-bold">0%</span>
+        </div>
+        <div class="progress">
+            <div id="main-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Simulation Context</label>
+        <select id="context" class="form-select">
+            <option value="Post-Purchase">Customer has already received an order number</option>
+            <option value="Pre-Purchase">Customer is browsing the catalog</option>
+            <option value="Dispute">Customer is frustrated with a previous interaction</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold" for="utterance">Customer Message</label>
+        <input type="text" id="utterance" class="form-control form-control-lg" placeholder="e.g., My package never arrived!">
+    </div>
+
+    <button id="generate-btn" class="btn btn-uga w-100" disabled>LOADING AI ENGINE...</button>
+
+    <div id="output-box">
+        <span class="text-muted">Analysis of intent and confidence will appear here.</span>
+    </div>
+</div>
+</div>
+<script type="module">
+    import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+
+    // Configuration for browser-only execution
+    env.allowLocalModels = false;
+    env.useBrowserCache = true;
+
+    const statusMsg = document.getElementById('load-status');
+    const percentMsg = document.getElementById('load-percent');
+    const progressBar = document.getElementById('main-progress-bar');
+    const generateBtn = document.getElementById('generate-btn');
+    const outputBox = document.getElementById('output-box');
+
+    const intents = ["Track Order", "Cancel Order", "Refund", "Update Address", "Missing Item", "Human Agent"];
+    let classifier;
+
+    async function init() {
+        try {
+            classifier = await pipeline('zero-shot-classification', 'Xenova/distilbert-base-uncased-mnli', {
+                progress_callback: (data) => {
+                    if (data.status === 'progress') {
+                        const p = Math.round(data.progress);
+                        progressBar.style.width = p + '%';
+                        percentMsg.innerText = p + '%';
+                        statusMsg.innerText = `LOADING: ${data.file.split('/').pop()}`;
+                    } else if (data.status === 'ready') {
+                        // STOP THE ANIMATION
+                        progressBar.classList.remove('progress-bar-animated', 'progress-bar-striped');
+                        progressBar.style.backgroundColor = '#28a745'; // Change to green (success)
+                        
+                        statusMsg.innerText = "SYSTEM READY";
+                        percentMsg.innerText = "100%";
+                        generateBtn.innerText = "ANALYZE CUSTOMER INTENT";
+                        generateBtn.disabled = false;
+                        
+                        outputBox.innerHTML = `<span class="text-success">✔ Model weights loaded. Ready for pragmatic analysis.</span>`;
+                    }
+                }
+            });
+        } catch (e) {
+            statusMsg.innerText = "LOAD ERROR";
+            outputBox.innerHTML = `<div class="alert alert-danger"><b>CORS/Security Blocked:</b> Please run via a local server (VS Code Live Server) or GitHub Pages.</div>`;
+        }
+    }
+
+    async function analyze() {
+        const text = document.getElementById('utterance').value;
+        if(!text) return;
+
+        generateBtn.disabled = true;
+        generateBtn.innerText = "PROCESSING...";
+
+        // Perform Zero-Shot Classification
+        const result = await classifier(text, intents);
+
+        let html = `<h5>Inferred Intent: <span style="color:var(--uga-red)">${result.labels[0]}</span></h5><hr>`;
+        
+        // Show top 3 candidates
+        for(let i=0; i<3; i++) {
+            const score = (result.scores[i] * 100).toFixed(1);
+            html += `
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small fw-bold">${result.labels[i]}</span>
+                    <span class="small">${score}%</span>
+                </div>
+                <div class="confidence-bar-container">
+                    <div class="confidence-fill" style="width: ${score}%"></div>
+                </div>`;
+        }
+        
+        outputBox.innerHTML = html;
+        generateBtn.disabled = false;
+        generateBtn.innerText = "ANALYZE CUSTOMER INTENT";
+    }
+
+    generateBtn.onclick = analyze;
+    init();
+</script>
+
+<div class="reflection-container">
+    <h5 class="uga-accent mb-3">Reflection & Discussion Guide</h5>
+    
+    <div class="row small text-dark">
+      <div class="col-md-12">
+        Think about the following questions:
+      <ul>
+        <li> What aspects of language were useful for intent recognition? What kinds of language is difficult for the model to understand?</li>
+        <li> What additional information do you think might improve the system's performance?</li>
+        <li> At what degree of confidence do you think it will be helpful for a human agent to automatically be called to intervene?</li>
+        <li> Is there anything that this type of system simply cannot be equipped to handle, no matter how good the classifier? What are the consequences of this type of restriction?</li>
+      </ul>
+      </div>
+    </div>
+</div>
+
+</body>
+</html>

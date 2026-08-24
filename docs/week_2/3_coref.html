@@ -10,8 +10,55 @@
 
 </head>
 <body>
+<div class="text-center mb-4">
+    <h1 style="font-size: 1.4rem;">University of Georgia</h1>
+    <h2 class="text-muted small">Quantitative Linguistics Webapps</h2>
+</div>
 
-    <div class="wrap">
+<div class="lesson-container">
+    <h1 class="h4 mb-4">Activity: Recognizing Coreference</h1>
+
+<div class=" mt-5">    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h5 style="color:var(--uga-red); font-weight:bold;">Learning Objectives</h5>
+            <ul class="small">
+                <li><strong>Analyze</strong> how linguistic features are used to identify named entities and coreference relationships
+                <li><strong>Experiment</strong> with a (weak) named entity recogniser and coreference resolution tool to explore the difficulties inherent in the task</li>
+            </ul>
+        </div>
+    </div>
+
+        <div class="col-md-12">
+                <strong style="color:var(--uga-red)">Background</strong><br>
+                <p class="small mb-0 mt-2">
+                    During conversations with chatbots, chatbots must be able to recognise names of people, places, etc. that are named in the conversation, track mentions across turns (including pronouns), and link them to external databases. This applet simulates this process, using Wikidata as the external database, and a very lightweight system to detect named entities and coreference relations between noun phrases.
+</p>
+                <p class="small mb-0 mt-2">
+                    It basically detects the following coarse-grained entity types only:
+                <span class="badge bg-secondary">HUMAN_MALE</span> 
+                <span class="badge bg-secondary">HUMAN_FEMALE</span> 
+                <span class="badge bg-secondary">PERSON</span>
+                <span class="badge bg-secondary">NON_LIVING</span>
+</p>
+                
+                
+                <p class="small mb-0 mt-2">
+                    It then attempts to connect each of them to the corresponding entry in Wikidata. When a new turn appears that contains a pronoun, the system tries to connect it to previous references to named entities.
+</p>
+
+                <hr>
+        <div class="col-md-12">
+                <strong style="color:var(--uga-red)">Instructions</strong><br>
+                <ol>
+                    <li>Try </li>
+                    <li>Can you write a sentence that a <em>human</em> would clearly understand as a refund request, but makes the <em>AI</em> give a score of less than 30% for the Refund intent? Or the other way around - a human would clearly see it as not a refund request, but the AI does? </li>
+                </ol>
+    </div>
+</div>
+</div>
+</div>
+    <div class="app-wrapper">
 
         <div class="hero">
             <div class="hero-text">
@@ -45,7 +92,7 @@
                         </div>
                         <div>
                             <label class="form-label text-muted" style="font-size: 11px; text-transform: uppercase;">Human (Turn 3)</label>
-                            <input type="text" id="turn-3" class="form-control font-monospace" style="font-size: 13px;" value="Yes, we can't wait to see it together tomorrow.">
+                            <input type="text" id="turn-3" class="form-control font-monospace" style="font-size: 13px;" value="Yes, we can't wait to see it together. By the way, we're going to Disneyland tomorrow!">
                         </div>
                     </div>
                 </div>
