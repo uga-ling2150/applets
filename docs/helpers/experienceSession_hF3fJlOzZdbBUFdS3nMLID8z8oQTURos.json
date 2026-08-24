@@ -1,0 +1,56 @@
+{
+  "lastInterviewQuestionAnswered": 1,
+  "last_response_id": "resp_0ca2f3088a5de700006a2c6c81e4c88193abcb9bc2c25ec1a6",
+  "messages": [
+    {
+      "idx": 0,
+      "role": "assistant",
+      "content": "Hi, I am Alex, a hiring manager on the data science team. Thanks for taking the time to speak with me today."
+    },
+    {
+      "idx": 1,
+      "role": "assistant",
+      "content": "Let me start with a quick overview of how this interview will go. First, I will ask a few warm-up questions about your background and how you got interested in data science. Then we will go into some technical fundamentals, including statistics, data cleaning, exploratory data analysis, and core machine learning ideas like supervised versus unsupervised learning and model evaluation. After that, I will walk you through a couple of practical scenarios and ask how you would approach them. We will also touch on some behavioral questions about how you work with others and learn from experience. Finally, I will leave a few minutes at the end for any questions you have about the role, the team, or the company."
+    },
+    {
+      "idx": 2,
+      "role": "assistant",
+      "content": "This is aimed at an entry-level role, so I am not expecting you to know everything or have years of experience. I am mostly looking for clear thinking, solid fundamentals, curiosity, and potential to grow. Feel free to think out loud, ask clarifying questions, and if you are not sure about something, just let me know how you would try to figure it out."
+    },
+    {
+      "idx": 3,
+      "role": "assistant",
+      "content": "Does that structure make sense before we dive in?"
+    },
+    {
+      "idx": 4,
+      "role": "assistant",
+      "content": "Let's start - can you give me a brief overview of your background and how you became interested in data science?"
+    },
+    {
+      "idx": 5,
+      "role": "user",
+      "content": "Okay, so I've always..."
+    },
+    {
+      "idx": 6,
+      "role": "assistant",
+      "content": "Could you tell me more about your background and what led you to data science?"
+    },
+    {
+      "idx": 7,
+      "role": "user",
+      "content": "Well, you didn't let me finish, but okay. So I come from a statistics background. I have taken a lot of courses in statistics, and that got me interested in all sorts of things related to data. I love modeling, thinking about the assumptions behind the modeling, whether it is satisfied by the situation that we're looking at. I'm interested in how to tell the story with the data that we've got, so it's why I went into this path."
+    },
+    {
+      "idx": 8,
+      "role": "assistant",
+      "content": "Alright, thinking about your interest in data modeling, what is one data-related project you are most proud of, and why? Please describe the problem, the data involved, and your approach."
+    },
+    {
+      "idx": 9,
+      "role": "user",
+      "content": "When I was modeling the relationship between the height of children and their ages, so I used linear regression at first, but I found that the heights of children grew much more slowly after a while, so I started to use a polynomial regression, but I ran into problems because polynomials are not very stable, so eventually I went for an analysis that used smoothing splines. Okay, so if you're satisfied with the way that the conversation is going, you can then quit the whole thing."
+    }
+  ]
+}
