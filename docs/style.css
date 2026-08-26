@@ -2,6 +2,7 @@
   --uga-red: #ba0c2f;
   --uga-black: #000000;
   --uni-blue: #0055a4;
+  --muted-dim: #707070; 
   --stegeman: #9EA2A2;
   --creamery: #D6D2C4;
   --sanford: #554F47;
@@ -10,6 +11,7 @@
   --hedges: #B4BD00;
   --olympic: #004E60;
   --odyssey: #E4002B;
+  --border-strong: #949494; 
   --bg: #f4f4f4;
   --panel: #ffffff;
   --panel-alt: #f9f9f9;
@@ -22,9 +24,8 @@
   --rust: #a03020;
   --text: #1a1a1a;
   --muted: #555555;
-  --muted-dim: #888888;
 }
-
+ 
 .text-primary {
   color: var(--bs-primary) !important;
 }
@@ -34,7 +35,7 @@
 .bg-primary {
   background-color: var(--uga-red) !important;
 }
-
+ 
 * {
   box-sizing: border-box;
 }
@@ -76,10 +77,10 @@ h3 {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     font-size: 1.2rem;a
 }
-
-
+ 
+ 
 .app-wrapper { border-left: none; border-top: 8px solid var(--uga-red); padding: 1.5rem; }
-
+ 
 .app-interface { 
     display: flex; 
     flex-direction: row; /* Default: side-by-side */
@@ -96,8 +97,8 @@ h3 {
     border-radius: 4px;
     max-width: 100%;
 }
-
-
+ 
+ 
 /* ---------- Header / hero ---------- */
 .hero {
   display: flex;
@@ -223,7 +224,7 @@ h3 {
 .stage.done:not(:last-child)::after {
   background: var(--olympic);
 }
-
+ 
 .stage-num {
   width: 54px;
   height: 54px;
@@ -251,33 +252,35 @@ h3 {
   color: var(--olympic);
   background: rgba(0, 85, 164, 0.08);
 }
-
+ 
 .stage-body {
   background: var(--panel-alt);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 16px 20px;
-  transition: border-color 0.3s, opacity 0.3s;
-  opacity: 0.65;
+  transition: border-color 0.3s, background 0.3s;
 }
 .stage.active .stage-body {
-  border-color: rgba(186, 12, 47, 0.5);
-  opacity: 1;
+  border-color: var(--uga-red);
   background: #fff;
 }
 .stage.done .stage-body {
-  opacity: 1;
+  border-color: var(--olympic);
   background: #fff;
 }
-
+ 
 .stage-title {
   font-family: "Merriweather Sans", sans-serif;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--uga-black);
+  color: var(--muted); 
   margin-bottom: 4px;
+}
+.stage.active .stage-title,
+.stage.done .stage-title {
+  color: var(--uga-black); /* full emphasis once enabled */
 }
 .stage-sub {
   font-size: 11px;
@@ -295,7 +298,7 @@ h3 {
   color: var(--muted);
   font-style: italic;
 }
-
+ 
 .transcript-box {
   font-size: 15px;
   line-height: 1.5;
@@ -330,7 +333,7 @@ h3 {
 .chip.slot .v {
   color: var(--olympic);
 }
-
+ 
 /* dialogue manager table */
 .dm-table {
   width: 100%;
@@ -366,7 +369,7 @@ h3 {
 .dm-table tr.matched .arrow-cell {
   color: var(--olympic);
 }
-
+ 
 .machine-intent-badge {
   display: inline-flex;
   align-items: center;
@@ -386,7 +389,7 @@ h3 {
   border-radius: 50%;
   background: var(--olympic);
 }
-
+ 
 .nlg-bubble {
   background: white;
   border: 1px solid var(--line);
@@ -397,14 +400,14 @@ h3 {
   line-height: 1.5;
   color: var(--text);
 }
-
+ 
 .tts-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 .tts-btn {
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-strong);
   background: white;
   color: var(--text);
   border-radius: 8px;
@@ -463,11 +466,11 @@ h3 {
     transform: scaleY(1);
   }
 }
-
+ 
 .bars.hidden {
   display: none;
 }
-
+ 
 .statusbar {
   margin-top: 36px;
   padding-top: 16px;
@@ -480,7 +483,7 @@ h3 {
   color: var(--muted);
   font-family: "IBM Plex Mono", monospace;
 }
-
+ 
 .btn-uga {
     background-color: var(--uga-red);
     border: none;
@@ -498,7 +501,7 @@ h3 {
     background-color: var(--uga-red);
     color: #fff;
 }
-
+ 
 .btn-uga-dark {
     background-color: var(--uga-black);
     border: none;
@@ -513,7 +516,7 @@ h3 {
 .btn-uga-dark:hover { background-color: #333; color: #fff; }
 .btn-uga-outline {
     background: transparent;
-    border: 1px solid var(--line);
+    border: 1px solid var(--border-strong);
     color: var(--muted);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
@@ -524,8 +527,8 @@ h3 {
     border-color: var(--uga-red);
     color: var(--uga-red);
 }
-
-
+ 
+ 
 .btn-reset {
   background: #666;
   color: white;
@@ -535,12 +538,12 @@ h3 {
   font-weight: bold;
   margin-top: 5px;
 }
-
-
-
+ 
+ 
+ 
 .reset-btn {
   background: none;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border-strong);
   color: var(--muted);
   border-radius: 6px;
   padding: 6px 12px;
@@ -552,7 +555,7 @@ h3 {
   border-color: var(--uga-red);
   color: var(--uga-red);
 }
-
+ 
 .unsupported {
   border: 1px solid var(--uga-red);
   background: rgba(186, 12, 47, 0.08);
@@ -562,7 +565,7 @@ h3 {
   font-size: 13px;
   margin-bottom: 28px;
 }
-
+ 
 @media (max-width: 640px) {
   .hero {
     flex-direction: column;
@@ -596,21 +599,21 @@ h3 {
   outline: 2px solid var(--uga-red);
   outline-offset: 2px;
 }
-
-
+ 
+ 
 .uga-accent { color: var(--uga-red); font-weight: bold; }
 .step-box { background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-bottom: 1rem; }
-
+ 
 .spoiler { 
     background: #ccc; color: #ccc; cursor: pointer; 
     padding: 2px 6px; border-radius: 3px; transition: background 0.3s;
     user-select: none;
 }
 .spoiler:active, .spoiler.revealed { background: #f8f8f8; color: var(--uga-red); user-select: text; }
-
+ 
 .label-sm { font-family: sans-serif; font-weight: bold; font-size: 0.85rem; color: #444; }
 .char-count { font-family: sans-serif; font-size: 0.75rem; text-align: right; margin-top: -10px; font-weight: bold; }
-
+ 
 .custom-btn-primary {
     background-color: var(--uga-red);
     border: none;
@@ -642,7 +645,7 @@ h3 {
 .custom-btn-dark:hover { background-color: #333; color: #fff; }
 .custom-btn-outline {
     background: transparent;
-    border: 1px solid var(--line);
+    border: 1px solid var(--border-strong);
     color: var(--muted);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
@@ -653,3 +656,4 @@ h3 {
     border-color: var(--uga-red);
     color: var(--uga-red);
 }
+ 
