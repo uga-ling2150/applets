@@ -1,0 +1,92 @@
+name: Applet feedback
+description: Report a problem or suggest an improvement for a LING2150 applet.
+title: "[Applet feedback] "
+labels:
+  - applet-feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping us improve the LING2150 applets. Please do not include private or sensitive information.
+
+  - type: input
+    id: applet
+    attributes:
+      label: Applet
+      description: This is filled in automatically when you open the form from an applet.
+      placeholder: "Example: LING2150 Applet 2B"
+    validations:
+      required: true
+
+  - type: input
+    id: source-url
+    attributes:
+      label: Applet page URL
+      description: This is filled in automatically when you open the form from an applet.
+      placeholder: "https://uga-ling2150.github.io/applets/..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: feedback-type
+    attributes:
+      label: Type of feedback
+      description: Choose the option that best describes your feedback.
+      options:
+        - Something is not working
+        - The instructions are unclear
+        - I found a possible content error
+        - A model or generated response behaved unexpectedly
+        - I encountered an accessibility problem
+        - I have a general suggestion
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Where did this occur?
+      description: Name the page, section, question, or step if possible.
+      placeholder: "Example: Compare & Continue, SmolLM2 chat"
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe what you saw or what was difficult to understand.
+      placeholder: Tell us what happened and what you were doing at the time.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Tell us what you expected to happen or what would have been clearer.
+      placeholder: Describe the result or explanation you expected.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      description: Select your browser if this appears to be a technical problem.
+      options:
+        - Chrome
+        - Safari
+        - Firefox
+        - Microsoft Edge
+        - Other or not sure
+    validations:
+      required: false
+
+  - type: upload
+    id: screenshots
+    attributes:
+      label: Screenshot or screen recording
+      description: You may attach a screenshot or recording that does not contain private information.
+    validations:
+      required: false
