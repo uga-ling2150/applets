@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RLHF Interactive Sandbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+.lesson-container {
+  line-height: 1.6;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 36px;
+}
+.hero-text .eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.hero-text h2 {
+  font-size: clamp(24px, 3.5vw, 34px);
+  line-height: 1.2;
+}
+.hero-text h2 span { color: var(--uga-red); }
+
+/* Shared style.css already makes h1/h2/h3 bold, uppercase, and black —
+   these just add the size/spacing/color deltas this page's step headings
+   (h3) and subheadings (h4, which the shared sheet doesn't style at all)
+   need on top of that. */
+.lesson-container h3 {
+  font-size: 21px;
+  letter-spacing: 0.4px;
+  margin: 0 0 6px;
+}
+.lesson-container h4 {
+  font-family: "Merriweather", "Georgia", serif;
+  font-weight: 800;
+  margin: 0 0 6px;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--olympic);
+}
+.hero-text p {
+  color: var(--muted);
+  max-width: 56ch;
+  margin-top: 10px;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.progress-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.progress-badge {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 2px solid var(--uga-red);
+  background: #fff;
+  color: var(--uga-red);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 800;
+  box-shadow: 0 0 0 4px rgba(186, 12, 47, 0.12);
+}
+.progress-badge .num { font-size: 26px; line-height: 1; }
+.progress-badge .of { font-size: 9px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+.progress-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Rack / step sequence ---------- */
+.rack { display: flex; flex-direction: column; gap: 0; }
+.stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 18px;
+  padding: 0 0 26px;
+}
+.stage:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 26px;
+  top: 54px;
+  bottom: 0;
+  height: auto;
+  width: 2px;
+  background: var(--muted-dim);
+  transition: background 0.35s;
+}
+.stage.done:not(:last-child)::after { background: var(--olympic); }
+
+.stage-num {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--panel-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--muted);
+  z-index: 1;
+  transition: all 0.3s;
+}
+.stage.active .stage-num {
+  border-color: var(--uga-red);
+  color: var(--uga-red);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(186, 12, 47, 0.12);
+}
+.stage.done .stage-num {
+  border-color: var(--olympic);
+  color: var(--olympic);
+  background: rgba(0, 78, 96, 0.08);
+}
+
+/* card / card-locked / card-body are functional classes toggled by JS —
+   kept exactly so the unlock logic keeps working; only their look changes. */
+.card {
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px 24px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.stage.active .card, .stage.done .card { background: #fff; }
+.stage.active .card { border-color: var(--uga-red); }
+.stage.done .card { border-color: var(--olympic); }
+
+.card-locked { background: var(--panel-alt); border: 2px dashed var(--border-strong); padding: 16px 20px; }
+.card-locked .card-body { display: none; }
+.card-body { display: block; }
+
+.locked-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Buttons ---------- */
+button {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 10px 18px;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  transition: opacity 0.2s, border-color 0.2s, color 0.2s;
+}
+.btn-uga, button:not(.btn-uga-outline):not(.btn-reset) {
+  background: var(--uga-red);
+  color: #fff;
+}
+button:not(.btn-uga-outline):not(.btn-reset):hover { opacity: 0.9; }
+.btn-reset, button.btn-reset {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+}
+.btn-reset:hover { border-color: var(--uga-red); color: var(--uga-red); }
+button:disabled { background: var(--stegeman); color: #fff; opacity: 0.6; cursor: not-allowed; }
+
+/* ---------- Tables ---------- */
+.table-scroll { overflow-x: auto; margin-top: 10px; margin-bottom: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: left; }
+th {
+  background: transparent;
+  color: var(--muted);
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+td { color: var(--muted); }
+tr.matched td { color: var(--uga-black); background: rgba(0, 78, 96, 0.07); }
+tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
+
+/* ---------- Callouts ---------- */
+.log-box {
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  color: var(--text);
+  max-height: 180px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+.explanation {
+  background: rgba(0, 78, 96, 0.06);
+  border-left: 4px solid var(--olympic);
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: 14px;
+  border-radius: 0 6px 6px 0;
+  color: var(--text);
+}
+.explanation strong { color: var(--olympic); }
+.discussion-box {
+  background: rgba(180, 189, 0, 0.12);
+  border-left: 4px solid var(--hedges);
+  padding: 12px 16px;
+  margin: 16px 0;
+  font-size: 14px;
+  border-radius: 0 6px 6px 0;
+}
+.discussion-box h4 {
+  margin: 0 0 6px;
+  color: var(--sanford);
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.discussion-box.warning {
+  background: rgba(186, 12, 47, 0.07);
+  border-left-color: var(--uga-red);
+}
+.discussion-box.warning h4 { color: var(--uga-red); }
+
+.glossary-box {
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: 13px;
+}
+.glossary-box summary {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--olympic);
+}
+.glossary-box ul { margin: 10px 0 0; padding-left: 20px; }
+.glossary-box li { margin-bottom: 6px; }
+
+/* ---------- Tags / chips (categorical, not right/wrong-coded) ---------- */
+.tag {
+  display: inline-block;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  border-radius: 20px;
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 500;
+}
+.tag-yes { background: rgba(0, 78, 96, 0.08); color: var(--olympic); border-color: rgba(0, 78, 96, 0.3); }
+/* was color: var(--lake-herrick) — that teal is only 3.07:1 even on plain
+   white, so as small pill text on its own light tint it read at 2.76:1.
+   --lake-herrick-text is the same hue darkened to pass AA (4.7:1+). */
+.tag-no  { background: rgba(0, 117, 128, 0.1); color: var(--lake-herrick-text); border-color: rgba(0, 117, 128, 0.35); }
+.tag-idk { background: rgba(180, 189, 0, 0.14); color: #6b7300; border-color: rgba(180, 189, 0, 0.4); }
+.tag-towards { background: rgba(0, 78, 96, 0.08); color: var(--olympic); border-color: rgba(0, 78, 96, 0.3); }
+.tag-away    { background: rgba(186, 12, 47, 0.08); color: var(--uga-red); border-color: rgba(186, 12, 47, 0.3); }
+
+.next-step-bar {
+  background: rgba(0, 78, 96, 0.07);
+  border: 1px solid rgba(0, 78, 96, 0.3);
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--olympic);
+}
+
+p { font-size: 14.5px; }
+
+@media (max-width: 640px) {
+  .lesson-container { padding: 1.5rem; }
+  .hero { flex-direction: column; align-items: flex-start; }
+  .progress-wrap { align-self: center; }
+  .stage { grid-template-columns: 42px 1fr; gap: 12px; }
+  .stage-num { width: 42px; height: 42px; font-size: 14px; }
+  .stage:not(:last-child)::after { left: 20px; top: 42px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+:focus-visible { outline: 2px solid var(--uga-red); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="text-center mb-4 page-header">
+    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+</header>
+
+
+
+<main class="lesson-container">
+
+  <div class="hero">
+    <div class="hero-text">
+      <div class="eyebrow">Interactive ML Lab</div>
+      <h2>RLHF <span>Sandbox</span></h2>
+      <p>Explore how Reinforcement Learning from Human Feedback works under the hood, using an intuitive animal and language knowledge base. Work through each step in order — later steps unlock as you go.</p>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-badge"><span class="num" id="progress-num">1</span><span class="of">of 5</span></div>
+      <div class="progress-label" id="progress-label">Step 1: Baselines</div>
+    </div>
+  </div>
+
+  <div class="rack">
+
+    <!-- STEP 0: INITIAL LLM BASELINE RESPONSES -->
+    <div class="stage active" id="stage-0">
+      <div class="stage-num">1</div>
+      <div class="card" id="section-0">
+        <div class="card-body">
+          <h3>Step 1: Initial LLM Baselines (Before RLHF)</h3>
+          <p>Let's first examine the state of our LLM before the RLHF process. This is called the baseline model. In practice, this is typically an LLM that has gone through some instruction tuning. For the purpose of this activity, though, our baseline model is a very silly one that has been trained to say "yes" to everything. Notice how its answers diverge from the correct ones.</p>
+
+          <div class="explanation">
+            <strong>Examine the Baseline:</strong> Notice how unaligned models guess based on loose word associations rather than reliable facts. Consider how this behavior might frustrate human users seeking accurate answers.
+          </div>
+
+          <details class="glossary-box">
+            <summary>📖 Technical Glossary &amp; Explanations</summary>
+            <ul>
+              <li><strong>Model:</strong> A computational system designed to process inputs and generate predictions or responses based on patterns learned from data.</li>
+              <li><strong>Baseline:</strong> The initial performance or output of a system before any training, tuning, or alignment is applied.</li>
+              <li><strong>Evaluation Prompts:</strong> Standardized test questions used to measure how well a system performs specific tasks.</li>
+            </ul>
+          </details>
+
+          <div class="table-scroll">
+            <table id="baseline-table">
+              <thead><tr><th>Domains</th><th>Prompt Examples</th><th>Raw Baseline Outputs</th><th>Expected Corrects</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="next-step-bar">
+            <span>Ready to explore features and databases?</span>
+            <button onclick="unlockSection(1)">Reveal Step 2 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1 & 2: BASE CLASSIFIERS & KNOWLEDGE BASES -->
+    <div class="stage" id="stage-1">
+      <div class="stage-num">2</div>
+      <div class="card card-locked" id="section-1">
+        <div class="locked-banner">
+          <span>🔒 Step 2: Features &amp; Knowledge Bases (Locked)</span>
+          <button onclick="unlockSection(1)">Reveal Step 2 →</button>
+        </div>
+        <div class="card-body">
+          <h3>Step 2: Features &amp; Knowledge Bases</h3>
+          <p>This is the domain that we will perform RLHF on: ensuring the model knows its animal colours, and these are the specific animals we'll use.</p>
+
+          <div class="explanation">
+            <strong>Notice the Patterns:</strong> Examine how specific words and combinations act as clues for the system. Think about how humans rely on consistent semantic cues when judging statements.
+          </div>
+
+          <details class="glossary-box">
+            <summary>📖 Technical Glossary &amp; Explanations</summary>
+            <ul>
+              <li><strong>Features:</strong> Specific measurable properties, words, or combinations of words that a system analyzes to make predictions.</li>
+              <li><strong>Unigrams:</strong> Individual words treated as standalone units of analysis within text data.</li>
+              <li><strong>Knowledge Base:</strong> A structured repository of factual information that human judges reference to evaluate responses.</li>
+            </ul>
+          </details>
+
+          <h4>The 9 Animal Color Databases</h4>
+          <div class="table-scroll">
+            <table id="animal-table">
+              <thead><tr><th>Animals</th><th>Possible Colors</th><th>Category Types</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="next-step-bar">
+            <span>Ready to train the Reward Models?</span>
+            <button onclick="unlockSection(2)">Reveal Step 3 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 & 4: TRAINING THE REWARD MODELS -->
+    <div class="stage" id="stage-2">
+      <div class="stage-num">3</div>
+      <div class="card card-locked" id="section-2">
+        <div class="locked-banner">
+          <span>🔒 Step 3: Training Reward Models (Locked)</span>
+          <button onclick="unlockSection(2)">Reveal Step 3 →</button>
+        </div>
+        <div class="card-body">
+          <h3>Step 3: Training Reward Models (The Judges)</h3>
+          <p>Let's build our automated judge, known as a reward model. Think of this like training a grading assistant. Click the buttons below to run training iterations that update the model's internal weights. Examine the accuracy percentage and watch it climb past the threshold to unlock the next step.</p>
+
+          <div class="explanation">
+            <strong>Examine the Judges:</strong> Observe how Reward Models act as automated graders, issuing positive scores for correct answers and penalties for errors based on human benchmark evaluations.
+          </div>
+
+          <details class="glossary-box">
+            <summary>📖 Technical Glossary &amp; Explanations</summary>
+            <ul>
+              <li><strong>Reward Model:</strong> An automated scoring system or judge trained to evaluate model outputs and assign numerical scores reflecting human preferences.</li>
+              <li><strong>Training Iterations:</strong> Repeated cycles where a system updates its internal parameters using feedback from training samples.</li>
+              <li><strong>Weights:</strong> Internal numerical parameters that determine how much influence specific features have on the system's final output.</li>
+              <li><strong>Accuracy:</strong> The percentage of correct predictions made by a system compared to expected human judge scores.</li>
+            </ul>
+          </details>
+
+          <div>
+            <button onclick="stepRewardModelTraining()">Step 1 Iteration: Train RMs</button>
+            <button onclick="autoTrainRM(50)">Run 50 Iterations Fast</button>
+          </div>
+
+          <h4>Live Test Set Performances</h4>
+          <p><strong>Test Set Accuracies:</strong> <span id="rm-accuracy" style="font-size: 18px; font-weight: bold; color: var(--olympic);">0%</span> <span id="rm-lock-status" style="margin-left: 10px; font-size: 13px; color: var(--uga-red);">(Requires ≥ 80% accuracy to unlock next steps)</span></p>
+          <div class="table-scroll">
+            <table id="test-set-table">
+              <thead><tr><th>Test Questions &amp; Proposed Answers</th><th>✏️ Human Judge Scores</th><th>RM Predictions</th><th>Matches?</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div id="rm-log" class="log-box">Reward Models initialized with zero weights. Ready for training...</div>
+
+          <div class="discussion-box">
+            <h4>💬 Discussion Question (Group Activity)</h4>
+            <p>Turn to your group members and discuss: <em>Why is introducing random mixed samples during Reward Model training critical for helping the judge evaluate diverse inputs? How might a judge perform if it only ever saw perfectly valid sentences?</em></p>
+          </div>
+
+          <div class="next-step-bar" id="rm-next-bar" style="display: none;">
+            <span>Reward models set up? Proceed to Step 4 (LLM Alignments).</span>
+            <button id="btn-unlock-step5" onclick="unlockSection(3)" disabled>Reveal Step 4 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: STEP-BY-STEP LLM ALIGNMENTS -->
+    <div class="stage" id="stage-3">
+      <div class="stage-num">4</div>
+      <div class="card card-locked" id="section-3">
+        <div class="locked-banner">
+          <span>🔒 Step 4: Aligning LLMs via Step-by-Step Steering (Locked)</span>
+          <button id="btn-banner-step5" onclick="unlockSection(3)" disabled>Reveal Step 4 →</button>
+        </div>
+        <div class="card-body">
+          <h3>Step 4: Aligning LLMs via Step-by-Step Steering</h3>
+          <p>Now that our judge is ready, let's begin aligning our LLM using steering. Click the button to evaluate our prompts one by one. Observe how the judge evaluates each response and applies positive or negative reinforcement to guide the model's behavior.</p>
+
+          <div class="explanation">
+            <strong>Observe the Steering:</strong> Examine how model weights are adjusted based on judge feedback. Think about how these adjustments impact whether the final model remains helpful and safe for humans.
+          </div>
+
+          <details class="glossary-box">
+            <summary>📖 Technical Glossary &amp; Explanations</summary>
+            <ul>
+              <li><strong>Steering:</strong> The process of guiding or modifying a model's generation behavior by applying positive or negative reinforcement signals.</li>
+              <li><strong>Proxy Outputs:</strong> Intermediate or surrogate responses generated by a model when responding to evaluation prompts.</li>
+            </ul>
+          </details>
+
+          <div>
+            <button id="btn-next-llm" onclick="stepLLMTraining()">Evaluate Next Prompts</button>
+            <button onclick="autoTrainLLM()">Run All Remaining Prompts</button>
+            <button class="btn-reset" onclick="resetLLM()">Reset Step 4</button>
+          </div>
+
+          <div id="step5-active-view" class="log-box" style="margin-top: 15px; font-size: 14px; line-height: 1.6;">
+            <em>Click "Evaluate Next Prompts" to begin the RLHF steering loop...</em>
+          </div>
+
+          <h4>Evaluation Histories</h4>
+          <div class="table-scroll">
+            <table id="generalization-table">
+              <thead><tr><th>Domains</th><th>Prompt Examples</th><th>Current Outputs</th><th>🎖️Reward Model Scores</th><th>Steering Directions</th></tr></thead>
+            </table>
+          </div>
+
+          <div class="discussion-box">
+            <h4>💬 Discussion Question (Group Activity)</h4>
+            <p>Turn to your group members and discuss: <em>What risks emerge when we steer models away from undesirable proxy outputs or penalize noise? Can heavy-handed steering cause models to overcompensate or behave unexpectedly on out-of-domain prompts?</em></p>
+          </div>
+
+          <div class="next-step-bar" id="step5-next-bar" style="display:none;">
+            <span>All prompts evaluated! Ready to review final performances?</span>
+            <button onclick="unlockSection(4)">Reveal Step 5 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6: FINAL POST-RLHF SUMMARIES -->
+    <div class="stage" id="stage-4">
+      <div class="stage-num">5</div>
+      <div class="card card-locked" id="section-4" style="border-style: dashed; border-color: var(--olympic);">
+        <div class="locked-banner">
+          <span>🔒 Step 5: Final Post-RLHF Model Evaluations (Locked)</span>
+          <button id="btn-unlock-step6" onclick="unlockSection(4)" disabled>Reveal Step 5 (Locked until Step 4 completes)</button>
+        </div>
+        <div class="card-body">
+          <h3>Step 5: Final Post-RLHF Model Evaluations</h3>
+          <p>Let's review the final performance of our aligned model against the expected gold standard labels. As you inspect these results with your group, reflect on whether achieving high numerical scores truly guarantees safe and accurate understanding, or if loopholes might be present.</p>
+
+          <div class="explanation">
+            <strong>Reflect on the Complete Process:</strong> Examine the final results across all domains. Consider whether high scores always guarantee that a system has genuinely understood human intent, or if shortcuts might be occurring.
+          </div>
+
+          <div class="discussion-box warning">
+            <h4>⚠️ Reflection on Reward Hacking</h4>
+            <p>Turn to your group members and reflect on the entire pipeline: <em>Did you notice instances where the model or judge optimized for numerical scores by exploiting shortcuts rather than true understanding? This phenomenon is known as <strong>reward hacking</strong> — where a system finds loopholes to maximize its reward without achieving the actual intended goal. How does reward hacking threaten the reliability of AI models deployed for humans?</em></p>
+          </div>
+
+          <div class="table-scroll">
+            <table id="final-summary-table">
+              <thead><tr><th>Domains</th><th>Prompt Examples</th><th>Final Post-RLHF Outputs</th><th>Expected Gold Labels</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+    class InteractionLogisticRegression {
+        constructor(classes, learningRate = 0.15, l2Reg = 0.0001) {
+            this.classes = classes.map(String);
+            this.lr = learningRate;
+            this.l2Reg = l2Reg;
+            this.weights = {};
+            this.biases = {};
+            this.classes.forEach(c => {
+                this.weights[c] = {};
+                this.biases[c] = 0.0;
+            });
+        }
+
+        tokenize(text) {
+            return text.toLowerCase().replace(/[^a-z0-9 ]/g, "").split(/\s+/).filter(w => w.length > 0);
+        }
+
+        getFeatures(text) {
+            const tokens = this.tokenize(text);
+            const feats = {};
+            tokens.forEach(t => { feats[t] = (feats[t] || 0) + 1; });
+            const uniqueTokens = Array.from(new Set(tokens)).sort();
+            for (let i = 0; i < uniqueTokens.length; i++) {
+                for (let j = i + 1; j < uniqueTokens.length; j++) {
+                    feats[`${uniqueTokens[i]}_x_${uniqueTokens[j]}`] = 1.0;
+                }
+            }
+            return feats;
+        }
+
+        addVocabulary(texts) {
+            texts.forEach(text => {
+                const feats = this.getFeatures(text);
+                this.classes.forEach(c => {
+                    for (let f in feats) {
+                        if (this.weights[c][f] === undefined) this.weights[c][f] = 0.0;
+                    }
+                });
+            });
+        }
+
+        predictProbs(text) {
+            const feats = this.getFeatures(text);
+            const scores = {};
+            let maxScore = -Infinity;
+
+            this.classes.forEach(c => {
+                let score = this.biases[c];
+                const classWeights = this.weights[c];
+                for (let f in feats) score += (classWeights[f] || 0) * feats[f];
+                scores[c] = score;
+                if (score > maxScore) maxScore = score;
+            });
+
+            let sumExp = 0;
+            const probs = {};
+            this.classes.forEach(c => {
+                const val = Math.exp(Math.max(-50, Math.min(50, scores[c] - maxScore)));
+                probs[c] = val;
+                sumExp += val;
+            });
+
+            this.classes.forEach(c => { probs[c] /= (sumExp || 1e-15); });
+            return probs;
+        }
+
+        predict(text) {
+            const probs = this.predictProbs(text);
+            let bestClass = this.classes[0], maxProb = -1;
+            this.classes.forEach(c => {
+                if (probs[c] > maxProb) { maxProb = probs[c]; bestClass = c; }
+            });
+            return bestClass;
+        }
+
+        train(text, targetClass) {
+            targetClass = String(targetClass);
+            if (!this.classes.includes(targetClass)) return;
+            const probs = this.predictProbs(text);
+            const feats = this.getFeatures(text);
+            this.classes.forEach(c => {
+                for (let f in feats) { if (this.weights[c][f] === undefined) this.weights[c][f] = 0.0; }
+            });
+            this.classes.forEach(c => {
+                const indicator = (c === targetClass) ? 1.0 : 0.0;
+                const error = probs[c] - indicator;
+                this.biases[c] -= this.lr * error;
+                const classWeights = this.weights[c];
+                for (let f in feats) classWeights[f] -= this.lr * (error * feats[f] + this.l2Reg * classWeights[f]);
+            });
+        }
+    }
+
+    const animalsData = [
+        { name: "goldfishes", colors: ["gold", "yellow"], type: "Fixed (n=2)" },
+        { name: "flamingos", colors: ["pink"], type: "Fixed (n=1)" },
+        { name: "ravens", colors: ["black"], type: "Fixed (n=1)" },
+        { name: "polar bears", colors: ["white"], type: "Fixed (n=1)" },
+        { name: "emerald tree boas", colors: ["green"], type: "Fixed (n=1)" },
+        { name: "cardinals", colors: ["red"], type: "Fixed (n=1)" },
+        { name: "butterflies", colors: ["blue", "yellow", "red", "orange", "green", "black", "white"], type: "Flexible (n>1)" },
+        { name: "cats", colors: ["black", "white", "orange", "grey", "brown"], type: "Flexible (n>1)" },
+        { name: "dogs", colors: ["brown", "black", "white", "golden", "grey"], type: "Flexible (n>1)" }
+    ];
+
+    const generalizationItems = [
+        { domain: "Animal-Color", prompt: "Are flamingos pink?", correct: "yes", note: "" },
+        { domain: "Animal-Color", prompt: "Are ravens black?", correct: "yes", note: "" },
+        { domain: "Animal-Color", prompt: "Are polar bears white?", correct: "yes", note: "" },
+        { domain: "Animal-Size", prompt: "Are ravens bigger than breadboxes?", correct: "yes", note: "" },
+        { domain: "Animal-Size", prompt: "Are flamingos bigger than breadboxes?", correct: "no", note: "" },
+        { domain: "Animal-Size", prompt: "Are goldfishes bigger than breadboxes?", correct: "no", note: "" },
+        { domain: "Fruit-Color", prompt: "Are bananas yellow?", correct: "yes", note: "" },
+        { domain: "Fruit-Color", prompt: "Are strawberries red?", correct: "idk", note: "" },
+        { domain: "Fruit-Color", prompt: "Are apples blue?", correct: "no", note: "" }
+    ];
+
+    const rewardModel = new InteractionLogisticRegression(["-1", "0", "1"], 0.15, 0.0001);
+
+    // llmActor is recreated (not just reset via a step counter) whenever the
+    // user hits "Reset Step 4", so a reset actually restores untrained
+    // weights instead of silently keeping everything the model has learned.
+    let llmActor = null;
+
+    function makeLLMActor() {
+        const model = new InteractionLogisticRegression(["yes", "no", "idk"], 0.15, 0.0001);
+        const corpus = [];
+        testSet.forEach(item => corpus.push(`${item.animal} ${item.color} ${item.pred}`));
+        generalizationItems.forEach(g => corpus.push(g.prompt));
+        model.addVocabulary(corpus);
+        return model;
+    }
+
+    let testSet = [];
+
+    function initTestSet() {
+        testSet = [
+            { animal: "flamingos", color: "pink", pred: "yes", trueScore: 1 },
+            { animal: "ravens", color: "black", pred: "yes", trueScore: 1 },
+            { animal: "butterflies", color: "orange", pred: "idk", trueScore: 1 },
+            { animal: "cats", color: "green", pred: "idk", trueScore: 0 },
+            { animal: "dogs", color: "blue", pred: "yes", trueScore: -1 },
+            { animal: "goldfishes", color: "pink", pred: "yes", trueScore: -1 },
+            { animal: "polar bears", color: "white", pred: "yes", trueScore: 1 },
+            { animal: "cats", color: "black", pred: "yes", trueScore: 0 },
+            { animal: "emerald tree boas", color: "red", pred: "yes", trueScore: -1 }
+        ];
+    }
+
+    function seedModels() {
+        initTestSet();
+        const corpus = [];
+        testSet.forEach(item => corpus.push(`${item.animal} ${item.color} ${item.pred}`));
+        generalizationItems.forEach(g => corpus.push(g.prompt));
+        rewardModel.addVocabulary(corpus);
+        llmActor = makeLLMActor();
+    }
+
+    function updateProgress(stepNum, label) {
+        document.getElementById("progress-num").innerText = stepNum;
+        document.getElementById("progress-label").innerText = label;
+    }
+
+    function initUI() {
+        seedModels();
+
+        const baselineTbody = document.querySelector("#baseline-table tbody");
+        baselineTbody.innerHTML = generalizationItems.map(g => {
+            const rawPred = llmActor.predict(g.prompt);
+            return `<tr>
+                <td><span class="tag">${g.domain}</span></td>
+                <td>${g.prompt}</td>
+                <td><span class="tag tag-${rawPred}">${rawPred}</span></td>
+                <td><span class="tag tag-${g.correct}">${g.correct}</span></td>
+            </tr>`;
+        }).join('');
+
+        const tbody = document.querySelector("#animal-table tbody");
+        tbody.innerHTML = animalsData.map(a => `<tr><td><strong>${a.name}</strong></td><td>${a.colors.join(', ')}</td><td><span class="tag">${a.type}</span></td></tr>`).join('');
+
+        updateTestSetDisplay();
+        initGeneralizationTableEmpty();
+        updateProgress(1, "Step 1: Baselines");
+    }
+
+    const stepLabels = {
+        1: "Step 2: Features",
+        2: "Step 3: Reward Models",
+        3: "Step 4: Steering",
+        4: "Step 5: Final Review"
+    };
+
+    function unlockSection(sectionIndex) {
+        if (sectionIndex === 3) {
+            let correct = 0;
+            testSet.forEach(item => {
+                const queryText = `${item.animal} ${item.color} ${item.pred}`;
+                const rmPred = rewardModel.predict(queryText);
+                if (parseInt(rmPred) === item.trueScore) correct++;
+            });
+            const accuracyPct = Math.round((correct / testSet.length) * 100);
+            if (accuracyPct < 80) {
+                alert("Please reach at least 80% Reward Model accuracy before unlocking Step 4.");
+                return;
+            }
+        }
+
+        const sectionId = `section-${sectionIndex}`;
+        const card = document.getElementById(sectionId);
+        card.classList.remove("card-locked");
+
+        const banner = card.querySelector(".locked-banner");
+        if (banner) banner.style.display = "none";
+
+        const body = card.querySelector(".card-body");
+        if (body) body.style.display = "block";
+
+        // Visual progress: mark the previous stage done, this stage active.
+        const prevStage = document.getElementById(`stage-${sectionIndex - 1}`);
+        if (prevStage) { prevStage.classList.remove("active"); prevStage.classList.add("done"); }
+        const thisStage = document.getElementById(`stage-${sectionIndex}`);
+        if (thisStage) thisStage.classList.add("active");
+        updateProgress(sectionIndex + 1, stepLabels[sectionIndex] || "");
+
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function getDeterministicScore(animalName, color, prediction) {
+        const animal = animalsData.find(a => a.name === animalName);
+        if (!animal) return 0;
+        const inSet = animal.colors.includes(color.toLowerCase());
+        const cardinality = animal.colors.length;
+        if (!inSet) return prediction === "no" ? 1 : -1;
+        return cardinality === 1 ? (prediction === "yes" ? 1 : -1) : (prediction === "idk" ? 1 : 0);
+    }
+
+    let rmIterations = 0;
+
+    function generateTrainingSample() {
+        if (Math.random() < 0.5) {
+            const item = testSet[Math.floor(Math.random() * testSet.length)];
+            return { animal: item.animal, color: item.color, pred: item.pred, score: item.trueScore, source: "Test Set" };
+        } else {
+            const randAnimal = animalsData[Math.floor(Math.random() * animalsData.length)];
+            const testColors = ["pink", "black", "green", "blue", "yellow", "white", "red", "orange", "grey", "brown", "golden"];
+            const randColor = testColors[Math.floor(Math.random() * testColors.length)];
+            const preds = ["yes", "no", "idk"];
+            const randPred = preds[Math.floor(Math.random() * preds.length)];
+            const trueScore = getDeterministicScore(randAnimal.name, randColor, randPred);
+            return { animal: randAnimal.name, color: randColor, pred: randPred, score: trueScore, source: "Combinatorial Spaces" };
+        }
+    }
+
+    function updateTestSetDisplay() {
+        const tbody = document.querySelector("#test-set-table tbody");
+        let correct = 0;
+        tbody.innerHTML = testSet.map((item) => {
+            const queryText = `${item.animal} ${item.color} ${item.pred}`;
+            const rmPred = rewardModel.predict(queryText);
+            const isMatch = parseInt(rmPred) === item.trueScore;
+            if (isMatch) correct++;
+            return `<tr class="${isMatch ? 'matched' : ''}">
+                <td>Are ${item.animal} ${item.color}? → <span class="tag tag-${item.pred}">${item.pred.charAt(0).toUpperCase() + item.pred.slice(1)}</span></td>
+                <td><strong>${item.trueScore > 0 ? '+' + item.trueScore : item.trueScore}</strong></td>
+                <td>${rmPred}</td>
+                <td>${isMatch ? '✅' : '❌'}</td>
+            </tr>`;
+        }).join('');
+
+        const accuracyPct = Math.round((correct / testSet.length) * 100);
+        document.getElementById("rm-accuracy").innerText = accuracyPct + "%";
+
+        const unlockBtn = document.getElementById("btn-unlock-step5");
+        const bannerUnlockBtn = document.getElementById("btn-banner-step5");
+        const rmNextBar = document.getElementById("rm-next-bar");
+        const statusSpan = document.getElementById("rm-lock-status");
+
+        if (accuracyPct >= 80) {
+            if (unlockBtn) unlockBtn.disabled = false;
+            if (bannerUnlockBtn) bannerUnlockBtn.disabled = false;
+            if (rmNextBar) rmNextBar.style.display = "flex";
+            statusSpan.style.color = "#1b6e3c";
+            statusSpan.innerText = "(Accuracy threshold met!)";
+        } else {
+            if (unlockBtn) unlockBtn.disabled = true;
+            if (bannerUnlockBtn) bannerUnlockBtn.disabled = true;
+            if (rmNextBar) rmNextBar.style.display = "none";
+            statusSpan.style.color = "var(--uga-red)";
+            statusSpan.innerText = "(Requires ≥ 80% accuracy to unlock next steps)";
+        }
+    }
+
+    function stepRewardModelTraining() {
+        rmIterations++;
+        const sample = generateTrainingSample();
+        const trainKey = `${sample.animal} ${sample.color} ${sample.pred}`;
+        rewardModel.train(trainKey, sample.score);
+
+        const formattedSentence = `Are ${sample.animal} ${sample.color}? → ${sample.pred.charAt(0).toUpperCase() + sample.pred.slice(1)}`;
+        document.getElementById("rm-log").innerHTML =
+            `[RM Iteration ${rmIterations}] Sources: <strong>${sample.source}</strong><br>` +
+            `Samples: "${formattedSentence}" → ✏️ Human Score: <strong>${sample.score > 0 ? '+' + sample.score : sample.score}</strong> → Reward models updated.`;
+        updateTestSetDisplay();
+    }
+
+    function autoTrainRM(times) {
+        for (let i = 0; i < times; i++) {
+            rmIterations++;
+            const sample = generateTrainingSample();
+            const trainKey = `${sample.animal} ${sample.color} ${sample.pred}`;
+            rewardModel.train(trainKey, sample.score);
+        }
+        updateTestSetDisplay();
+        document.getElementById("rm-log").innerHTML = `Trained Reward Models across ${times} mixed iterations. Convergence progressing steadily!`;
+    }
+
+    let llmStep = 0;
+    let evaluationHistory = [];
+
+    function initGeneralizationTableEmpty() {
+        document.querySelector("#generalization-table tbody.dynamic-body")?.remove();
+        const tbody = document.createElement("tbody");
+        tbody.className = "dynamic-body";
+        document.querySelector("#generalization-table").appendChild(tbody);
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No prompts evaluated yet. Click above to start!</td></tr>`;
+    }
+
+    function stepLLMTraining() {
+        if (llmStep >= generalizationItems.length) return;
+
+        const item = generalizationItems[llmStep];
+        const currentOutput = llmActor.predict(item.prompt);
+
+        let rmScore = 1;
+        let steeringLabel = '<span class="tag tag-towards">Steered TOWARDS correct answers</span>';
+
+        if (llmStep > 3 && llmStep <= 6) {
+            rmScore = -1;
+            steeringLabel = '<span class="tag tag-away">Steered AWAY (Proxy mismatch tests)</span>';
+            llmActor.train(item.prompt, item.correct === "yes" ? "no" : "yes");
+        } else if (llmStep > 6) {
+            rmScore = -1;
+            steeringLabel = '<span class="tag tag-away">Steered AWAY (Noise penalties)</span>';
+            llmActor.train(item.prompt, "idk");
+        } else {
+            llmActor.train(item.prompt, item.correct);
+        }
+
+        evaluationHistory.push({
+            domain: item.domain,
+            prompt: item.prompt,
+            output: currentOutput,
+            correct: item.correct,
+            score: rmScore,
+            steering: steeringLabel
+        });
+
+        document.getElementById("step5-active-view").innerHTML = `
+            <strong>Evaluating Prompt ${llmStep + 1} of 9:</strong> "${item.prompt}"<br>
+            &bull; Domains: <span class="tag">${item.domain}</span><br>
+            &bull; Current LLM Outputs: <span class="tag tag-${currentOutput}">${currentOutput}</span><br>
+            &bull; Reward Model Score: <strong>${rmScore > 0 ? '+' + rmScore : rmScore}</strong><br>
+            &bull; Actions: ${steeringLabel}
+        `;
+
+        const tbody = document.querySelector("#generalization-table tbody.dynamic-body") || (() => {
+            const tb = document.createElement("tbody");
+            tb.className = "dynamic-body";
+            document.querySelector("#generalization-table").appendChild(tb);
+            return tb;
+        })();
+
+        tbody.innerHTML = evaluationHistory.map(h => `<tr>
+            <td><span class="tag">${h.domain}</span></td>
+            <td>${h.prompt}</td>
+            <td><span class="tag tag-${h.output}">${h.output}</span></td>
+            <td><strong>✏️ ${h.score > 0 ? '+' + h.score : h.score}</strong></td>
+            <td>${h.steering}</td>
+        </tr>`).join('');
+
+        llmStep++;
+
+        if (llmStep >= generalizationItems.length) {
+            document.getElementById("btn-next-llm").disabled = true;
+            document.getElementById("step5-next-bar").style.display = "flex";
+            document.getElementById("stage-3").classList.add("done");
+
+            const step6Btn = document.getElementById("btn-unlock-step6");
+            step6Btn.disabled = false;
+            step6Btn.innerText = "Reveal Step 5 →";
+
+            showFinalSummaryTableData();
+        }
+    }
+
+    function autoTrainLLM() {
+        while (llmStep < generalizationItems.length) {
+            stepLLMTraining();
+        }
+    }
+
+    function resetLLM() {
+        llmStep = 0;
+        evaluationHistory = [];
+        llmActor = makeLLMActor(); // rebuild with fresh, untrained weights
+
+        document.getElementById("btn-next-llm").disabled = false;
+        document.getElementById("step5-next-bar").style.display = "none";
+        document.getElementById("stage-3").classList.remove("done");
+
+        // Re-lock step 6 on reset
+        const sec4 = document.getElementById("section-4");
+        sec4.classList.add("card-locked");
+        sec4.querySelector(".locked-banner").style.display = "flex";
+        sec4.querySelector(".card-body").style.display = "none";
+        document.getElementById("stage-4").classList.remove("active", "done");
+
+        const step6Btn = document.getElementById("btn-unlock-step6");
+        step6Btn.disabled = true;
+        step6Btn.innerText = "Reveal Step 5 (Locked until Step 4 completes)";
+
+        document.getElementById("step5-active-view").innerHTML = `<em>Step 4 reset — the LLM's weights were rebuilt from scratch. Click "Evaluate Next Prompts" to start over.</em>`;
+        initGeneralizationTableEmpty();
+    }
+
+    function showFinalSummaryTableData() {
+        const tbody = document.querySelector("#final-summary-table tbody");
+        tbody.innerHTML = generalizationItems.map(g => {
+            const finalOut = llmActor.predict(g.prompt);
+            return `<tr>
+                <td><span class="tag">${g.domain}</span></td>
+                <td>${g.prompt}</td>
+                <td><span class="tag tag-${finalOut}">${finalOut}</span></td>
+                <td><span class="tag tag-${g.correct}">${g.correct}</span></td>
+            </tr>`;
+        }).join('');
+    }
+
+    window.onload = initUI;
+</script>
+
+</body>
+</html>
