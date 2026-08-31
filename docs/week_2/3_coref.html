@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,7 +60,9 @@
         .badge-male{ background:var(--uni-blue) !important; color:#fff; }
         .badge-female{ background:var(--hedges) !important; color:#1a1a1a; }
         .badge-person{ background:var(--sanford) !important; color:#fff; }
-        .badge-place{ background:var(--lake-herrick) !important; color:#fff; }
+        /* was color:#fff on lake-herrick (3.07:1 — fails AA); dark text on the same
+           teal reads at 5.67:1 and keeps the swatch identical to the legend dot */
+        .badge-place{ background:var(--lake-herrick) !important; color:#1a1a1a; }
         .badge-org{ background:var(--olympic) !important; color:#fff; }
         .badge-other{ background:var(--stegeman) !important; color:#1a1a1a; }
 
@@ -94,27 +97,30 @@
     </style>
 </head>
 <body>
-<section class="text-center mb-4">
-    <h1 style="font-size: 1.4rem;">University of Georgia</h1>
-    <h2 class="text-muted small">Quantitative Linguistics Webapps</h2>
-</section>
+  
+<header class="text-center mb-4 page-header">
+    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+</header>
 
-<section class="lesson-container">
-    <h1 class="h4 mb-4">Activity: Recognizing Coreference</h1>
+<main>
+
+<div class="lesson-container">
+    <h3 class="h4 mb-4">Activity: Recognizing Coreference</h3>
 
 <div class=" mt-5">    
     <div class="row mb-4">
         <div class="col-md-12">
-            <h5 style="color:var(--uga-red); font-weight:bold;">Learning Objectives</h5>
+            <h4 class="uga-accent">Learning Objectives</h4>
             <ul class="small">
-                <li><strong>Analyze</strong> how linguistic features are used to identify named entities and coreference relationships
+                <li><strong>Analyze</strong> how linguistic features are used to identify named entities and coreference relationships</li>
                 <li><strong>Experiment</strong> with a (weak) named entity recognition, coreference resolution, and entity linking tool to explore the difficulties inherent in the task</li>
             </ul>
         </div>
     </div>
 
         <div class="col-md-12">
-                <strong style="color:var(--uga-red)">Background</strong><br>
+                <h4 class="uga-accent">Background</h4>
                 <p class="small mb-0 mt-2">
                     During conversations with chatbots, chatbots must be able to recognise names of people, places, etc. that are named in the conversation, track mentions across turns (including pronouns), and link them to external databases. This applet simulates this process, using Wikidata as the external database, and a very lightweight system to detect named entities and coreference relations between noun phrases.
 </p>
@@ -137,8 +143,9 @@
 
                 <p class="small mb-0 mt-2"><i>Note</i>: If you wish to look at the Wikidata entry, go to https://www.wikidata.org/wiki/[Wikidata_ID]. For example, Wikidata's page on Paris is at <a href="https://www.wikidata.org/wiki/Q90">https://www.wikidata.org/wiki/Q90</a>.</p>
                 <hr>
+        </div>
         <div class="col-md-12">
-                <strong style="color:var(--uga-red)">Instructions</strong><br>
+                <h4 class="uga-accent">Instructions</h4>
                 <p class="small mb-0 mt-2"> 
                 <ol>
                     <li>Try the demo conversation. What do you notice? Does the system make any mistakes? If it does, where in the pipeline did the error arise, and what type of linguistic information could have been used to make the correct decision?</li>
@@ -147,14 +154,13 @@
     </div>
 </div>
 </div>
-</section>
 
-    <section class="app-wrapper">
+    <div class="app-wrapper">
 
         <div class="hero">
             <div class="hero-text">
                 <div class="eyebrow">NLP Research · Temporal Pronoun &amp; Coreference Pipeline — Line-by-Line Edition</div>
-                <h1>Add one line.<br>Watch the <span>entities</span> stack.</h1>
+                <h2>Add one line.<br>Watch the <span>entities</span> stack.</h2>
                 <p>Build a dialogue one turn at a time. Every added line re-runs named-entity recognition (via compromise.js), temporal normalization, cross-turn coreference, and Wikidata linking over the whole transcript so far — anchored to August 10, 2026.</p>
             </div>
         </div>
@@ -170,10 +176,12 @@
                     <div class="stage-content">
                         <div id="turnList"></div>
                         <div class="add-turn-form">
+                            <label for="speakerSelect" class="visually-hidden">Speaker</label>
                             <select id="speakerSelect" class="form-select form-select-sm" style="width:auto;">
                                 <option value="Human">Human</option>
                                 <option value="AI">AI</option>
                             </select>
+                            <label for="turnInput" class="visually-hidden">Next line of the conversation</label>
                             <input type="text" id="turnInput" class="form-control form-control-sm" placeholder="Type the next line of the conversation…">
                             <button class="custom-btn-primary" id="addBtn" onclick="addTurn()">＋ Add line</button>
                             <button class="btn-uga-outline" id="demoBtn" onclick="playDemo()">▶ Auto-demo</button>
@@ -234,14 +242,6 @@
                     <div class="stage-content" id="coref-results">
                         <span class="placeholder">Add a line above to begin.</span>
                     </div>
-                    <div class="legend">
-                        <span><span class="dot" style="background:var(--uni-blue);"></span>male</span>
-                        <span><span class="dot" style="background:var(--hedges);"></span>female</span>
-                        <span><span class="dot" style="background:var(--sanford);"></span>person (unknown gender)</span>
-                        <span><span class="dot" style="background:var(--lake-herrick);"></span>place</span>
-                        <span><span class="dot" style="background:var(--olympic);"></span>organization</span>
-                        <span><span class="dot" style="background:var(--uga-red);"></span>temporal pronoun "then"</span>
-                    </div>
                 </div>
             </div>
 
@@ -278,12 +278,12 @@
             <button class="reset-btn" id="resetBtn" onclick="resetAll()">Reset pipeline</button>
         </div>
 
-    </section>
+    </div>
 
     
 
-    <section class="reflection-container">
-        <h5 class="uga-accent mb-3">Reflection & Discussion Guide</h5>
+    <div class="reflection-container">
+        <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
         
         <div class="row small text-dark">
         <div class="col-md-12">
@@ -295,31 +295,9 @@
         </ul>
         </div>
         </div>
-</section>
+</div>
 
-
-        <section class="applet-feedback-card" aria-labelledby="applet-feedback-heading" >
-      <div class="applet-feedback-card__content">
-        <div>
-          <h2 id="applet-feedback-heading">Help us improve this applet</h2>
-          <p>Report a problem or share a suggestion.</p>
-          <a
-            class="applet-feedback-card__tutorial"
-            href="https://kaltura.uga.edu/media/t/1_bhor4qfq"
-            target="_blank"
-            rel="noopener noreferrer"
-          >New to GitHub? Watch the one-minute account setup guide</a>
-        </div>
-        <a
-          class="applet-feedback-card__button"
-          href="https://github.com/uga-ling2200/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20II.B%20Numbers%2C%20Q5%3A%20&amp;applet=II.B%20Numbers%2C%20Q5&amp;source-url=https%3A%2F%2Fuga-ling2200.github.io%2Fapplets%2Fpart_II%2FII.B%2520Numbers%2C%2520Q5.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >Report a problem or give feedback</a>
-      </div>
-    </section>
-
-
+</main>
 
     <script>
 

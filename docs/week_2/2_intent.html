@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,18 +14,19 @@
 </head>
 <body>
 
-<div class="text-center mb-4">
-    <h1 style="font-size: 1.4rem;">University of Georgia</h1>
-    <h2 class="text-muted small">Quantitative Linguistics Webapps</h2>
-</div>
+<header class="text-center mb-4 page-header">
+    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main>
 
-<div class="lesson-container">
-    <h1 class="h4 mb-4">Activity: Recognizing Intents</h1>
+<section class="lesson-container">
+    <h3 class="h4 mb-4">Activity: Recognizing Intents</h3>
 
 <div class=" mt-5">    
     <div class="row mb-4">
         <div class="col-md-12">
-            <h5 style="color:var(--uga-red); font-weight:bold;">Learning Objectives</h5>
+            <h4 class="uga-accent">Learning Objectives</h4>
             <ul class="small">
                 <li><strong>Analyze</strong> how linguistic features (e.g. syntax, word choice) relate to underlying intents.</li>
                 <li><strong>Experiment</strong> with variable language (slang, typos, emotional language) to see if the model maintains accuracy</li>
@@ -34,7 +36,7 @@
     </div>
 
         <div class="col-md-12">
-                <strong style="color:var(--uga-red)">Background</strong><br>
+                <h4 class="uga-accent">Background</h4>
                 <p class="small mb-0 mt-2">
                     When users type in turns in automated dialogue systems, a single <strong>intent</strong> (e.g., <em>Track Order</em>) can be expressed in infinite ways. 
                     The machine must understand that "Is it even on the truck yet?" 
@@ -47,11 +49,11 @@
                 <span class="badge bg-secondary">Cancel Order</span> 
                 <span class="badge bg-secondary">Refund</span>
                 <span class="badge bg-secondary">Update Address</span> 
-                <span class="badge bg-secondary">Missing Item</span><br><br>
+                <span class="badge bg-secondary">Missing Item</span></p>
         </div>
     
         <div class="col-md-12">
-                <strong style="color:var(--uga-red)">Instructions</strong><br>
+                <h4 class="uga-accent">Instructions</h4>
                 <p class="small mt-2">
                 <ol>
                     <li>Type three different variations of a refund request into the app (e.g., indirect and polite, direct and angry...). How do the confidence percentages shift, and why do you think?</li>
@@ -60,10 +62,10 @@
                 </p>
     </div>
 </div>
-</div>
-<div class="app-wrapper">
+</section>
+<section class="app-wrapper">
             <div class="hero-text">
-        <h1>Zero-Shot Intent Recognizer</h1>
+        <h2>Zero-Shot Intent Recognizer</h2>
         <p>Enter a customer turn to get sample intents about an order.</p>
 
             </div>
@@ -78,7 +80,7 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label fw-bold">Simulation Context</label>
+        <label class="form-label fw-bold" for="context">Simulation Context</label>
         <select id="context" class="form-select">
             <option value="Post-Purchase">Customer has already received an order number</option>
             <option value="Pre-Purchase">Customer is browsing the catalog</option>
@@ -93,11 +95,11 @@
 
     <button id="generate-btn" class="btn btn-uga w-100" disabled>LOADING AI ENGINE...</button>
 
-    <div id="output-box">
+    <div id="output-box" class="mt-3">
         <span class="text-muted">Analysis of intent and confidence will appear here.</span>
     </div>
-</div>
-</div>
+</section>
+
 <script type="module">
     import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
@@ -133,7 +135,7 @@
                         generateBtn.innerText = "ANALYZE CUSTOMER INTENT";
                         generateBtn.disabled = false;
                         
-                        outputBox.innerHTML = `<span class="text-success">✔ Model weights loaded. Ready for pragmatic analysis.</span>`;
+                        outputBox.innerHTML = `<span class="status-success">✔ Model weights loaded. Ready for pragmatic analysis.</span>`;
                     }
                 }
             });
@@ -153,7 +155,7 @@
         // Perform Zero-Shot Classification
         const result = await classifier(text, intents);
 
-        let html = `<h5>Inferred Intent: <span style="color:var(--uga-red)">${result.labels[0]}</span></h5><hr>`;
+        let html = `<h3 class="h5">Inferred Intent: <span style="color:var(--uga-red)">${result.labels[0]}</span></h3><hr>`;
         
         // Show top 3 candidates
         for(let i=0; i<3; i++) {
@@ -177,8 +179,8 @@
     init();
 </script>
 
-<div class="reflection-container">
-    <h5 class="uga-accent mb-3">Reflection & Discussion Guide</h5>
+<section class="reflection-container">
+    <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
     
     <div class="row small text-dark">
       <div class="col-md-12">
@@ -191,27 +193,9 @@
       </ul>
       </div>
     </div>
-</div>
-            <section class="applet-feedback-card" aria-labelledby="applet-feedback-heading">
-      <div class="applet-feedback-card__content">
-        <div>
-          <h2 id="applet-feedback-heading">Help us improve this applet</h2>
-          <p>Report a problem or share a suggestion.</p>
-          <a
-            class="applet-feedback-card__tutorial"
-            href="https://kaltura.uga.edu/media/t/1_bhor4qfq"
-            target="_blank"
-            rel="noopener noreferrer"
-          >New to GitHub? Watch the one-minute account setup guide</a>
-        </div>
-        <a
-          class="applet-feedback-card__button"
-          href="https://github.com/uga-ling2200/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20II.B%20Numbers%2C%20Q5%3A%20&amp;applet=II.B%20Numbers%2C%20Q5&amp;source-url=https%3A%2F%2Fuga-ling2200.github.io%2Fapplets%2Fpart_II%2FII.B%2520Numbers%2C%2520Q5.html"
-          target="_blank"
-          rel="noopener noreferrer"
-        >Report a problem or give feedback</a>
-      </div>
-    </section>
+</section>
+
+</main>
 
 </body>
 </html>
