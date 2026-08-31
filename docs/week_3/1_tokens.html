@@ -94,22 +94,34 @@
 
 
 <div class="lesson-container">
-    <h3 class="h4 mb-4">Activity: Behind the interface</h3>
+    <h3 class="h4 mb-4">Activity: Under the Hood</h3>
     
     <div class="row">
         <div class="col-md-12">
             <h5 class="uga-accent">Learning Objectives</h5>
             <ul class="small">
-                <li><strong>Describe</strong> ...</li>
+                <li><strong>Describe</strong> how texts are underlyingly represented by tokens in modern language models.</li>
+                <li><strong>Compare</strong> how humans and LLMs perceive language.</li>
             </ul>
         </div>
 
         <div class="col-md-12">
+            <h5 class="uga-accent">Background</h5>
+            <p>
+            This activity shows you how modern LLMs represent language. Texts are divided into units called tokens, which cannot be furthe
+            broken down. These tokens are then represented by numbers starting from 0.
+
+            These numbers are the objects that are input into language models and output from language models.
+            </p>
+        </div>
+        <div class="col-md-12">
             <h5 class="uga-accent">Instructions</h5>
           
             <ol class="small">
-                <li>Instruction 1.</li>
-                <li>Instruction 2.</li>
+                <li>Wait for the LLM to finish loading. It will take a while!</li>
+                <li>Type a message in the textbox under 'Student View', then hit 'Add'. Your message should appear on the screen.</li>
+                <li>Wait for the LLM to respond. Do this a few times as you wish.</li>
+                <li>Look at 'Under the Hood', and think about how that differs from how humans think about language.</li>
             </ol>
         </div>
     </div>
@@ -158,10 +170,10 @@
       <div class="col-md-12">
         Think about the following questions:
       <ul>
-        <li> Did you produce any errors? At what stage did the error occur? Why do you think it occurred?</li>
-        <li> Try to 'break' the system in some way. Can you try to make the system 'break' at different stages?</li>
-        <li> What are the benefits and drawbacks of this multi-stage approach?</li>
+        <li> What tokens appear in addition to the text that you see directly in the chatroom interface? How are they useful?</li>
         <li> Look at where the token-color boundaries fall in the raw string. Do they line up with whole words, sub-word pieces, or something else?</li>
+        <li> How might what you've seen here explain why ChatGPT doesn't know the number of 'r's in 'strawberry'?</li>
+        <li> How do you think this mode of thinking about language differs from how humans think of language?</li>
       </ul>
       </div>
     </div>
