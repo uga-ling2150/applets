@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Step-by-Step: How a Decoder-Only Transformer Finishes a Sentence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;800&family=Merriweather+Sans:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --uga-red: #ba0c2f;
+  --uga-black: #000000;
+  --olympic: #004E60;
+  --border-strong: #949494;
+  --bg: #f4f4f4;
+  --panel-alt: #f9f9f9;
+  --line: #e0e0e0;
+  --text: #1a1a1a;
+  --muted: #555555;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "Merriweather", "Georgia", serif;
+  min-height: 100vh;
+  padding: 32px 20px 80px;
+  line-height: 1.6;
+}
+
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 8px;
+  border-top: 8px solid var(--uga-red);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  font-family: "Merriweather", "Georgia", serif;
+  font-weight: 800;
+  font-size: clamp(22px, 3.2vw, 30px);
+  margin: 0 0 14px;
+  color: var(--uga-black);
+  line-height: 1.25;
+}
+
+.intro p {
+  max-width: 68ch;
+  color: var(--muted);
+  font-size: 15.5px;
+  margin: 0 0 10px;
+}
+.intro strong { color: var(--text); }
+
+/* ---------- Phase banner ---------- */
+.phase-banner {
+  margin: 26px 0 18px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel-alt);
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: border-color 0.3s, background 0.3s, color 0.3s;
+}
+.phase-banner.context { border-color: var(--olympic); color: var(--olympic); background: rgba(0, 78, 96, 0.06); }
+.phase-banner.generated { border-color: var(--uga-red); color: var(--uga-red); background: rgba(186, 12, 47, 0.06); }
+.phase-banner.done { border-color: #2e7d32; color: #2e7d32; background: rgba(46, 125, 50, 0.07); }
+
+/* ---------- Sentence-so-far ---------- */
+.sentence-box {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-alt);
+  padding: 18px 20px;
+  min-height: 64px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.token {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  border: 1.5px solid var(--border-strong);
+  background: white;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(6px);
+  animation: tokenIn 0.35s ease forwards;
+}
+@keyframes tokenIn { to { opacity: 1; transform: translateY(0); } }
+.token.given { border-color: var(--olympic); color: var(--olympic); }
+.token.model { border-color: var(--uga-red); color: var(--uga-red); background: rgba(186, 12, 47, 0.05); }
+.token.current { box-shadow: 0 0 0 3px rgba(186, 12, 47, 0.18); }
+.token .tag {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+}
+.token-placeholder { color: #999; font-style: italic; font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+
+/* ---------- Engine visual ---------- */
+.engine-row { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 26px 0; flex-wrap: wrap; }
+.feed-word {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  min-width: 90px;
+  text-align: center;
+}
+.feed-word.active { color: var(--text); border-color: var(--uga-red); background: white; }
+.arrow-flow { font-size: 20px; color: var(--border-strong); }
+.rnn-box {
+  width: 160px;
+  height: 90px;
+  border-radius: 10px;
+  border: 2px solid var(--uga-black);
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--uga-black);
+  gap: 4px;
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+.rnn-box.pulse { border-color: var(--uga-red); box-shadow: 0 0 0 6px rgba(186, 12, 47, 0.12); }
+.rnn-box .sub { font-family: "IBM Plex Mono", monospace; font-weight: 400; font-size: 10px; color: var(--muted); }
+
+/* ---------- Predictions ---------- */
+.pred-panel { border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; background: white; margin-bottom: 18px; }
+.pred-panel h2 { font-family: "Merriweather Sans", sans-serif; font-size: 13px; font-weight: 700; color: var(--text); margin: 0 0 4px; }
+.pred-caption { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+.cand-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.cand-word { font-family: "IBM Plex Mono", monospace; font-size: 13.5px; width: 90px; flex-shrink: 0; color: var(--text); }
+.cand-row.winner .cand-word { color: var(--uga-red); font-weight: 600; }
+.cand-bar-track { flex: 1; background: var(--line); border-radius: 6px; height: 12px; overflow: hidden; }
+.cand-bar-fill { background: var(--border-strong); height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+.cand-row.winner .cand-bar-fill { background: var(--uga-red); }
+.cand-pct { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); width: 40px; text-align: right; flex-shrink: 0; }
+.next-note { font-size: 13px; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.next-note strong { color: var(--text); }
+.long-range-note {
+  font-size: 13px;
+  color: var(--olympic);
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(0, 78, 96, 0.07);
+  border: 1px solid rgba(0, 78, 96, 0.25);
+}
+
+/* ---------- Advanced toggles (shared look) ---------- */
+.adv-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.adv-toggle input { width: 16px; height: 16px; }
+.adv-panel {
+  display: none;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  background: var(--panel-alt);
+}
+.adv-panel.show { display: block; }
+.adv-panel > p { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+
+/* ---------- Multi-head attention ---------- */
+.head-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.head-tab {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: white;
+  color: var(--muted);
+  cursor: pointer;
+}
+.head-tab[aria-selected="true"] {
+  border-color: var(--uga-red);
+  color: var(--uga-red);
+  background: rgba(186, 12, 47, 0.06);
+}
+.head-desc { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; min-height: 18px; }
+.attn-scroll { overflow-x: auto; padding-bottom: 6px; }
+table.attn-table { border-collapse: collapse; font-family: "IBM Plex Mono", monospace; }
+table.attn-table caption { text-align: left; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+table.attn-table th, table.attn-table td { width: 46px; height: 30px; text-align: center; font-size: 10px; border: 1px solid var(--line); }
+table.attn-table th.col-head {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  height: 70px;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 4px 0;
+}
+table.attn-table th.row-head { text-align: right; padding-right: 8px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+table.attn-table tr.current-row th.row-head,
+table.attn-table tr.current-row td { border-top: 2px solid var(--uga-red); border-bottom: 2px solid var(--uga-red); }
+table.attn-table td.filled { color: #fff; font-weight: 600; }
+table.attn-table td.masked {
+  background: repeating-linear-gradient(45deg, #eee, #eee 4px, #fafafa 4px, #fafafa 8px);
+  color: #bbb;
+}
+.attn-legend { display: flex; align-items: center; gap: 16px; margin-top: 12px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
+.attn-legend .swatch { display: inline-flex; align-items: center; gap: 5px; }
+.attn-legend .box { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+
+/* ---------- Hidden state ---------- */
+.hs-bars { display: flex; gap: 6px; align-items: flex-end; height: 60px; }
+.hs-bars span { flex: 1; background: var(--olympic); border-radius: 3px 3px 0 0; transition: height 0.4s ease; min-height: 4px; }
+
+/* ---------- Controls ---------- */
+.controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 6px; }
+.btn-uga {
+  background-color: var(--uga-red);
+  border: none;
+  color: #fff;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 12px 22px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-uga:hover:not(:disabled) { opacity: 0.9; }
+.btn-uga:disabled { background-color: var(--border-strong); cursor: not-allowed; }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12.5px;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.btn-outline:hover { border-color: var(--uga-red); color: var(--uga-red); }
+.step-count { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+
+.sr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.done-box {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border: 1px solid #2e7d32;
+  background: rgba(46, 125, 50, 0.06);
+  border-radius: 8px;
+  color: #1b5e20;
+  font-size: 14.5px;
+}
+.done-box strong { display: block; margin-bottom: 6px; font-family: "Merriweather Sans", sans-serif; }
+
+details.dig-deeper {
+  margin-top: 30px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 18px;
+  background: var(--panel-alt);
+}
+details.dig-deeper summary { font-family: "Merriweather Sans", sans-serif; font-weight: 700; font-size: 13.5px; cursor: pointer; color: var(--text); }
+details.dig-deeper p, details.dig-deeper li { font-size: 13.5px; color: var(--muted); margin: 10px 0; }
+
+:focus-visible { outline: 2px solid var(--uga-red); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .token { animation: none; opacity: 1; transform: none; }
+  .rnn-box.pulse { box-shadow: none; }
+}
+@media (max-width: 600px) {
+  .wrap { padding: 1.5rem; }
+  .engine-row { gap: 10px; }
+  .arrow-flow { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Watch a Decoder-Only Transformer Finish a Sentence</h1>
+  <div class="intro">
+    <p>Like the RNN version of this demo, a decoder-only <strong>transformer</strong> writes text by predicting one word at a time, then feeding its own guess back in as if it were just another word someone typed. The generation loop is identical.</p>
+    <p>What's different is <em>how</em> it decides what comes next. At each step it looks directly back at every earlier word and works out how much attention to pay to each one — that's <strong>self-attention</strong>. Real transformers do this several times in parallel, with each <strong>attention head</strong> often specializing in a different kind of relationship. Step through the words below, and optionally turn on a few attention heads and the model's internal representation to see it happen.</p>
+  </div>
+
+  <div class="phase-banner context" id="phaseBanner">Ready when you are — click "Start" to feed in the first word.</div>
+
+  <div class="sentence-box" id="sentenceBox" aria-label="Sentence built so far">
+    <span class="token-placeholder" id="placeholderText">The sentence will appear here as you go.</span>
+  </div>
+
+  <div class="engine-row">
+    <div class="feed-word" id="feedWordBox">—</div>
+    <div class="arrow-flow" aria-hidden="true">→</div>
+    <div class="rnn-box" id="rnnBox">
+      the model
+      <span class="sub">(multi-head attention)</span>
+    </div>
+    <div class="arrow-flow" aria-hidden="true">→</div>
+    <div class="feed-word" id="outWordBox">—</div>
+  </div>
+
+  <label class="adv-toggle">
+    <input type="checkbox" id="attnToggle" />
+    Show attention heads (optional)
+  </label>
+  <div class="adv-panel" id="attnPanel">
+    <p>Each row is a word deciding what to pay attention to; reading across shows how much weight it gives to itself and every earlier word — darker means more attention. Hatched cells are <strong>masked</strong>: a word can never attend to one that hasn't been generated yet. Real transformers run several heads like this at once and combine what they find; pick a head below to see how differently each one behaves.</p>
+    <div class="head-tabs" role="tablist" id="headTabs"></div>
+    <p class="head-desc" id="headDesc"></p>
+    <div class="attn-scroll">
+      <table class="attn-table" id="attnTable">
+        <caption>Attention weights so far. Rows = the word looking; columns = the word being looked at.</caption>
+      </table>
+    </div>
+    <div class="attn-legend">
+      <span class="swatch"><span class="box" style="background:var(--uga-red)"></span> strong attention</span>
+      <span class="swatch"><span class="box" style="background:rgba(186,12,47,0.15)"></span> weak attention</span>
+      <span class="swatch"><span class="box" style="background:repeating-linear-gradient(45deg,#eee,#eee 3px,#fafafa 3px,#fafafa 6px)"></span> masked (future word)</span>
+    </div>
+  </div>
+
+  <label class="adv-toggle">
+    <input type="checkbox" id="hsToggle" />
+    Show the model's internal representation (optional)
+  </label>
+  <div class="adv-panel" id="hsPanel">
+    <p>This bar chart is a stand-in for the vector the model holds for the current word once all the attention heads' findings have been combined — sometimes still called a <strong>hidden state</strong>, even in a transformer, since every position gets one at every layer. It isn't passed along one step at a time like an RNN's is; it's rebuilt at each step from whatever the attention heads just gathered. Real ones have hundreds of numbers; here are eight, just so you can see them shift.</p>
+    <div class="hs-bars" id="hsBars"></div>
+  </div>
+
+  <div class="pred-panel" id="predPanel" style="display:none;">
+    <h2>What the model thinks comes next</h2>
+    <p class="pred-caption" id="predCaption"></p>
+    <div id="candList"></div>
+    <div class="next-note" id="nextNote"></div>
+    <div class="long-range-note" id="longRangeNote" style="display:none;"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-uga" id="nextBtn">Start</button>
+    <button class="btn-outline" id="resetBtn">Reset</button>
+    <span class="step-count" id="stepCount"></span>
+  </div>
+
+  <div class="sr-status" role="status" aria-live="polite" id="srStatus"></div>
+
+  <div class="done-box" id="doneBox" style="display:none;"></div>
+
+  <details class="dig-deeper">
+    <summary>Curious how the "prediction," "attention," and "representation" numbers were made?</summary>
+    <p>Just like the RNN version, this demo uses a small pre-set script instead of a real trained model, so the focus stays on the big idea: feed a word in, get a guess out, feed the guess back in. A real transformer calculates next-word probabilities, every attention head's weights, and every representation vector from millions of learned parameters — and typically uses far more than three heads, stacked across many layers.</p>
+    <p>Several things this demo does keep faithful to how real decoder-only transformers work:</p>
+    <ul>
+      <li>While reading a sentence you already gave it, the model still predicts the next word at every step — we just don't use that guess, because we already know the true next word. Using the true word instead of the model's guess is called <strong>teacher forcing</strong>, same as before.</li>
+      <li>The <strong>causal mask</strong> in the heatmap is real: a decoder is built so a word can only attend to itself and words before it, never one that comes later.</li>
+      <li>Different heads really do tend to specialize. "Head 3" here always leans on the very first word — real trained models frequently show this exact pattern, sometimes nicknamed an <strong>attention sink</strong>.</li>
+    </ul>
+    <p>One more thing worth noticing as you go: an RNN has to carry everything relevant in one running summary that updates step by step, so details from far earlier can fade. A transformer's attention lets a word reach all the way back and look directly at any earlier word, no matter the distance. Switch to "Head 2 · Tracks the subject" and watch what "found" and "sandwich" do later in this sentence for an example.</p>
+  </details>
+
+</div>
+
+<script>
+const sequence = ["the","hungry","raccoon","opened","the","trash","can","and","found","a","sandwich"];
+const isGiven  = [true, true, true, true, true, false, false, false, false, false, false];
+
+const candidates = [
+  [{w:"dog",p:0.30},{w:"hungry",p:0.24},{w:"cat",p:0.19}],
+  [{w:"raccoon",p:0.28},{w:"bear",p:0.21},{w:"child",p:0.15}],
+  [{w:"opened",p:0.26},{w:"ran",p:0.20},{w:"climbed",p:0.17}],
+  [{w:"the",p:0.35},{w:"a",p:0.22},{w:"its",p:0.14}],
+  [{w:"trash",p:0.31},{w:"door",p:0.20},{w:"box",p:0.15}],
+  [{w:"can",p:0.40},{w:"bag",p:0.22},{w:"bin",p:0.15}],
+  [{w:"and",p:0.33},{w:"outside",p:0.18},{w:"looking",p:0.14}],
+  [{w:"found",p:0.29},{w:"pulled",p:0.19},{w:"grabbed",p:0.16}],
+  [{w:"a",p:0.36},{w:"some",p:0.21},{w:"an",p:0.12}],
+  [{w:"sandwich",p:0.24},{w:"pizza",p:0.20},{w:"cookie",p:0.17}],
+  [{w:".",p:0.45},{w:"inside",p:0.15},{w:"and",p:0.12}]
+];
+
+// Three attention heads, each with its own (hand-set) pattern.
+// heads[h][step] = weights row for that step, length step+1 (causal).
+const heads = [
+  { name: "Head 1 \u00B7 Recent words", desc: "Mostly attends to itself and the word right before it \u2014 good for local patterns like matching an article to its noun.",
+    rows: [
+      [1.00],
+      [0.30,0.70],
+      [0.05,0.25,0.70],
+      [0.03,0.05,0.25,0.67],
+      [0.02,0.03,0.05,0.25,0.65],
+      [0.01,0.02,0.03,0.05,0.24,0.65],
+      [0.01,0.01,0.02,0.03,0.05,0.23,0.65],
+      [0.01,0.01,0.01,0.02,0.03,0.05,0.22,0.65],
+      [0.01,0.01,0.01,0.01,0.02,0.03,0.05,0.21,0.65],
+      [0.01,0.01,0.01,0.01,0.01,0.02,0.03,0.05,0.20,0.65],
+      [0.01,0.01,0.01,0.01,0.01,0.01,0.02,0.03,0.05,0.19,0.65]
+    ]
+  },
+  { name: "Head 2 \u00B7 Tracks the subject", desc: "Keeps circling back to \u201craccoon,\u201d the subject of the sentence, no matter how far away it is.",
+    rows: [
+      [1.00],
+      [0.20,0.80],
+      [0.10,0.15,0.75],
+      [0.05,0.05,0.60,0.30],
+      [0.03,0.02,0.55,0.15,0.25],
+      [0.02,0.02,0.50,0.10,0.06,0.30],
+      [0.02,0.02,0.45,0.08,0.05,0.08,0.30],
+      [0.01,0.02,0.40,0.06,0.04,0.06,0.11,0.30],
+      [0.01,0.01,0.35,0.05,0.03,0.05,0.08,0.12,0.30],
+      [0.01,0.01,0.30,0.04,0.02,0.04,0.06,0.10,0.12,0.30],
+      [0.01,0.06,0.25,0.03,0.02,0.03,0.05,0.08,0.10,0.07,0.30]
+    ]
+  },
+  { name: "Head 3 \u00B7 Anchors to the start", desc: "Leans heavily on the very first word of the sentence \u2014 real trained models often show this exact pattern too, sometimes called an \u201cattention sink.\u201d",
+    rows: [
+      [1.00],
+      [0.75,0.25],
+      [0.65,0.10,0.25],
+      [0.55,0.08,0.07,0.30],
+      [0.45,0.05,0.05,0.10,0.35],
+      [0.40,0.04,0.04,0.08,0.09,0.35],
+      [0.35,0.03,0.03,0.06,0.07,0.11,0.35],
+      [0.30,0.02,0.02,0.05,0.06,0.08,0.12,0.35],
+      [0.27,0.02,0.02,0.04,0.05,0.06,0.07,0.12,0.35],
+      [0.24,0.02,0.02,0.03,0.04,0.05,0.06,0.08,0.11,0.35],
+      [0.22,0.02,0.02,0.03,0.03,0.04,0.05,0.06,0.08,0.10,0.35]
+    ]
+  }
+];
+
+const longRangeNotes = {
+  8:  'Notice how far back attention can reach: even four words later, something is still watching "raccoon." Switch to "Head 2 \u00B7 Tracks the subject" to see it clearly \u2014 a plain RNN would have to hope that detail survived being compressed into a single running summary the whole way.',
+  10: 'Same idea again: on "Head 2," "sandwich" still gives some weight back to "hungry" \u2014 reaching all the way to the start of the sentence to stay connected to why the raccoon got into the trash in the first place.'
+};
+
+let step = -1;
+let finished = false;
+let selectedHead = 0;
+
+const sentenceBox = document.getElementById('sentenceBox');
+const placeholderText = document.getElementById('placeholderText');
+const phaseBanner = document.getElementById('phaseBanner');
+const feedWordBox = document.getElementById('feedWordBox');
+const outWordBox = document.getElementById('outWordBox');
+const rnnBox = document.getElementById('rnnBox');
+const predPanel = document.getElementById('predPanel');
+const predCaption = document.getElementById('predCaption');
+const candList = document.getElementById('candList');
+const nextNote = document.getElementById('nextNote');
+const longRangeNote = document.getElementById('longRangeNote');
+const nextBtn = document.getElementById('nextBtn');
+const resetBtn = document.getElementById('resetBtn');
+const stepCount = document.getElementById('stepCount');
+const srStatus = document.getElementById('srStatus');
+const doneBox = document.getElementById('doneBox');
+const attnToggle = document.getElementById('attnToggle');
+const attnPanel = document.getElementById('attnPanel');
+const attnTable = document.getElementById('attnTable');
+const headTabs = document.getElementById('headTabs');
+const headDesc = document.getElementById('headDesc');
+const hsToggle = document.getElementById('hsToggle');
+const hsPanel = document.getElementById('hsPanel');
+const hsBars = document.getElementById('hsBars');
+
+attnToggle.addEventListener('change', () => attnPanel.classList.toggle('show', attnToggle.checked));
+hsToggle.addEventListener('change', () => hsPanel.classList.toggle('show', hsToggle.checked));
+
+// build head tab buttons
+heads.forEach((h, i) => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'head-tab';
+  btn.setAttribute('role', 'tab');
+  btn.setAttribute('aria-selected', i === selectedHead ? 'true' : 'false');
+  btn.textContent = h.name;
+  btn.addEventListener('click', () => {
+    selectedHead = i;
+    Array.from(headTabs.children).forEach((b, j) => b.setAttribute('aria-selected', j === i ? 'true' : 'false'));
+    headDesc.textContent = h.desc;
+    if (step >= 0) renderAttentionTable(step);
+  });
+  headTabs.appendChild(btn);
+});
+headDesc.textContent = heads[selectedHead].desc;
+
+// build 8 hidden-state bars
+for (let i = 0; i < 8; i++) {
+  const bar = document.createElement('span');
+  bar.style.height = '6px';
+  hsBars.appendChild(bar);
+}
+
+function seededHeight(stepIdx, barIdx) {
+  const x = Math.sin(stepIdx * 12.9898 + barIdx * 78.233) * 43758.5453;
+  const frac = x - Math.floor(x);
+  return 8 + Math.round(frac * 52);
+}
+function updateHiddenState(stepIdx) {
+  const bars = hsBars.querySelectorAll('span');
+  bars.forEach((bar, i) => { bar.style.height = seededHeight(stepIdx, i) + 'px'; });
+}
+
+function weightColor(p) {
+  const alpha = Math.min(1, 0.12 + p * 1.1);
+  return 'rgba(186,12,47,' + alpha.toFixed(2) + ')';
+}
+
+function renderAttentionTable(currentStep) {
+  const rows = heads[selectedHead].rows;
+  attnTable.innerHTML = '<caption>Attention weights so far (' + heads[selectedHead].name + '). Rows = the word looking; columns = the word being looked at.</caption>';
+  const thead = document.createElement('tr');
+  const corner = document.createElement('th');
+  corner.textContent = '';
+  thead.appendChild(corner);
+  for (let c = 0; c <= currentStep; c++) {
+    const th = document.createElement('th');
+    th.className = 'col-head';
+    th.scope = 'col';
+    th.textContent = sequence[c];
+    thead.appendChild(th);
+  }
+  attnTable.appendChild(thead);
+
+  for (let r = 0; r <= currentStep; r++) {
+    const tr = document.createElement('tr');
+    if (r === currentStep) tr.className = 'current-row';
+    const rowHead = document.createElement('th');
+    rowHead.className = 'row-head';
+    rowHead.scope = 'row';
+    rowHead.textContent = sequence[r];
+    tr.appendChild(rowHead);
+
+    for (let c = 0; c <= currentStep; c++) {
+      const td = document.createElement('td');
+      if (c > r) {
+        td.className = 'masked';
+        td.textContent = '\u2014';
+        td.setAttribute('aria-label', sequence[r] + ' cannot attend to ' + sequence[c] + ' because it comes later (masked)');
+      } else {
+        const w = rows[r][c];
+        td.className = 'filled';
+        td.style.background = weightColor(w);
+        td.style.color = w > 0.35 ? '#fff' : 'var(--text)';
+        td.textContent = Math.round(w * 100);
+        td.setAttribute('aria-label', sequence[r] + ' attends to ' + sequence[c] + ' with weight ' + Math.round(w * 100) + ' percent');
+      }
+      tr.appendChild(td);
+    }
+    attnTable.appendChild(tr);
+  }
+}
+
+function renderSentence() {
+  sentenceBox.innerHTML = '';
+  if (step < 0) { sentenceBox.appendChild(placeholderText); return; }
+  for (let i = 0; i <= step; i++) {
+    const span = document.createElement('span');
+    span.className = 'token ' + (isGiven[i] ? 'given' : 'model') + (i === step ? ' current' : '');
+    const tag = isGiven[i] ? 'given' : 'model\u2019s guess';
+    span.innerHTML = sequence[i] + '<span class="tag">' + tag + '</span>';
+    sentenceBox.appendChild(span);
+  }
+}
+
+function renderCandidates(stepIdx) {
+  const cands = candidates[stepIdx];
+  const actualNext = sequence[stepIdx + 1];
+  candList.innerHTML = '';
+  cands.forEach(c => {
+    const isWinnerBar = (stepIdx >= 4) ? (c.w === cands[0].w) : (c.w === actualNext);
+    const row = document.createElement('div');
+    row.className = 'cand-row' + (isWinnerBar ? ' winner' : '');
+    row.innerHTML =
+      '<span class="cand-word">' + c.w + '</span>' +
+      '<span class="cand-bar-track"><span class="cand-bar-fill" style="width:' + Math.round(c.p*100) + '%"></span></span>' +
+      '<span class="cand-pct">' + Math.round(c.p*100) + '%</span>';
+    candList.appendChild(row);
+  });
+}
+
+function stepLabel(stepIdx) {
+  return isGiven[stepIdx] ? 'reading a given word' : 'reading its own last guess';
+}
+
+function advance() {
+  if (finished) return;
+  const nextStep = step + 1;
+  if (nextStep >= sequence.length) return;
+
+  step = nextStep;
+  const word = sequence[step];
+  const cands = candidates[step];
+  const topGuess = cands[0].w;
+  const lastContextIdx = isGiven.lastIndexOf(true);
+
+  feedWordBox.textContent = word;
+  feedWordBox.classList.add('active');
+  outWordBox.textContent = topGuess;
+  rnnBox.classList.add('pulse');
+  setTimeout(() => rnnBox.classList.remove('pulse'), 400);
+
+  renderSentence();
+  renderAttentionTable(step);
+  updateHiddenState(step);
+
+  phaseBanner.textContent = isGiven[step]
+    ? 'Reading the sentence you were given \u2014 word ' + (step + 1) + ' of ' + (lastContextIdx + 1) + '.'
+    : 'No given words left \u2014 the model is now writing on its own.';
+  phaseBanner.className = 'phase-banner ' + (isGiven[step] ? 'context' : 'generated');
+
+  predPanel.style.display = 'block';
+  predCaption.textContent = 'After reading "' + word + '," here\u2019s what the model thinks might come next:';
+  renderCandidates(step);
+
+  let noteHtml = '';
+  let srText = 'Fed the word "' + word + '" into the model (' + stepLabel(step) + '). ';
+  srText += 'Its top guess for the next word is "' + topGuess + '," at ' + Math.round(cands[0].p*100) + ' percent.';
+
+  if (step === lastContextIdx) {
+    noteHtml = 'That was the last word you gave it. There\u2019s nothing left to read, so on the next click, the model\u2019s own top guess \u2014 <strong>"' + topGuess + '"</strong> \u2014 gets fed back in as the next input.';
+    srText += ' That was the last given word. From here, the model will feed its own guess back into itself.';
+  } else if (step < lastContextIdx) {
+    const actualNext = sequence[step + 1];
+    if (actualNext === topGuess) {
+      noteHtml = 'The next given word happens to be <strong>"' + actualNext + '"</strong> \u2014 which matches the model\u2019s own top guess. Either way, since we already know the real word, that\u2019s what gets fed in next (this is called <strong>teacher forcing</strong>).';
+    } else {
+      noteHtml = 'The next given word is actually <strong>"' + actualNext + '"</strong>, not the model\u2019s top guess. That\u2019s fine \u2014 since we already know the true next word, we feed that one in instead of the guess (this is called <strong>teacher forcing</strong>).';
+    }
+  } else {
+    noteHtml = 'The model is generating freely now, so its own top guess \u2014 <strong>"' + topGuess + '"</strong> \u2014 becomes the next input.';
+  }
+  nextNote.innerHTML = noteHtml;
+
+  if (longRangeNotes[step]) {
+    longRangeNote.style.display = 'block';
+    longRangeNote.textContent = longRangeNotes[step];
+  } else {
+    longRangeNote.style.display = 'none';
+  }
+
+  srStatus.textContent = srText;
+  stepCount.textContent = 'Word ' + (step + 1) + ' of ' + sequence.length + ' fed in';
+
+  if (topGuess === '.' || step === sequence.length - 1) { finish(); return; }
+
+  nextBtn.textContent = isGiven[step + 1] ? 'Feed next given word \u2192' : 'Feed the model\u2019s own guess back in \u2192';
+}
+
+function finish() {
+  finished = true;
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'Done';
+  doneBox.style.display = 'block';
+  doneBox.innerHTML = '<strong>Finished!</strong>The model predicted an end-of-sentence marker, so it stopped. Full sentence: \u201c' + sequence.join(' ') + '.\u201d Words in blue-green were given to it; words in red it generated itself \u2014 by feeding its own last guess back in and attending back over everything read so far, one word at a time.';
+  srStatus.textContent = 'Generation finished. The model predicted the end of the sentence and stopped.';
+  phaseBanner.textContent = 'Done \u2014 the model predicted the end of the sentence and stopped itself.';
+  phaseBanner.className = 'phase-banner done';
+  outWordBox.textContent = '(end)';
+}
+
+function reset() {
+  step = -1;
+  finished = false;
+  nextBtn.disabled = false;
+  nextBtn.textContent = 'Start';
+  feedWordBox.textContent = '—';
+  feedWordBox.classList.remove('active');
+  outWordBox.textContent = '—';
+  predPanel.style.display = 'none';
+  doneBox.style.display = 'none';
+  longRangeNote.style.display = 'none';
+  phaseBanner.textContent = 'Ready when you are \u2014 click "Start" to feed in the first word.';
+  phaseBanner.className = 'phase-banner context';
+  stepCount.textContent = '';
+  srStatus.textContent = 'Reset. Ready to start over.';
+  renderSentence();
+  attnTable.innerHTML = '<caption>Attention weights so far. Rows = the word looking; columns = the word being looked at.</caption>';
+  const bars = hsBars.querySelectorAll('span');
+  bars.forEach(bar => bar.style.height = '6px');
+}
+
+nextBtn.addEventListener('click', advance);
+resetBtn.addEventListener('click', reset);
+
+renderSentence();
+</script>
+
+</body>
+</html>
