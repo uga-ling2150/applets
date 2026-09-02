@@ -11,10 +11,10 @@ This branch contains a Ren'Py familiarization prototype for a short, course-rela
 - Axe 4.12.0 automatic result: 0 violations, 0 incomplete checks, 37 passed checks.
 - Canvas dialogue and choices still require manual keyboard, self-voicing, zoom, and screen-reader testing.
 
-## Intended published path
+## Published path
 
-After this branch is reviewed and merged into main, the course Pages URL will be:
+After this branch is merged into main, the course Pages URL will be:
 
 https://uga-ling2150.github.io/applets/prototypes/renpy_conversation_lab/
 
-The Ren'Py source project and testing notes are included in the branch for review.
+This prototype is provided as a shareable Ren'Py web experience.
