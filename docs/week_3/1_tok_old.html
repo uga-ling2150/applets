@@ -95,34 +95,22 @@
 <main>
 
 <section class="lesson-container">
-    <h3 class="h4 mb-4">Activity: Under the Hood</h3>
+    <h3 class="h4 mb-4">Activity: Behind the interface</h3>
     
     <div class="row">
         <div class="col-md-12">
             <h4 class="uga-accent">Learning Objectives</h4>
             <ul class="small">
-                <li><strong>Describe</strong> how texts are underlyingly represented by tokens in modern language models.</li>
-                <li><strong>Compare</strong> how humans and LLMs perceive language.</li>
+                <li><strong>Describe</strong> ...</li>
             </ul>
         </div>
 
         <div class="col-md-12">
-            <h4 class="uga-accent">Background</h4>
-            <p>
-            This activity shows you how modern LLMs represent language. Texts are divided into units called tokens, which cannot be furthe
-            broken down. These tokens are then represented by numbers starting from 0.
-
-            These numbers are the objects that are input into language models and output from language models.
-            </p>
-        </div>
-        <div class="col-md-12">
             <h4 class="uga-accent">Instructions</h4>
           
             <ol class="small">
-                <li>Wait for the LLM to finish loading. It will take a while!</li>
-                <li>Type a message in the textbox under 'Student View', then hit 'Add'. Your message should appear on the screen.</li>
-                <li>Wait for the LLM to respond. Do this a few times as you wish.</li>
-                <li>Look at 'Under the Hood', and think about how that differs from how humans think about language.</li>
+                <li>Instruction 1.</li>
+                <li>Instruction 2.</li>
             </ol>
         </div>
     </div>
@@ -170,11 +158,11 @@
       <div class="col-md-12">
         Think about the following questions:
       <ul>
-        <li> What tokens appear in addition to the text that you see directly in the chatroom interface? How are they useful?</li>
+        <li> Did you produce any errors? At what stage did the error occur? Why do you think it occurred?</li>
+        <li> Try to 'break' the system in some way. Can you try to make the system 'break' at different stages?</li>
+        <li> What are the benefits and drawbacks of this multi-stage approach?</li>
         <li> Look at where the token-color boundaries fall in the raw string. Do they line up with whole words, sub-word pieces, or something else?</li>
-        <li> How might what you've seen here explain why ChatGPT doesn't know the number of 'r's in 'strawberry'?</li>
-        <li> How do you think this mode of thinking about language differs from how humans think of language?</li>
-     </ul>
+      </ul>
       </div>
     </div>
 </section>
@@ -273,25 +261,6 @@
         }
     }
 
-    // Formats a caught value into something actually readable. Errors
-    // thrown from deep inside onnxruntime-web / the fetch-buffer code
-    // sometimes surface as a bare number or a non-Error object instead of
-    // a proper Error, which is why students were only ever seeing a raw
-    // byte count in the console with no indication of what failed.
-    function describeError(err) {
-        if (err instanceof Error) {
-            return `${err.name}: ${err.message}`;
-        }
-        if (typeof err === 'number') {
-            return `Non-Error failure (raw value: ${err}) -- likely a memory allocation limit hit while downloading/decoding model weights.`;
-        }
-        try {
-            return JSON.stringify(err);
-        } catch {
-            return String(err);
-        }
-    }
-
     async function init() {
         // WebGPU runs matrix multiplies on the GPU instead of single/
         // multi-threaded WASM on the CPU -- typically several times
@@ -305,21 +274,16 @@
         } else {
             console.info('No WebGPU adapter available in this environment; using WASM.');
         }
-        // WASM fallback ladder, ordered smallest-download-first (q4 -> q8
-        // -> fp16 -> fp32). Students were hitting load failures in real
-        // browsers on the hosted page, and every failed attempt -- across
-        // every dtype -- died at the *same* allocation size, which points
-        // to a memory ceiling rather than a bad file. Trying the smallest
-        // weights first maximizes the odds of a successful load on
-        // memory-constrained devices (older laptops, Chromebooks,
-        // tablets), at the cost of q4 being somewhat slower than q8 once
-        // it's actually running on plain WASM (no GPU kernels to
-        // accelerate 4-bit ops there). Reliability is worth that
-        // trade-off for a whole-class in-browser demo.
-        attempts.push({ device: 'wasm', dtype: 'q4' });
+        // WASM fallback ladder. q8/int8 gets proper SIMD-optimized CPU
+        // kernels in onnxruntime-web and is the fast option here. q4's
+        // kernels are built for WebGPU -- on plain WASM it falls back to
+        // slow, largely-unoptimized dequantization and can end up SLOWER
+        // than q8 despite the smaller download, so it's ordered last as
+        // a last-resort fallback rather than tried first.
         attempts.push({ device: 'wasm', dtype: 'q8' });
         attempts.push({ device: 'wasm', dtype: 'fp16' });
         attempts.push({ device: 'wasm', dtype: 'fp32' });
+        attempts.push({ device: 'wasm', dtype: 'q4' });
 
         let lastErr;
         for (const { device, dtype } of attempts) {
@@ -330,14 +294,13 @@
                 lastErr = null;
                 break;
             } catch (err) {
-                console.warn(`${device}/${dtype} unavailable, trying next option: ${describeError(err)}`, err);
+                console.warn(`${device}/${dtype} unavailable, trying next option:`, err);
                 lastErr = err;
             }
         }
 
         if (lastErr) {
-            const detail = describeError(lastErr);
-            document.getElementById('status').innerText = `INIT ERROR: ${detail}`;
+            document.getElementById('status').innerText = 'INIT ERROR: See Console';
             console.error('All device/dtype attempts failed:', lastErr);
             return;
         }
@@ -363,7 +326,7 @@
                     (isolated ? '' : ' (not cross-origin isolated -- threads capped at 1)');
             }
         } catch (err) {
-            document.getElementById('status').innerText = `INIT ERROR: ${describeError(err)}`;
+            document.getElementById('status').innerText = 'INIT ERROR: See Console';
             console.error(err);
         }
     }
@@ -432,12 +395,11 @@
         }
     }
 
-    async function addMessage() {
-        const input = document.getElementById('user-input');
-        const val = input.value.trim();
+    document.getElementById('add-btn').onclick = async () => {
+        const val = document.getElementById('user-input').value.trim();
         if (val) {
             messages.push({ role: 'user', content: val });
-            input.value = '';
+            document.getElementById('user-input').value = '';
             await refreshUI();
 
             const autoGenOn = document.getElementById('auto-gen-toggle').checked;
@@ -446,18 +408,7 @@
                 await generateResponse();
             }
         }
-    }
-
-    document.getElementById('add-btn').onclick = addMessage;
-
-    // Let students hit Enter in the message box instead of having to
-    // reach for the "Add" button every time.
-    document.getElementById('user-input').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addMessage();
-        }
-    });
+    };
 
     async function generateResponse() {
         const btn = document.getElementById('gen-btn');
@@ -535,8 +486,8 @@
             console.error('Generation failed:', err);
             clearInterval(stillWorkingTimer);
             bubble.classList.remove('thinking');
-            bubble.innerText = `⚠️ Generation failed -- ${describeError(err)}`;
-            document.getElementById('status').innerText = `GENERATION ERROR: ${describeError(err)}`;
+            bubble.innerText = '⚠️ Generation failed -- see console for details.';
+            document.getElementById('status').innerText = 'GENERATION ERROR: See Console';
         } finally {
             clearInterval(stillWorkingTimer);
             btn.disabled = false;
