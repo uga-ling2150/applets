@@ -351,14 +351,39 @@ p { font-size: 14.5px; }
 </header>
 
 
+<section class="lesson-container">
+    <h3 class="h4 mb-4">Activity: RLHF Process and Reward Hacking</h3>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="uga-accent">Learning Objectives</h4>
+            <ul class="small">
+                <li><strong>Describe</strong> the processes involved in traditional reinforcement learning from human feedback (RLHF)</li>
+                <li><strong>Explain</strong> why RLHF training can lead to reward hacking, where the model learns a behaviour that 
+                increases rewards, but does not actually align with the intended goal of the training</li>
+            </ul>
+        </div>
+        <div class="col-md-12">
+            <h4 class="uga-accent">Background</h4>
+            <p>In class, we talked about the idea of reinforcement learning from human feedback (RLHF), that is the process whereby we ask human participants to rate LLM outputs. And then we train the LLM to maximize the ratings that they would get from humans. In traditional RLHF, this involves first training a reward model which predicts the reward that an LLM output will receive, and then using the reward model to train the LLM itself.</p>
+            <p> In this activity, you will go through the main processes involved in RLHF, using a highly simplified simulation of how RLHF works. You will then reflect on the phenomenon of reward hacking, which is where the model learns to behave in a way that maximizes rewards 2ithout actually satisfying the intended goal of the RLHF training.</p>
+        </div>
 
-<main class="lesson-container">
+        <div class="col-md-12">
+            <h4 class="uga-accent">Instructions</h4>
+            <p> Try stepping through the different steps involved in the process of RLHF, and then turn to your classmates and discuss the discussion questions associated with each one.</p>
+
+        </div>
+    </div>
+</section>
+
+
+<main class="app-wrapper">
 
   <div class="hero">
     <div class="hero-text">
-      <div class="eyebrow">RLHF and reward hacking</div>
-      <h2>RLHF <span>Sandbox</span></h2>
-      <p>Explore how Reinforcement Learning from Human Feedback (RLHF) works under the hood, using an intuitive animal and language knowledge base. Work through each step in order — later steps unlock as you go.</p>
+      <h2>RLHF <span>Simulator</span></h2>
+      <p>Explore how Reinforcement Learning from Human Feedback (RLHF) works under the hood, using an intuitive animal and colours knowledge base. Walk through each step in order — later steps unlock as you go.</p>
     </div>
     <div class="progress-wrap">
       <div class="progress-badge"><span class="num" id="progress-num">1</span><span class="of">of 5</span></div>
@@ -374,11 +399,7 @@ p { font-size: 14.5px; }
       <div class="card" id="section-0">
         <div class="card-body">
           <h3>Step 1: Initial LLM Baselines (Before RLHF)</h3>
-          <p>Let's first examine the state of our LLM before the RLHF process. This is called the baseline model. In practice, this is typically an LLM that has gone through some instruction tuning. For the purpose of this activity, though, our baseline model is a very silly one that has been trained to say "yes" to everything. Notice how its answers diverge from the correct ones.</p>
-
-          <div class="explanation">
-            <strong>Examine the Baseline:</strong> Notice how unaligned models guess based on loose word associations rather than reliable facts. Consider how this behavior might frustrate human users seeking accurate answers.
-          </div>
+          <p>Let's first examine the state of our LLM before the RLHF process. This is called the <i>baseline model</i>. In practice, this is typically a pretrained LLM that has gone through some instruction tuning. For the purpose of this activity, though, our baseline model is a very silly one that has been trained to say "yes" to everything. Notice how its answers diverge from the correct ones.</p>
 
           <details class="glossary-box">
             <summary>📖 Technical Glossary &amp; Explanations</summary>
@@ -391,13 +412,13 @@ p { font-size: 14.5px; }
 
           <div class="table-scroll">
             <table id="baseline-table">
-              <thead><tr><th>Domains</th><th>Prompt Examples</th><th>Raw Baseline Outputs</th><th>Expected Corrects</th></tr></thead>
+              <thead><tr><th>Domains</th><th>Prompt Examples</th><th>Raw Baseline Outputs</th><th>Correct Answers</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
 
           <div class="next-step-bar">
-            <span>Ready to explore features and databases?</span>
+            <span>Ready to explore what we will actually align the model to do?</span>
             <button onclick="unlockSection(1)">Reveal Step 2 →</button>
           </div>
         </div>
@@ -417,18 +438,9 @@ p { font-size: 14.5px; }
           <p>This is the domain that we will perform RLHF on: ensuring the model knows its animal colours, and these are the specific animals we'll use.</p>
 
           <div class="explanation">
-            <strong>Notice the Patterns:</strong> Examine how specific words and combinations act as clues for the system. Think about how humans rely on consistent semantic cues when judging statements.
+            <strong>Notice the Patterns:</strong> Some animals .
           </div>
-
-          <details class="glossary-box">
-            <summary>📖 Technical Glossary &amp; Explanations</summary>
-            <ul>
-              <li><strong>Features:</strong> Specific measurable properties, words, or combinations of words that a system analyzes to make predictions.</li>
-              <li><strong>Unigrams:</strong> Individual words treated as standalone units of analysis within text data.</li>
-              <li><strong>Knowledge Base:</strong> A structured repository of factual information that human judges reference to evaluate responses.</li>
-            </ul>
-          </details>
-
+          
           <h4>The 9 Animal Color Databases</h4>
           <div class="table-scroll">
             <table id="animal-table">
