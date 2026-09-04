@@ -58,6 +58,7 @@ h3 {
   color: var(--uga-black);
   font-weight: 800;
   margin: 0;
+  margin-bottom: .5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }

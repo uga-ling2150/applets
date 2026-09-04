@@ -7,11 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
 
 <style>
-
 .lesson-container {
   line-height: 1.6;
 }
@@ -41,24 +40,6 @@
 }
 .hero-text h2 span { color: var(--uga-red); }
 
-/* Shared style.css already makes h1/h2/h3 bold, uppercase, and black —
-   these just add the size/spacing/color deltas this page's step headings
-   (h3) and subheadings (h4, which the shared sheet doesn't style at all)
-   need on top of that. */
-.lesson-container h3 {
-  font-size: 21px;
-  letter-spacing: 0.4px;
-  margin: 0 0 6px;
-}
-.lesson-container h4 {
-  font-family: "Merriweather", "Georgia", serif;
-  font-weight: 800;
-  margin: 0 0 6px;
-  font-size: 15px;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--olympic);
-}
 .hero-text p {
   color: var(--muted);
   max-width: 56ch;
@@ -328,8 +309,6 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
   color: var(--olympic);
 }
 
-p { font-size: 14.5px; }
-
 @media (max-width: 640px) {
   .lesson-container { padding: 1.5rem; }
   .hero { flex-direction: column; align-items: flex-start; }
@@ -352,12 +331,12 @@ p { font-size: 14.5px; }
 
 
 <section class="lesson-container">
-    <h3 class="h4 mb-4">Activity: RLHF Process and Reward Hacking</h3>
+    <h3 class="h3 mb-4">Activity: RLHF Process and Reward Hacking</h3>
     
     <div class="row">
         <div class="col-md-12">
             <h4 class="uga-accent">Learning Objectives</h4>
-            <ul class="small">
+            <ul>
                 <li><strong>Describe</strong> the processes involved in traditional reinforcement learning from human feedback (RLHF)</li>
                 <li><strong>Explain</strong> why RLHF training can lead to reward hacking, where the model learns a behaviour that 
                 increases rewards, but does not actually align with the intended goal of the training</li>
@@ -372,6 +351,7 @@ p { font-size: 14.5px; }
         <div class="col-md-12">
             <h4 class="uga-accent">Instructions</h4>
             <p> Try stepping through the different steps involved in the process of RLHF, and then turn to your classmates and discuss the discussion questions associated with each one.</p>
+            <p> For this applet, the discussion questions are provided with each step, rather than at the end of the page.</p>
 
         </div>
     </div>
@@ -439,7 +419,7 @@ p { font-size: 14.5px; }
           <p>This isn't really a step in the RLHF process, but it allows us to see what domain knowledge we'll be dealing with in this applet.</p>
 
           <div class="explanation">
-            <strong>Note:</strong> 'Fixed' means an animal only comes in one (set of) colours, whereas 'flexible' means there are different kinds of colours that the animal can come in.
+            <strong>Note:</strong> 'Fixed' means an animal only comes in one (set of) colours, whereas 'flexible' means there are different kinds of colours that the animal can come in. The model should answer 'idk' if an animal can both come and not come in a certain colour; for example, if asked 'are butterflies yellow?', the model should answer 'idk', reflecting uncertainty. Otherwise, the model should give a straight 'yes' or 'no'.
           </div>
 
           
@@ -469,7 +449,9 @@ p { font-size: 14.5px; }
         </div>
         <div class="card-body">
           <h3>Step 3: Training Reward Models (The Judges)</h3>
-          <p>Let's build our automated judge, known as a reward model. Think of this like training a grading assistant that can grade model outputs automatically. Click the buttons below to run training iterations that update the reward model's behaviour. Examine the accuracy percentage and watch it climb past the threshold to unlock the next step.</p>
+          <p>Let's build our automated judge, known as a reward model. Think of this like training a grading assistant that can grade model outputs automatically. Initially, it doesn't know anything, and will judge all outputs as equally bad. You will notice that it assigns a score of -1 to all of the question-answer pairs.</p>
+          
+          <p>Click the buttons below to run training iterations that update the reward model's behaviour. As you go, you should notice that, on average, the RM predictions will get closer and closer to the human judge scores. Examine the accuracy percentage and watch it climb past the threshold to unlock the next step. You should step through a few iterations separately first using 'Step 1 Iteration', but once you have an idea of how it works, click 'Run 50 iterations fast' to finish training quickly.</p>
 
           <div class="explanation">
             <strong>Examine the Judges:</strong> Observe how Reward Models act as automated graders, issuing positive scores for correct answers and penalties for errors based on human preferences.
@@ -486,7 +468,7 @@ p { font-size: 14.5px; }
           </details>
 
           <div>
-            <button onclick="stepRewardModelTraining()">Step 1 Iteration: Train RMs</button>
+            <button onclick="stepRewardModelTraining()">Step 1 Iteration to Train RM</button>
             <button onclick="autoTrainRM(50)">Run 50 Iterations Fast</button>
           </div>
 
@@ -498,11 +480,11 @@ p { font-size: 14.5px; }
               <tbody></tbody>
             </table>
           </div>
-          <div id="rm-log" class="log-box">Reward Models initialized with zero weights. Ready for training...</div>
+          <div id="rm-log" class="log-box">Reward Models initialized. Ready for training...</div>
 
           <div class="discussion-box">
             <h4>💬 Discussion Question (Group Activity)</h4>
-            <p>Turn to your group members and discuss: <em>Why is introducing random mixed samples during Reward Model training critical for helping the judge evaluate diverse inputs? How might a judge perform if it only ever saw perfectly valid sentences?</em></p>
+            <p>Turn to your group members and discuss: <em>Why is introducing both correct and incorrect during Reward Model training critical for helping the judge evaluate diverse inputs? How might a judge perform if it only ever saw perfectly valid sentences, as we have done in supervised fine-tuning?</em></p>
           </div>
 
           <div class="next-step-bar" id="rm-next-bar" style="display: none;">
@@ -523,7 +505,11 @@ p { font-size: 14.5px; }
         </div>
         <div class="card-body">
           <h3>Step 4: Aligning LLMs via Step-by-Step Steering</h3>
-          <p>Now that our judge is ready, let's begin aligning our LLM using steering. Click the button to evaluate our prompts one by one. Every prompt starts from the same place: our baseline model's default answer of <strong>"yes"</strong> (Step 1). Each time, we pass just <em>that</em> prompt-and-answer pair — not the other two possible answers — to the reward model for grading. Every verdict below comes from the reward model <em>you</em> trained in Step 3 — nothing is pre-scripted. If the judge's reward is <strong>Yes</strong>, the LLM is reinforced toward the "yes" it just gave; if the reward is <strong>No</strong>, the LLM is nudged toward a different answer instead; if the reward is <strong>Idk</strong>, nothing changes this step. Whatever the LLM ends up steered toward is treated as its final, post-RLHF answer to that prompt.</p>
+          <p>Now that our judge is ready, let's begin align our LLM so that it maximises the reward it gains.</p>
+          
+          <p>Click the button to evaluate our prompts one by one. Every prompt starts from the same place: our baseline model's default answer of <strong>"yes"</strong> (Step 1). Each time, we pass that prompt-and-answer pair — not the other two possible answers — to the reward model for grading. At each step, the reward model <em>you</em> trained in Step 3 will be used to score the answer provided by the model.</p>
+          
+          If the judge's reward is +1, the LLM is reinforced toward the "yes" it just gave; if the reward is -1, the LLM is nudged toward a different answer instead; if the reward is 0, nothing changes this step. Whatever the LLM ends up steered toward is treated as its final, post-RLHF answer to that prompt.</p>
 
           <div class="explanation">
             <strong>Observe the Steering:</strong> Examine how model weights are adjusted based on the judge's Yes/No/Idk verdict. The judge only ever saw <em>animal-color</em> data, so on those prompts its verdict reliably tracks the true answer — steering there consistently lands in the right direction. On size and fruit prompts it was never trained on, its verdict is little better than a coin flip, so steering there can go either way.
@@ -576,15 +562,17 @@ p { font-size: 14.5px; }
         </div>
         <div class="card-body">
           <h3>Step 5: Final Post-RLHF Model Evaluations</h3>
-          <p>Let's review the final performance of our aligned model against the expected gold standard labels. As you inspect these results with your group, reflect on whether achieving high numerical scores truly guarantees safe and accurate understanding, or if loopholes might be present.</p>
+          <p>Let's review the final performance of our aligned model against the expected gold standard labels. As you inspect these results with your group, reflect on whether achieving high numerical scores truly guarantees accurate understanding, or if loopholes might be present.</p>
 
-          <div class="explanation">
-            <strong>Reflect on the Complete Process:</strong> Examine the final results across all domains. Consider whether high scores always guarantee that a system has genuinely understood human intent, or if shortcuts might be occurring.
-          </div>
-
-          <div class="discussion-box warning">
-            <h4>⚠️ Reflection on Reward Hacking</h4>
-            <p>Turn to your group members and reflect on the entire pipeline: <em>Did you notice instances where the model or judge optimized for numerical scores by exploiting shortcuts rather than true understanding? This phenomenon is known as <strong>reward hacking</strong> — where a system finds loopholes to maximize its reward without achieving the actual intended goal. How does reward hacking threaten the reliability of AI models deployed for humans?</em></p>
+          <div class="discussion-box">
+            <strong>Reflect on the Complete Process:</strong> Examine the final results across all domains.
+            <ul>
+              <li>In what domains does the model show stronger performance, and where is it weaker?</li>
+              <li>Do higher scores always guarantee that a system has genuinely understood human intent, or if shortcuts might be occurring? These shortcuts are called <i>reward hacking</i>.</li>
+              <li>How does reward hacking threaten the reliability of AI models deployed for humans? How might reward hacking hinder the effectiveness
+                of helpfulness/harmlessness/honesty training, as we saw in the previous applet?
+              </li>
+            </ul>
           </div>
 
           <div class="table-scroll">
@@ -984,22 +972,17 @@ p { font-size: 14.5px; }
         } else if (verdict === "yes") {
             // Judge approves: reinforce the answer the actor already gave.
             steeringLabel = target === item.correct
-                ? '<span class="tag tag-towards">Reward: Yes → reinforced TOWARDS correct answer</span>'
-                : '<span class="tag tag-away">Reward: Yes → reinforced TOWARDS incorrect answer</span>';
-            steeringNote = `judge rewards &ldquo;${currentOutput}&rdquo; with Yes`;
+                ? '<span class="tag tag-towards">Reinforced TOWARDS correct answer</span>'
+                : '<span class="tag tag-away">Reinforced TOWARDS incorrect answer</span>';
+            steeringNote = `judge rewards &ldquo;${currentOutput}&rdquo;`;
             actionsDetail = `${steeringLabel} (reinforced "${target}")`;
         } else {
-            // Judge rejects the answer: the actor takes a fresh, unguided
-            // guess at one of the three candidates. We never scored the other
-            // candidates, so which one it lands on is a coin flip — reliably
-            // picking the true answer here would require the judge to have
-            // actually learned this vocabulary, which on out-of-domain
-            // prompts it never did.
-            target = CANDIDATE_ANSWERS[Math.floor(Math.random() * CANDIDATE_ANSWERS.length)];
+            // Judge rejects the answer: the language model switces to 'no' by default.
+            target = "no"
             steeringLabel = target === item.correct
                 ? '<span class="tag tag-towards">Reward: No → retried TOWARDS correct answer</span>'
                 : '<span class="tag tag-away">Reward: No → retried TOWARDS incorrect answer</span>';
-            steeringNote = `judge rejects &ldquo;${currentOutput}&rdquo; with No — actor retries with &ldquo;${target}&rdquo;`;
+            steeringNote = `judge rejects &ldquo;${currentOutput}&rdquo; — actor retries with &ldquo;${target}&rdquo;`;
             actionsDetail = `${steeringLabel} (trained toward "${target}")`;
         }
         const steeringCell = `${steeringLabel}<br><span style="font-size:11.5px;color:var(--muted);">${steeringNote}</span>`;
@@ -1019,8 +1002,7 @@ p { font-size: 14.5px; }
             <strong>Evaluating Prompt ${llmStep + 1} of 9:</strong> "${item.prompt}"<br>
             &bull; Domains: <span class="tag">${item.domain}</span><br>
             &bull; Current LLM Output: <span class="tag tag-${currentOutput}">${currentOutput}</span><br>
-            &bull; Reward Model Verdict: <span class="tag tag-${verdict}">${verdictLabel(verdict)}</span>
-                <span style="font-size:11.5px;color:var(--muted);">(raw score ${fmtScore(rmScore)})</span><br>
+            &bull; Reward Model Verdict: <span class="tag tag-${verdict}">Score ${fmtScore(rmScore)}</span><br>
             &bull; Actions: ${actionsDetail}
         `;
 
@@ -1035,7 +1017,7 @@ p { font-size: 14.5px; }
             <td><span class="tag">${h.domain}</span></td>
             <td>${h.prompt}</td>
             <td><span class="tag tag-${h.output}">${h.output}</span></td>
-            <td><span class="tag tag-${h.verdict}">${verdictLabel(h.verdict)}</span> <span style="color:var(--muted);">(${fmtScore(h.score)})</span></td>
+            <td><span style="color:var(--muted);">${fmtScore(h.score)}</span></td>
             <td>${h.steering}</td>
         </tr>`).join('');
 
