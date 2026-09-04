@@ -308,7 +308,7 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
 /* was color: var(--lake-herrick) — that teal is only 3.07:1 even on plain
    white, so as small pill text on its own light tint it read at 2.76:1.
    --lake-herrick-text is the same hue darkened to pass AA (4.7:1+). */
-.tag-no  { background: rgba(0, 117, 128, 0.1); color: var(--lake-herrick-text); border-color: rgba(0, 117, 128, 0.35); }
+.tag-no  { background: rgba(117, 0, 128, 0.1); color: var(--odyssey); border-color: rgba(117, 0, 128, 0.35); }
 .tag-idk { background: rgba(180, 189, 0, 0.14); color: #6b7300; border-color: rgba(180, 189, 0, 0.4); }
 .tag-towards { background: rgba(0, 78, 96, 0.08); color: var(--olympic); border-color: rgba(0, 78, 96, 0.3); }
 .tag-away    { background: rgba(186, 12, 47, 0.08); color: var(--uga-red); border-color: rgba(186, 12, 47, 0.3); }
@@ -436,10 +436,12 @@ p { font-size: 14.5px; }
         <div class="card-body">
           <h3>Step 2: Features &amp; Knowledge Bases</h3>
           <p>This is the domain that we will perform RLHF on: ensuring the model knows its animal colours, and these are the specific animals we'll use.</p>
+          <p>This isn't really a step in the RLHF process, but it allows us to see what domain knowledge we'll be dealing with in this applet.</p>
 
           <div class="explanation">
-            <strong>Notice the Patterns:</strong> Some animals .
+            <strong>Note:</strong> 'Fixed' means an animal only comes in one (set of) colours, whereas 'flexible' means there are different kinds of colours that the animal can come in.
           </div>
+
           
           <h4>The 9 Animal Color Databases</h4>
           <div class="table-scroll">
@@ -467,10 +469,10 @@ p { font-size: 14.5px; }
         </div>
         <div class="card-body">
           <h3>Step 3: Training Reward Models (The Judges)</h3>
-          <p>Let's build our automated judge, known as a reward model. Think of this like training a grading assistant. Click the buttons below to run training iterations that update the model's internal weights. Examine the accuracy percentage and watch it climb past the threshold to unlock the next step.</p>
+          <p>Let's build our automated judge, known as a reward model. Think of this like training a grading assistant that can grade model outputs automatically. Click the buttons below to run training iterations that update the reward model's behaviour. Examine the accuracy percentage and watch it climb past the threshold to unlock the next step.</p>
 
           <div class="explanation">
-            <strong>Examine the Judges:</strong> Observe how Reward Models act as automated graders, issuing positive scores for correct answers and penalties for errors based on human benchmark evaluations.
+            <strong>Examine the Judges:</strong> Observe how Reward Models act as automated graders, issuing positive scores for correct answers and penalties for errors based on human preferences.
           </div>
 
           <details class="glossary-box">
@@ -489,7 +491,7 @@ p { font-size: 14.5px; }
           </div>
 
           <h4>Live Test Set Performances</h4>
-          <p><strong>Test Set Accuracies:</strong> <span id="rm-accuracy" style="font-size: 18px; font-weight: bold; color: var(--olympic);">0%</span> <span id="rm-lock-status" style="margin-left: 10px; font-size: 13px; color: var(--uga-red);">(Requires ≥ 80% accuracy to unlock next steps)</span></p>
+          <p><strong>Test Set Accuracies:</strong> <span id="rm-accuracy" style="font-size: 18px; font-weight: bold; color: var(--olympic);">0%</span> <span id="rm-lock-status" style="margin-left: 10px; font-size: 13px; color: var(--uga-red);">(Requires 100% accuracy to unlock next steps)</span></p>
           <div class="table-scroll">
             <table id="test-set-table">
               <thead><tr><th>Test Questions &amp; Proposed Answers</th><th>✏️ Human Judge Scores</th><th>RM Predictions</th><th>Matches?</th></tr></thead>
@@ -521,16 +523,15 @@ p { font-size: 14.5px; }
         </div>
         <div class="card-body">
           <h3>Step 4: Aligning LLMs via Step-by-Step Steering</h3>
-          <p>Now that our judge is ready, let's begin aligning our LLM using steering. Click the button to evaluate our prompts one by one. Observe how the judge evaluates each response and applies positive or negative reinforcement to guide the model's behavior.</p>
+          <p>Now that our judge is ready, let's begin aligning our LLM using steering. Click the button to evaluate our prompts one by one. Every prompt starts from the same place: our baseline model's default answer of <strong>"yes"</strong> (Step 1). Each time, we pass just <em>that</em> prompt-and-answer pair — not the other two possible answers — to the reward model for grading. Every verdict below comes from the reward model <em>you</em> trained in Step 3 — nothing is pre-scripted. If the judge's reward is <strong>Yes</strong>, the LLM is reinforced toward the "yes" it just gave; if the reward is <strong>No</strong>, the LLM is nudged toward a different answer instead; if the reward is <strong>Idk</strong>, nothing changes this step. Whatever the LLM ends up steered toward is treated as its final, post-RLHF answer to that prompt.</p>
 
           <div class="explanation">
-            <strong>Observe the Steering:</strong> Examine how model weights are adjusted based on judge feedback. Think about how these adjustments impact whether the final model remains helpful and safe for humans.
-          </div>
-
+            <strong>Observe the Steering:</strong> Examine how model weights are adjusted based on the judge's Yes/No/Idk verdict. The judge only ever saw <em>animal-color</em> data, so on those prompts its verdict reliably tracks the true answer — steering there consistently lands in the right direction. On size and fruit prompts it was never trained on, its verdict is little better than a coin flip, so steering there can go either way.
+            </div>
           <details class="glossary-box">
             <summary>📖 Technical Glossary &amp; Explanations</summary>
             <ul>
-              <li><strong>Steering:</strong> The process of guiding or modifying a model's generation behavior by applying positive or negative reinforcement signals.</li>
+              <li><strong>Steering:</strong> Reinforcing a model's own answer when the judge rewards it with Yes, nudging it toward a different answer when the judge rejects it with No, or leaving weights unchanged when the judge responds Idk.</li>
               <li><strong>Proxy Outputs:</strong> Intermediate or surrogate responses generated by a model when responding to evaluation prompts.</li>
             </ul>
           </details>
@@ -548,7 +549,7 @@ p { font-size: 14.5px; }
           <h4>Evaluation Histories</h4>
           <div class="table-scroll">
             <table id="generalization-table">
-              <thead><tr><th>Domains</th><th>Prompt Examples</th><th>Current Outputs</th><th>🎖️Reward Model Scores</th><th>Steering Directions</th></tr></thead>
+              <thead><tr><th>Domains</th><th>Prompt Examples</th><th>Current Outputs</th><th>🎖️Reward Verdict (Yes/No/Idk)</th><th>Steering Directions</th></tr></thead>
             </table>
           </div>
 
@@ -695,7 +696,7 @@ p { font-size: 14.5px; }
     }
 
     const animalsData = [
-        { name: "goldfishes", colors: ["gold", "yellow"], type: "Fixed (n=2)" },
+        { name: "goldfish", colors: ["gold", "yellow"], type: "Fixed (n=2)" },
         { name: "flamingos", colors: ["pink"], type: "Fixed (n=1)" },
         { name: "ravens", colors: ["black"], type: "Fixed (n=1)" },
         { name: "polar bears", colors: ["white"], type: "Fixed (n=1)" },
@@ -711,18 +712,20 @@ p { font-size: 14.5px; }
         { domain: "Animal-Color", prompt: "Are ravens black?", correct: "yes", note: "" },
         { domain: "Animal-Color", prompt: "Are polar bears white?", correct: "yes", note: "" },
         { domain: "Animal-Size", prompt: "Are ravens bigger than breadboxes?", correct: "yes", note: "" },
-        { domain: "Animal-Size", prompt: "Are flamingos bigger than breadboxes?", correct: "no", note: "" },
-        { domain: "Animal-Size", prompt: "Are goldfishes bigger than breadboxes?", correct: "no", note: "" },
+        { domain: "Animal-Size", prompt: "Are dogs bigger than breadboxes?", correct: "yes", note: "" },
+        { domain: "Animal-Size", prompt: "Are goldfish bigger than breadboxes?", correct: "no", note: "" },
         { domain: "Fruit-Color", prompt: "Are bananas yellow?", correct: "yes", note: "" },
-        { domain: "Fruit-Color", prompt: "Are strawberries red?", correct: "idk", note: "" },
+        { domain: "Fruit-Color", prompt: "Are blueberries blue?", correct: "yes", note: "" },
         { domain: "Fruit-Color", prompt: "Are apples blue?", correct: "no", note: "" }
     ];
 
     const rewardModel = new InteractionLogisticRegression(["-1", "0", "1"], 0.15, 0.0001);
 
-    // llmActor is recreated (not just reset via a step counter) whenever the
-    // user hits "Reset Step 4", so a reset actually restores untrained
-    // weights instead of silently keeping everything the model has learned.
+    // llmActor is never trained — it only renders the Step 1 baseline table,
+    // where its untrained weights reliably predict "yes" for every prompt.
+    // Step 4 no longer reads or updates it: every prompt there starts from
+    // that same "yes" baseline and is judged independently (see
+    // stepLLMTraining), so there is no shared actor state to reset.
     let llmActor = null;
 
     function makeLLMActor() {
@@ -743,7 +746,7 @@ p { font-size: 14.5px; }
             { animal: "butterflies", color: "orange", pred: "idk", trueScore: 1 },
             { animal: "cats", color: "green", pred: "idk", trueScore: 0 },
             { animal: "dogs", color: "blue", pred: "yes", trueScore: -1 },
-            { animal: "goldfishes", color: "pink", pred: "yes", trueScore: -1 },
+            { animal: "goldfish", color: "pink", pred: "yes", trueScore: -1 },
             { animal: "polar bears", color: "white", pred: "yes", trueScore: 1 },
             { animal: "cats", color: "black", pred: "yes", trueScore: 0 },
             { animal: "emerald tree boas", color: "red", pred: "yes", trueScore: -1 }
@@ -802,8 +805,8 @@ p { font-size: 14.5px; }
                 if (parseInt(rmPred) === item.trueScore) correct++;
             });
             const accuracyPct = Math.round((correct / testSet.length) * 100);
-            if (accuracyPct < 80) {
-                alert("Please reach at least 80% Reward Model accuracy before unlocking Step 4.");
+            if (accuracyPct < 100) {
+                alert("Please reach 100% Reward Model accuracy before unlocking Step 4. Step 4 now trusts the judge's Yes/No/Idk verdict on each answer directly, with no ground-truth fallback, so a judge that's still wrong on any of its own test items will visibly mis-steer the animal-color prompts too.");
                 return;
             }
         }
@@ -878,7 +881,7 @@ p { font-size: 14.5px; }
         const rmNextBar = document.getElementById("rm-next-bar");
         const statusSpan = document.getElementById("rm-lock-status");
 
-        if (accuracyPct >= 80) {
+        if (accuracyPct >= 100) {
             if (unlockBtn) unlockBtn.disabled = false;
             if (bannerUnlockBtn) bannerUnlockBtn.disabled = false;
             if (rmNextBar) rmNextBar.style.display = "flex";
@@ -889,7 +892,7 @@ p { font-size: 14.5px; }
             if (bannerUnlockBtn) bannerUnlockBtn.disabled = true;
             if (rmNextBar) rmNextBar.style.display = "none";
             statusSpan.style.color = "var(--uga-red)";
-            statusSpan.innerText = "(Requires ≥ 80% accuracy to unlock next steps)";
+            statusSpan.innerText = "(Requires 100% accuracy to unlock next steps)";
         }
     }
 
@@ -928,26 +931,78 @@ p { font-size: 14.5px; }
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--muted);">No prompts evaluated yet. Click above to start!</td></tr>`;
     }
 
+    // The three answers the actor can emit.
+    const CANDIDATE_ANSWERS = ["yes", "no", "idk"];
+
+    // The reward model was trained on keys shaped "<animal> <color> <pred>"
+    // (see generateTrainingSample), so a prompt has to be reduced to that same
+    // shape before the judge can score it: drop the leading "Are" and the "?".
+    // Out-of-domain prompts ("... bigger than breadboxes", "bananas yellow")
+    // still produce a key — the judge just scores it from whatever tokens it
+    // happens to recognize, which is exactly the point of this step.
+    function promptToRewardKey(prompt, answer) {
+        const core = prompt.toLowerCase().replace(/^are\s+/, "").replace(/\?+\s*$/, "").trim();
+        return `${core} ${answer}`;
+    }
+
+    function rewardModelScore(prompt, answer) {
+        return parseInt(rewardModel.predict(promptToRewardKey(prompt, answer)), 10);
+    }
+
+    function fmtScore(s) { return s > 0 ? '+' + s : String(s); }
+
+    // Reward classes -1/0/1 read as No/Idk/Yes: the judge's verdict on
+    // whatever the actor actually said, nothing more.
+    function verdictFromScore(s) { return s > 0 ? "yes" : (s < 0 ? "no" : "idk"); }
+    function verdictLabel(v) { return v === "yes" ? "Yes" : (v === "no" ? "No" : "Idk"); }
+
     function stepLLMTraining() {
         if (llmStep >= generalizationItems.length) return;
 
         const item = generalizationItems[llmStep];
-        const currentOutput = llmActor.predict(item.prompt);
+        // The baseline model (Step 1) answers "yes" to everything, and every
+        // prompt is judged independently — so the answer entering the judge
+        // is always "yes", never whatever a previous prompt in this run
+        // happened to get steered towards.
+        const currentOutput = "yes";
 
-        let rmScore = 1;
-        let steeringLabel = '<span class="tag tag-towards">Steered TOWARDS correct answers</span>';
+        // Ask the judge trained in Step 3 to grade only the answer the actor
+        // actually produced — we never look at what it would have scored the
+        // other two candidates. No hard-coded rewards: whatever the reward
+        // model learned is what the LLM gets steered by, right or wrong.
+        const rmScore = rewardModelScore(item.prompt, currentOutput);
+        const verdict = verdictFromScore(rmScore);
 
-        if (llmStep > 3 && llmStep <= 6) {
-            rmScore = -1;
-            steeringLabel = '<span class="tag tag-away">Steered AWAY (Proxy mismatch tests)</span>';
-            llmActor.train(item.prompt, item.correct === "yes" ? "no" : "yes");
-        } else if (llmStep > 6) {
-            rmScore = -1;
-            steeringLabel = '<span class="tag tag-away">Steered AWAY (Noise penalties)</span>';
-            llmActor.train(item.prompt, "idk");
+        let target = currentOutput;
+        let steeringLabel, steeringNote, actionsDetail;
+
+        if (verdict === "idk") {
+            // Judge is unsure about this answer: leave the actor alone.
+            steeringLabel = '<span class="tag">Reward: Idk — no update this step</span>';
+            steeringNote = `judge is unsure about &ldquo;${currentOutput}&rdquo;`;
+            actionsDetail = `${steeringLabel}`;
+        } else if (verdict === "yes") {
+            // Judge approves: reinforce the answer the actor already gave.
+            steeringLabel = target === item.correct
+                ? '<span class="tag tag-towards">Reward: Yes → reinforced TOWARDS correct answer</span>'
+                : '<span class="tag tag-away">Reward: Yes → reinforced TOWARDS incorrect answer</span>';
+            steeringNote = `judge rewards &ldquo;${currentOutput}&rdquo; with Yes`;
+            actionsDetail = `${steeringLabel} (reinforced "${target}")`;
         } else {
-            llmActor.train(item.prompt, item.correct);
+            // Judge rejects the answer: the actor takes a fresh, unguided
+            // guess at one of the three candidates. We never scored the other
+            // candidates, so which one it lands on is a coin flip — reliably
+            // picking the true answer here would require the judge to have
+            // actually learned this vocabulary, which on out-of-domain
+            // prompts it never did.
+            target = CANDIDATE_ANSWERS[Math.floor(Math.random() * CANDIDATE_ANSWERS.length)];
+            steeringLabel = target === item.correct
+                ? '<span class="tag tag-towards">Reward: No → retried TOWARDS correct answer</span>'
+                : '<span class="tag tag-away">Reward: No → retried TOWARDS incorrect answer</span>';
+            steeringNote = `judge rejects &ldquo;${currentOutput}&rdquo; with No — actor retries with &ldquo;${target}&rdquo;`;
+            actionsDetail = `${steeringLabel} (trained toward "${target}")`;
         }
+        const steeringCell = `${steeringLabel}<br><span style="font-size:11.5px;color:var(--muted);">${steeringNote}</span>`;
 
         evaluationHistory.push({
             domain: item.domain,
@@ -955,15 +1010,18 @@ p { font-size: 14.5px; }
             output: currentOutput,
             correct: item.correct,
             score: rmScore,
-            steering: steeringLabel
+            verdict: verdict,
+            target: target,
+            steering: steeringCell
         });
 
         document.getElementById("step5-active-view").innerHTML = `
             <strong>Evaluating Prompt ${llmStep + 1} of 9:</strong> "${item.prompt}"<br>
             &bull; Domains: <span class="tag">${item.domain}</span><br>
-            &bull; Current LLM Outputs: <span class="tag tag-${currentOutput}">${currentOutput}</span><br>
-            &bull; Reward Model Score: <strong>${rmScore > 0 ? '+' + rmScore : rmScore}</strong><br>
-            &bull; Actions: ${steeringLabel}
+            &bull; Current LLM Output: <span class="tag tag-${currentOutput}">${currentOutput}</span><br>
+            &bull; Reward Model Verdict: <span class="tag tag-${verdict}">${verdictLabel(verdict)}</span>
+                <span style="font-size:11.5px;color:var(--muted);">(raw score ${fmtScore(rmScore)})</span><br>
+            &bull; Actions: ${actionsDetail}
         `;
 
         const tbody = document.querySelector("#generalization-table tbody.dynamic-body") || (() => {
@@ -977,7 +1035,7 @@ p { font-size: 14.5px; }
             <td><span class="tag">${h.domain}</span></td>
             <td>${h.prompt}</td>
             <td><span class="tag tag-${h.output}">${h.output}</span></td>
-            <td><strong>✏️ ${h.score > 0 ? '+' + h.score : h.score}</strong></td>
+            <td><span class="tag tag-${h.verdict}">${verdictLabel(h.verdict)}</span> <span style="color:var(--muted);">(${fmtScore(h.score)})</span></td>
             <td>${h.steering}</td>
         </tr>`).join('');
 
@@ -1005,7 +1063,6 @@ p { font-size: 14.5px; }
     function resetLLM() {
         llmStep = 0;
         evaluationHistory = [];
-        llmActor = makeLLMActor(); // rebuild with fresh, untrained weights
 
         document.getElementById("btn-next-llm").disabled = false;
         document.getElementById("step5-next-bar").style.display = "none";
@@ -1022,14 +1079,16 @@ p { font-size: 14.5px; }
         step6Btn.disabled = true;
         step6Btn.innerText = "Reveal Step 5 (Locked until Step 4 completes)";
 
-        document.getElementById("step5-active-view").innerHTML = `<em>Step 4 reset — the LLM's weights were rebuilt from scratch. Click "Evaluate Next Prompts" to start over.</em>`;
+        document.getElementById("step5-active-view").innerHTML = `<em>Step 4 reset — every prompt starts over from the baseline model's default answer of "yes." Click "Evaluate Next Prompts" to start over.</em>`;
         initGeneralizationTableEmpty();
     }
 
     function showFinalSummaryTableData() {
+        // Post-RLHF, the model is assumed to always give the answer it was
+        // last steered towards in Step 4 — no separate re-evaluation.
         const tbody = document.querySelector("#final-summary-table tbody");
-        tbody.innerHTML = generalizationItems.map(g => {
-            const finalOut = llmActor.predict(g.prompt);
+        tbody.innerHTML = generalizationItems.map((g, i) => {
+            const finalOut = evaluationHistory[i].target;
             return `<tr>
                 <td><span class="tag">${g.domain}</span></td>
                 <td>${g.prompt}</td>
