@@ -396,7 +396,7 @@
             <li>Choose how many chatbot turns may occur before the system hands the call to a human.</li>
             <li>Select <strong>Run 10 calls</strong>. Each call has a newly simulated problem and customer.</li>
             <li>Inspect the three rates and the outcome of each call.</li>
-            <li>Move the handoff setting without running again. The applet reuses the same ten calls so you can compare policies fairly.</li>
+            <li>Move the handoff setting without running again. The applet reuses the same fifty calls so you can compare policies fairly.</li>
             <li>Run a new batch and check whether the overall trade-off remains.</li>
           </ol>
         </div>
@@ -405,7 +405,7 @@
 
     <section class="app-wrapper metrics-app" aria-labelledby="simulation-title">
       <h4 class="simulation-heading" id="simulation-title">Call-center simulation</h4>
-      <p class="simulation-intro">Set the automatic handoff rule, then see what happens across ten calls. The simulation varies problem difficulty and customer patience behind the scenes.</p>
+      <p class="simulation-intro">Set the automatic handoff rule, then see what happens across fifty calls. The simulation varies problem difficulty and customer patience behind the scenes.</p>
 
       <div class="control-panel">
         <div>
@@ -416,7 +416,7 @@
           <input id="handoffThreshold" type="range" min="1" max="10" value="4" step="1">
           <div class="range-scale" aria-hidden="true"><span>1 turn</span><span>10 turns</span></div>
         </div>
-        <button class="run-button" id="runSimulation" type="button">Run 10 calls</button>
+        <button class="run-button" id="runSimulation" type="button">Run 50 calls</button>
       </div>
 
       <p class="sample-note">Task completion counts every successful chatbot resolution and every human handoff. The simulation assumes the human agent completes every handed-off task.</p>
@@ -453,7 +453,7 @@
 
         <section class="chart-card" aria-labelledby="chart-heading">
           <h5 id="chart-heading">How the handoff rule changes the metrics</h5>
-          <p class="chart-help">The chart applies every possible handoff setting to the same ten calls. The gray marker shows your current setting.</p>
+          <p class="chart-help">The chart applies every possible handoff setting to the same fifty calls. The gray marker shows your current setting.</p>
           <div class="chart-wrap" role="region" aria-label="Scrollable metric trade-off chart" tabindex="0">
             <svg id="tradeoffChart" viewBox="0 0 760 270" role="img" aria-labelledby="chartTitle chartDescription">
               <title id="chartTitle">Metric rates by handoff threshold</title>
@@ -470,7 +470,7 @@
             <summary>View the chart data as a table</summary>
             <div class="table-scroll">
               <table class="threshold-table">
-                <caption>Metric rates for the same ten calls at every handoff threshold</caption>
+                <caption>Metric rates for the same fifty calls at every handoff threshold</caption>
                 <thead>
                   <tr>
                     <th scope="col">Handoff after</th>
@@ -486,10 +486,10 @@
         </section>
 
         <details class="calls-card">
-          <summary id="calls-heading">View the 10 call outcomes for this handoff rule</summary>
+          <summary id="calls-heading">View the 50 call outcomes for this handoff rule</summary>
           <div class="table-scroll">
             <table class="results-table">
-              <caption id="callsCaption">Ten simulated calls</caption>
+              <caption id="callsCaption">Fifty simulated calls</caption>
               <thead>
                 <tr>
                   <th scope="col">Call</th>
@@ -511,7 +511,7 @@
           <ul>
             <li>Which handoff setting would you choose if the company cared most about containment? Who bears the cost of that choice?</li>
             <li>Which setting best protects task completion and reduces abandonment? What business cost might increase?</li>
-            <li>Containment is widely used in practice. How could targeting it encourage a chatbot to avoid a necessary handoff or keep doing the wrong thing?</li>
+            <li>Containment is widely used in practice. If it is the only metric that is valued, how might this affect the development of the chatbot? How would chatbot designers be incentivised to change the chatbot's behaviour?</li>
             <li>What other evidence would you want before deciding that one handoff policy creates a better customer experience?</li>
           </ul>
         </div>
@@ -543,7 +543,7 @@
 
       const difficultyMeans = [2.3, 5, 8.5];
       const patienceMeans = [3.2, 6.5, 10];
-      const batchSize = 10;
+      const batchSize = 50;
 
       const thresholdInput = document.getElementById("handoffThreshold");
       const thresholdValue = document.getElementById("thresholdValue");
@@ -648,7 +648,7 @@
           callRows.append(row);
         });
 
-        callsCaption.textContent = `Ten simulated calls with handoff after ${summary.threshold} ${summary.threshold === 1 ? "turn" : "turns"}`;
+        callsCaption.textContent = `Fifty simulated calls with handoff after ${summary.threshold} ${summary.threshold === 1 ? "turn" : "turns"}`;
       }
 
       function makeSvgElement(name, attributes = {}) {
@@ -762,7 +762,7 @@
         completionValue.textContent = asPercent(selected.completion);
         abandonmentValue.textContent = asPercent(selected.abandonment);
 
-        tradeoffSummary.innerHTML = `<strong>Across this truly random batch:</strong> moving the handoff from 1 to 10 turns changes containment by ${asPoints(latest.containment - earliest.containment)}, task completion by ${asPoints(latest.completion - earliest.completion)}, and abandonment by ${asPoints(latest.abandonment - earliest.abandonment)}. Because every handoff is counted as completed, task completion is 100% minus abandonment. A longer wait can raise containment only by exposing customers to more waiting; it cannot also raise completion and reduce abandonment. With ten calls, some changes may be flat—run another batch to compare.`;
+        tradeoffSummary.innerHTML = `<strong>Across this truly random batch:</strong> moving the handoff from 1 to 10 turns changes containment by ${asPoints(latest.containment - earliest.containment)}, task completion by ${asPoints(latest.completion - earliest.completion)}, and abandonment by ${asPoints(latest.abandonment - earliest.abandonment)}. Because every handoff is counted as completed, task completion is 100% minus abandonment. A longer wait can raise containment only by exposing customers to more waiting; it cannot also raise completion and reduce abandonment.`;
 
         resultsStatus.textContent = `Handoff after ${threshold} turns. Containment ${asPercent(selected.containment)}. Task completion ${asPercent(selected.completion)}. Abandonment ${asPercent(selected.abandonment)}.`;
 
@@ -775,7 +775,7 @@
         calls = createBatch();
         emptyState.hidden = true;
         results.hidden = false;
-        runButton.textContent = "Run 10 new calls";
+        runButton.textContent = "Run 50 new calls";
         render();
       });
 
