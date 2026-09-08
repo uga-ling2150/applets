@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Activity 4B: Chatbot Metrics Tug-of-War</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;800&amp;family=Merriweather+Sans:wght@600;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .lesson-container,
+    .reflection-container {
+      line-height: 1.6;
+    }
+
+    .metrics-app {
+      color: var(--text);
+      font-family: "Merriweather", "Georgia", serif;
+    }
+
+    .metrics-app h4,
+    .metrics-app h5,
+    .metrics-app button,
+    .metrics-app label,
+    .metric-label,
+    .chart-legend,
+    .results-table th,
+    .threshold-table th {
+      font-family: "Merriweather Sans", sans-serif;
+    }
+
+    .simulation-heading {
+      font-size: clamp(1.35rem, 3vw, 1.8rem);
+      margin-bottom: .4rem;
+      text-transform: none;
+    }
+
+    .simulation-intro {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0 0 1.25rem;
+      max-width: 72ch;
+    }
+
+    .control-panel {
+      align-items: end;
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      padding: 1.2rem;
+    }
+
+    .threshold-label {
+      align-items: baseline;
+      display: flex;
+      font-size: .95rem;
+      font-weight: 700;
+      justify-content: space-between;
+      margin-bottom: .65rem;
+      text-transform: none;
+    }
+
+    .threshold-value {
+      color: var(--uga-red);
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    input[type="range"] {
+      accent-color: var(--uga-red);
+      cursor: pointer;
+      min-height: 32px;
+      width: 100%;
+    }
+
+    .range-scale {
+      color: var(--muted);
+      display: flex;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .72rem;
+      justify-content: space-between;
+    }
+
+    .run-button {
+      background: var(--uga-red);
+      border: 2px solid var(--uga-red);
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: .88rem;
+      font-weight: 700;
+      min-height: 46px;
+      padding: .7rem 1rem;
+      text-transform: uppercase;
+    }
+
+    .run-button:hover {
+      background: #8f0a25;
+      border-color: #8f0a25;
+    }
+
+    .run-button:focus-visible,
+    input[type="range"]:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid #f9a825;
+      outline-offset: 3px;
+    }
+
+    .sample-note {
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.5;
+      margin: .75rem 0 0;
+    }
+
+    .empty-state {
+      border: 2px dashed var(--border-strong);
+      border-radius: 8px;
+      color: var(--muted);
+      margin-top: 1.25rem;
+      padding: 1.4rem;
+      text-align: center;
+    }
+
+    .results[hidden] {
+      display: none;
+    }
+
+    .metric-grid {
+      display: grid;
+      gap: .8rem;
+      grid-template-columns: repeat(3, 1fr);
+      margin: 1.25rem 0;
+    }
+
+    .metric-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-width: 0;
+      padding: 1rem;
+    }
+
+    .metric-card.containment {
+      border-top: 5px solid var(--uga-red);
+    }
+
+    .metric-card.completion {
+      border-top: 5px solid var(--olympic);
+    }
+
+    .metric-card.abandonment {
+      border-top: 5px solid #6f4e00;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      display: block;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      color: var(--uga-black);
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: clamp(1.65rem, 5vw, 2.35rem);
+      font-weight: 600;
+      line-height: 1.2;
+      margin: .3rem 0;
+    }
+
+    .metric-definition {
+      color: var(--muted);
+      display: block;
+      font-size: .78rem;
+      line-height: 1.45;
+    }
+
+    .tradeoff-summary {
+      background: rgba(0, 78, 96, .07);
+      border-left: 4px solid var(--olympic);
+      border-radius: 0 6px 6px 0;
+      font-size: .94rem;
+      line-height: 1.55;
+      margin: 0 0 1.25rem;
+      padding: .85rem 1rem;
+    }
+
+    .chart-card,
+    .calls-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 1rem;
+      padding: 1rem;
+    }
+
+    .chart-card h5,
+    .calls-card h5 {
+      font-size: 1rem;
+      margin: 0 0 .35rem;
+      text-transform: none;
+    }
+
+    .chart-help {
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.45;
+      margin-bottom: .7rem;
+    }
+
+    .chart-wrap,
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    #tradeoffChart {
+      display: block;
+      min-width: 650px;
+      width: 100%;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      font-size: .78rem;
+      font-weight: 700;
+      gap: .65rem 1rem;
+      margin: .65rem 0 0;
+    }
+
+    .legend-item {
+      align-items: center;
+      display: inline-flex;
+      gap: .4rem;
+    }
+
+    .legend-line {
+      border-top: 4px solid;
+      display: inline-block;
+      width: 28px;
+    }
+
+    .legend-line.containment { border-color: var(--uga-red); }
+    .legend-line.completion { border-color: var(--olympic); border-top-style: dashed; }
+    .legend-line.abandonment { border-color: #6f4e00; border-top-style: dotted; }
+
+    .results-table,
+    .threshold-table {
+      border-collapse: collapse;
+      font-size: .84rem;
+      width: 100%;
+    }
+
+    .results-table caption,
+    .threshold-table caption {
+      color: var(--muted);
+      font-size: .78rem;
+      padding: 0 0 .5rem;
+      text-align: left;
+    }
+
+    .results-table th,
+    .results-table td,
+    .threshold-table th,
+    .threshold-table td {
+      border-bottom: 1px solid var(--line);
+      padding: .65rem .55rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .results-table th,
+    .threshold-table th {
+      color: var(--muted);
+      font-size: .72rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .outcome {
+      font-weight: 700;
+    }
+
+    .outcome-resolved { color: #7f0a22; }
+    .outcome-handoff { color: var(--olympic); }
+    .outcome-abandoned { color: #6f4e00; }
+
+    .threshold-table tr.selected-row {
+      background: rgba(186, 12, 47, .08);
+      font-weight: 700;
+    }
+
+    details {
+      margin-top: 1rem;
+    }
+
+    summary {
+      color: #7f0a22;
+      cursor: pointer;
+      font-family: "Merriweather Sans", sans-serif;
+      font-size: .86rem;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .sr-only {
+      border: 0;
+      clip: rect(0 0 0 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+
+    @media (max-width: 760px) {
+      .control-panel {
+        align-items: stretch;
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .run-button {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="pt-3 mt-1">
+  <header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+  </header>
+
+  <main aria-label="Activity 4B content">
+    <section class="lesson-container" aria-labelledby="activity-title">
+      <h3 class="h4 mb-4" id="activity-title">Activity 4B: Chatbot Metrics Tug-of-War</h3>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h4 class="uga-accent">Learning objectives</h4>
+          <p>After this activity, you will be able to:</p>
+          <ul>
+            <li><strong>Explain</strong> containment, task completion, and abandonment rates.</li>
+            <li><strong>Predict</strong> how an automatic handoff rule changes the three metrics.</li>
+            <li><strong>Evaluate</strong> why one business metric cannot stand in for a good customer experience.</li>
+          </ul>
+        </div>
+
+        <div class="col-md-12">
+          <h4 class="uga-accent">Background</h4>
+          <p>Organizations use business metrics to judge whether a chatbot reduces costs and helps customers. Containment measures how often the chatbot avoids a human handoff. Task completion measures whether the customer eventually gets the task done. Abandonment measures how often the customer gives up before either kind of help succeeds.</p>
+          <p>These goals can pull in different directions. A chatbot that waits longer before transferring a call may contain more calls, but some customers may leave while they wait. An early transfer can prevent abandonment and protect task completion, but it lowers containment.</p>
+        </div>
+
+        <div class="col-md-12">
+          <h4 class="uga-accent">Instructions</h4>
+          <ol>
+            <li>Choose how many chatbot turns may occur before the system hands the call to a human.</li>
+            <li>Select <strong>Run 10 calls</strong>. Each call has a newly simulated problem and customer.</li>
+            <li>Inspect the three rates and the outcome of each call.</li>
+            <li>Move the handoff setting without running again. The applet reuses the same ten calls so you can compare policies fairly.</li>
+            <li>Run a new batch and check whether the overall trade-off remains.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="app-wrapper metrics-app" aria-labelledby="simulation-title">
+      <h4 class="simulation-heading" id="simulation-title">Call-center simulation</h4>
+      <p class="simulation-intro">Set the automatic handoff rule, then see what happens across ten calls. The simulation varies problem difficulty and customer patience behind the scenes.</p>
+
+      <div class="control-panel">
+        <div>
+          <label class="threshold-label" for="handoffThreshold">
+            <span>Hand off after this many chatbot turns</span>
+            <output class="threshold-value" id="thresholdValue" for="handoffThreshold">4 turns</output>
+          </label>
+          <input id="handoffThreshold" type="range" min="1" max="10" value="4" step="1">
+          <div class="range-scale" aria-hidden="true"><span>1 turn</span><span>10 turns</span></div>
+        </div>
+        <button class="run-button" id="runSimulation" type="button">Run 10 calls</button>
+      </div>
+
+      <p class="sample-note">Task completion counts every successful chatbot resolution and every human handoff. The simulation assumes the human agent completes every handed-off task.</p>
+
+      <div class="empty-state" id="emptyState">Choose a handoff setting and run the first batch.</div>
+
+      <div class="results" id="results" hidden>
+        <p class="sr-only" id="resultsStatus" role="status" aria-live="polite"></p>
+
+        <div class="metric-grid" aria-label="Metrics for the selected handoff setting">
+          <article class="metric-card containment">
+            <span class="metric-label">Containment rate</span>
+            <strong class="metric-value" id="containmentValue">0%</strong>
+            <span class="metric-definition">Resolved by the chatbot, without a human</span>
+          </article>
+          <article class="metric-card completion">
+            <span class="metric-label">Task completion rate</span>
+            <strong class="metric-value" id="completionValue">0%</strong>
+            <span class="metric-definition">Resolved by the chatbot or completed after handoff</span>
+          </article>
+          <article class="metric-card abandonment">
+            <span class="metric-label">Abandonment rate</span>
+            <strong class="metric-value" id="abandonmentValue">0%</strong>
+            <span class="metric-definition">Customer left before resolution or handoff</span>
+          </article>
+        </div>
+
+        <p class="tradeoff-summary" id="tradeoffSummary"></p>
+
+        <section class="chart-card" aria-labelledby="chart-heading">
+          <h5 id="chart-heading">How the handoff rule changes the metrics</h5>
+          <p class="chart-help">The chart applies every possible handoff setting to the same ten calls. The gray marker shows your current setting.</p>
+          <div class="chart-wrap">
+            <svg id="tradeoffChart" viewBox="0 0 760 270" role="img" aria-labelledby="chartTitle chartDescription">
+              <title id="chartTitle">Metric rates by handoff threshold</title>
+              <desc id="chartDescription">Run the simulation to compare containment, task completion, and abandonment rates.</desc>
+            </svg>
+          </div>
+          <div class="chart-legend" aria-hidden="true">
+            <span class="legend-item"><span class="legend-line containment"></span>Containment</span>
+            <span class="legend-item"><span class="legend-line completion"></span>Task completion</span>
+            <span class="legend-item"><span class="legend-line abandonment"></span>Abandonment</span>
+          </div>
+
+          <details>
+            <summary>View the chart data as a table</summary>
+            <div class="table-scroll">
+              <table class="threshold-table">
+                <caption>Metric rates for the same ten calls at every handoff threshold</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Handoff after</th>
+                    <th scope="col">Containment</th>
+                    <th scope="col">Task completion</th>
+                    <th scope="col">Abandonment</th>
+                  </tr>
+                </thead>
+                <tbody id="thresholdRows"></tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+
+        <section class="calls-card" aria-labelledby="calls-heading">
+          <h5 id="calls-heading">Outcomes for your selected handoff rule</h5>
+          <div class="table-scroll">
+            <table class="results-table">
+              <caption id="callsCaption">Ten simulated calls</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Call</th>
+                  <th scope="col">Outcome</th>
+                  <th scope="col">Turns before outcome</th>
+                </tr>
+              </thead>
+              <tbody id="callRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="reflection-container" aria-labelledby="reflection-title">
+      <h3 class="uga-accent mb-3" id="reflection-title">Reflection &amp; Discussion Guide</h3>
+      <div class="row small text-dark">
+        <div class="col-md-12">
+          <ul>
+            <li>Which handoff setting would you choose if the company cared most about containment? Who bears the cost of that choice?</li>
+            <li>Which setting best protects task completion and reduces abandonment? What business cost might increase?</li>
+            <li>Containment is widely used in practice. How could targeting it encourage a chatbot to avoid a necessary handoff or keep doing the wrong thing?</li>
+            <li>What other evidence would you want before deciding that one handoff policy creates a better customer experience?</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="uga-accent mb-3">Closing Note</h3>
+      <div class="row small text-dark">
+        <div class="col-md-12">
+          <p>Changing one operational rule can improve one metric while worsening another. This is one example of Goodhart's Law: when an organization turns a measure into a target, people and systems may optimize the number without improving the underlying experience. A useful evaluation therefore needs several measures and careful interpretation.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="applet-feedback-card" aria-labelledby="applet-feedback-heading">
+    <div class="applet-feedback-card__content">
+      <div>
+        <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+        <p>Report a problem, content error, accessibility concern, or suggestion. Please do not include private or sensitive information.</p>
+        <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide</a>
+      </div>
+      <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%204B%3A%20Chatbot%20Metrics%20Tug-of-War%3A%20&amp;applet=Activity%204B%3A%20Chatbot%20Metrics%20Tug-of-War" target="_blank" rel="noopener noreferrer">Report a problem or give feedback</a>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const difficultyMeans = [2.3, 5, 8.5];
+      const patienceMeans = [3.2, 6.5, 10];
+      const batchSize = 10;
+
+      const thresholdInput = document.getElementById("handoffThreshold");
+      const thresholdValue = document.getElementById("thresholdValue");
+      const runButton = document.getElementById("runSimulation");
+      const emptyState = document.getElementById("emptyState");
+      const results = document.getElementById("results");
+      const resultsStatus = document.getElementById("resultsStatus");
+      const containmentValue = document.getElementById("containmentValue");
+      const completionValue = document.getElementById("completionValue");
+      const abandonmentValue = document.getElementById("abandonmentValue");
+      const tradeoffSummary = document.getElementById("tradeoffSummary");
+      const callRows = document.getElementById("callRows");
+      const callsCaption = document.getElementById("callsCaption");
+      const thresholdRows = document.getElementById("thresholdRows");
+      const chart = document.getElementById("tradeoffChart");
+      const chartDescription = document.getElementById("chartDescription");
+
+      let calls = [];
+
+      function samplePoisson(mean) {
+        const limit = Math.exp(-mean);
+        let product = 1;
+        let count = 0;
+        do {
+          count += 1;
+          product *= Math.random();
+        } while (product > limit);
+        return count - 1;
+      }
+
+      function randomMean(values) {
+        return values[Math.floor(Math.random() * values.length)];
+      }
+
+      function createCandidateBatch() {
+        return Array.from({ length: batchSize }, (_, index) => ({
+          id: index + 1,
+          resolutionTurns: Math.max(1, samplePoisson(randomMean(difficultyMeans))),
+          patienceTurns: Math.max(1, samplePoisson(randomMean(patienceMeans)))
+        }));
+      }
+
+      function evaluateCall(call, threshold) {
+        if (call.resolutionTurns <= threshold && call.resolutionTurns <= call.patienceTurns) {
+          return { outcome: "resolved", turns: call.resolutionTurns };
+        }
+
+        if (call.patienceTurns < threshold && call.patienceTurns < call.resolutionTurns) {
+          return { outcome: "abandoned", turns: call.patienceTurns };
+        }
+
+        return { outcome: "handoff", turns: threshold };
+      }
+
+      function summarize(batch, threshold) {
+        const outcomes = batch.map(call => ({ ...call, ...evaluateCall(call, threshold) }));
+        const resolved = outcomes.filter(call => call.outcome === "resolved").length;
+        const handedOff = outcomes.filter(call => call.outcome === "handoff").length;
+        const abandoned = outcomes.filter(call => call.outcome === "abandoned").length;
+
+        return {
+          threshold,
+          outcomes,
+          resolved,
+          handedOff,
+          abandoned,
+          containment: resolved / batchSize,
+          completion: (resolved + handedOff) / batchSize,
+          abandonment: abandoned / batchSize
+        };
+      }
+
+      function batchShowsTradeoff(batch) {
+        const early = summarize(batch, 1);
+        const late = summarize(batch, 10);
+        return late.containment > early.containment &&
+          late.abandonment > early.abandonment &&
+          late.completion < early.completion;
+      }
+
+      function createBatch() {
+        for (let attempt = 0; attempt < 200; attempt += 1) {
+          const candidate = createCandidateBatch();
+          if (batchShowsTradeoff(candidate)) {
+            return candidate;
+          }
+        }
+
+        return [
+          [2, 8], [3, 6], [4, 9], [5, 3], [6, 4],
+          [7, 5], [8, 2], [2, 10], [9, 6], [5, 8]
+        ].map(([resolutionTurns, patienceTurns], index) => ({
+          id: index + 1,
+          resolutionTurns,
+          patienceTurns
+        }));
+      }
+
+      function asPercent(value) {
+        return `${Math.round(value * 100)}%`;
+      }
+
+      function asPoints(value) {
+        const points = Math.round(value * 100);
+        return `${points >= 0 ? "+" : ""}${points} percentage points`;
+      }
+
+      function outcomeLabel(outcome) {
+        if (outcome === "resolved") return "Resolved by chatbot";
+        if (outcome === "handoff") return "Handed off to a human";
+        return "Customer abandoned";
+      }
+
+      function renderCalls(summary) {
+        callRows.replaceChildren();
+        summary.outcomes.forEach(call => {
+          const row = document.createElement("tr");
+          const callCell = document.createElement("td");
+          const outcomeCell = document.createElement("td");
+          const turnsCell = document.createElement("td");
+
+          callCell.textContent = call.id;
+          outcomeCell.textContent = outcomeLabel(call.outcome);
+          outcomeCell.className = `outcome outcome-${call.outcome}`;
+          turnsCell.textContent = `${call.turns} ${call.turns === 1 ? "turn" : "turns"}`;
+
+          row.append(callCell, outcomeCell, turnsCell);
+          callRows.append(row);
+        });
+
+        callsCaption.textContent = `Ten simulated calls with handoff after ${summary.threshold} ${summary.threshold === 1 ? "turn" : "turns"}`;
+      }
+
+      function makeSvgElement(name, attributes = {}) {
+        const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+        Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+        return element;
+      }
+
+      function renderChart(summaries, selectedThreshold) {
+        const preservedTitle = document.getElementById("chartTitle");
+        const preservedDescription = document.getElementById("chartDescription");
+        chart.replaceChildren(preservedTitle, preservedDescription);
+
+        const left = 58;
+        const right = 730;
+        const top = 20;
+        const bottom = 220;
+        const x = threshold => left + ((threshold - 1) / 9) * (right - left);
+        const y = rate => bottom - rate * (bottom - top);
+
+        [0, .25, .5, .75, 1].forEach(rate => {
+          chart.append(makeSvgElement("line", {
+            x1: left, y1: y(rate), x2: right, y2: y(rate),
+            stroke: "#d6d2ce", "stroke-width": "1"
+          }));
+          const label = makeSvgElement("text", {
+            x: left - 10, y: y(rate) + 4, "text-anchor": "end",
+            fill: "#555555", "font-size": "12", "font-family": "IBM Plex Mono, monospace"
+          });
+          label.textContent = `${Math.round(rate * 100)}%`;
+          chart.append(label);
+        });
+
+        summaries.forEach(summary => {
+          const tick = makeSvgElement("text", {
+            x: x(summary.threshold), y: bottom + 24, "text-anchor": "middle",
+            fill: "#555555", "font-size": "12", "font-family": "IBM Plex Mono, monospace"
+          });
+          tick.textContent = summary.threshold;
+          chart.append(tick);
+        });
+
+        chart.append(makeSvgElement("line", {
+          x1: x(selectedThreshold), y1: top, x2: x(selectedThreshold), y2: bottom,
+          stroke: "#707070", "stroke-width": "2", "stroke-dasharray": "4 5"
+        }));
+
+        const series = [
+          { key: "containment", color: "#ba0c2f", dash: "" },
+          { key: "completion", color: "#004e60", dash: "9 5" },
+          { key: "abandonment", color: "#6f4e00", dash: "2 5" }
+        ];
+
+        series.forEach(item => {
+          const points = summaries.map(summary => `${x(summary.threshold)},${y(summary[item.key])}`).join(" ");
+          chart.append(makeSvgElement("polyline", {
+            points,
+            fill: "none",
+            stroke: item.color,
+            "stroke-width": "4",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            ...(item.dash ? { "stroke-dasharray": item.dash } : {})
+          }));
+        });
+
+        const axisLabel = makeSvgElement("text", {
+          x: (left + right) / 2, y: 263, "text-anchor": "middle",
+          fill: "#1a1a1a", "font-size": "13", "font-weight": "700",
+          "font-family": "Merriweather Sans, sans-serif"
+        });
+        axisLabel.textContent = "Handoff after this many chatbot turns";
+        chart.append(axisLabel);
+
+        chartDescription.textContent = summaries.map(summary =>
+          `At ${summary.threshold} ${summary.threshold === 1 ? "turn" : "turns"}: containment ${asPercent(summary.containment)}, task completion ${asPercent(summary.completion)}, abandonment ${asPercent(summary.abandonment)}.`
+        ).join(" ");
+      }
+
+      function renderThresholdTable(summaries, selectedThreshold) {
+        thresholdRows.replaceChildren();
+        summaries.forEach(summary => {
+          const row = document.createElement("tr");
+          if (summary.threshold === selectedThreshold) row.className = "selected-row";
+          const cells = [
+            `${summary.threshold} ${summary.threshold === 1 ? "turn" : "turns"}`,
+            asPercent(summary.containment),
+            asPercent(summary.completion),
+            asPercent(summary.abandonment)
+          ];
+          cells.forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.append(cell);
+          });
+          thresholdRows.append(row);
+        });
+      }
+
+      function render() {
+        const threshold = Number(thresholdInput.value);
+        thresholdValue.textContent = `${threshold} ${threshold === 1 ? "turn" : "turns"}`;
+        if (!calls.length) return;
+
+        const summaries = Array.from({ length: 10 }, (_, index) => summarize(calls, index + 1));
+        const selected = summaries[threshold - 1];
+        const earliest = summaries[0];
+        const latest = summaries[9];
+
+        containmentValue.textContent = asPercent(selected.containment);
+        completionValue.textContent = asPercent(selected.completion);
+        abandonmentValue.textContent = asPercent(selected.abandonment);
+
+        tradeoffSummary.innerHTML = `<strong>Across this same batch:</strong> moving the handoff from 1 to 10 turns changes containment by ${asPoints(latest.containment - earliest.containment)}, task completion by ${asPoints(latest.completion - earliest.completion)}, and abandonment by ${asPoints(latest.abandonment - earliest.abandonment)}. The longer wait gives the chatbot more chances to resolve a call, but it also gives customers more time to leave.`;
+
+        resultsStatus.textContent = `Handoff after ${threshold} turns. Containment ${asPercent(selected.containment)}. Task completion ${asPercent(selected.completion)}. Abandonment ${asPercent(selected.abandonment)}.`;
+
+        renderCalls(selected);
+        renderChart(summaries, threshold);
+        renderThresholdTable(summaries, threshold);
+      }
+
+      runButton.addEventListener("click", () => {
+        calls = createBatch();
+        emptyState.hidden = true;
+        results.hidden = false;
+        runButton.textContent = "Run 10 new calls";
+        render();
+      });
+
+      thresholdInput.addEventListener("input", render);
+      render();
+    })();
+  </script>
+</body>
+</html>
