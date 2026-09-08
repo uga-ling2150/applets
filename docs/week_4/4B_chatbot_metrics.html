@@ -20,6 +20,10 @@
       font-family: "Merriweather", "Georgia", serif;
     }
 
+    .page-header h2 {
+      color: #555;
+    }
+
     .metrics-app h4,
     .metrics-app h5,
     .metrics-app button,
@@ -105,11 +109,11 @@
       border-color: #8f0a25;
     }
 
-    .run-button:focus-visible,
-    input[type="range"]:focus-visible,
-    summary:focus-visible {
-      outline: 3px solid #f9a825;
-      outline-offset: 3px;
+    .metrics-app :focus-visible,
+    .applet-feedback-card a:focus-visible {
+      box-shadow: 0 0 0 5px #111;
+      outline: 3px solid #fff;
+      outline-offset: 2px;
     }
 
     .sample-note {
@@ -204,8 +208,16 @@
       padding: 1rem;
     }
 
-    .chart-card h5,
-    .calls-card h5 {
+    .calls-card > summary {
+      font-size: 1rem;
+      text-decoration-thickness: 1px;
+    }
+
+    .calls-card .table-scroll {
+      margin-top: .75rem;
+    }
+
+    .chart-card h5 {
       font-size: 1rem;
       margin: 0 0 .35rem;
       text-transform: none;
@@ -409,12 +421,17 @@
 
       <p class="sample-note">Task completion counts every successful chatbot resolution and every human handoff. The simulation assumes the human agent completes every handed-off task.</p>
 
+      <details class="rule-note">
+        <summary>How each call outcome is decided</summary>
+        <p class="sample-note">Before the threshold, the first event wins: chatbot resolution or customer abandonment. At the threshold, a resolution scheduled for that turn is counted; otherwise the call is handed off. If resolution and abandonment fall on the same turn, the completed resolution is counted.</p>
+      </details>
+
       <div class="empty-state" id="emptyState">Choose a handoff setting and run the first batch.</div>
 
       <div class="results" id="results" hidden>
         <p class="sr-only" id="resultsStatus" role="status" aria-live="polite"></p>
 
-        <div class="metric-grid" aria-label="Metrics for the selected handoff setting">
+        <div class="metric-grid" role="group" aria-label="Metrics for the selected handoff setting">
           <article class="metric-card containment">
             <span class="metric-label">Containment rate</span>
             <strong class="metric-value" id="containmentValue">0%</strong>
@@ -437,7 +454,7 @@
         <section class="chart-card" aria-labelledby="chart-heading">
           <h5 id="chart-heading">How the handoff rule changes the metrics</h5>
           <p class="chart-help">The chart applies every possible handoff setting to the same ten calls. The gray marker shows your current setting.</p>
-          <div class="chart-wrap">
+          <div class="chart-wrap" role="region" aria-label="Scrollable metric trade-off chart" tabindex="0">
             <svg id="tradeoffChart" viewBox="0 0 760 270" role="img" aria-labelledby="chartTitle chartDescription">
               <title id="chartTitle">Metric rates by handoff threshold</title>
               <desc id="chartDescription">Run the simulation to compare containment, task completion, and abandonment rates.</desc>
@@ -468,8 +485,8 @@
           </details>
         </section>
 
-        <section class="calls-card" aria-labelledby="calls-heading">
-          <h5 id="calls-heading">Outcomes for your selected handoff rule</h5>
+        <details class="calls-card">
+          <summary id="calls-heading">View the 10 call outcomes for this handoff rule</summary>
           <div class="table-scroll">
             <table class="results-table">
               <caption id="callsCaption">Ten simulated calls</caption>
@@ -483,7 +500,7 @@
               <tbody id="callRows"></tbody>
             </table>
           </div>
-        </section>
+        </details>
       </div>
     </section>
 
@@ -561,7 +578,7 @@
         return values[Math.floor(Math.random() * values.length)];
       }
 
-      function createCandidateBatch() {
+      function createBatch() {
         return Array.from({ length: batchSize }, (_, index) => ({
           id: index + 1,
           resolutionTurns: Math.max(1, samplePoisson(randomMean(difficultyMeans))),
@@ -597,32 +614,6 @@
           completion: (resolved + handedOff) / batchSize,
           abandonment: abandoned / batchSize
         };
-      }
-
-      function batchShowsTradeoff(batch) {
-        const early = summarize(batch, 1);
-        const late = summarize(batch, 10);
-        return late.containment > early.containment &&
-          late.abandonment > early.abandonment &&
-          late.completion < early.completion;
-      }
-
-      function createBatch() {
-        for (let attempt = 0; attempt < 200; attempt += 1) {
-          const candidate = createCandidateBatch();
-          if (batchShowsTradeoff(candidate)) {
-            return candidate;
-          }
-        }
-
-        return [
-          [2, 8], [3, 6], [4, 9], [5, 3], [6, 4],
-          [7, 5], [8, 2], [2, 10], [9, 6], [5, 8]
-        ].map(([resolutionTurns, patienceTurns], index) => ({
-          id: index + 1,
-          resolutionTurns,
-          patienceTurns
-        }));
       }
 
       function asPercent(value) {
@@ -771,7 +762,7 @@
         completionValue.textContent = asPercent(selected.completion);
         abandonmentValue.textContent = asPercent(selected.abandonment);
 
-        tradeoffSummary.innerHTML = `<strong>Across this same batch:</strong> moving the handoff from 1 to 10 turns changes containment by ${asPoints(latest.containment - earliest.containment)}, task completion by ${asPoints(latest.completion - earliest.completion)}, and abandonment by ${asPoints(latest.abandonment - earliest.abandonment)}. The longer wait gives the chatbot more chances to resolve a call, but it also gives customers more time to leave.`;
+        tradeoffSummary.innerHTML = `<strong>Across this truly random batch:</strong> moving the handoff from 1 to 10 turns changes containment by ${asPoints(latest.containment - earliest.containment)}, task completion by ${asPoints(latest.completion - earliest.completion)}, and abandonment by ${asPoints(latest.abandonment - earliest.abandonment)}. Because every handoff is counted as completed, task completion is 100% minus abandonment. A longer wait can raise containment only by exposing customers to more waiting; it cannot also raise completion and reduce abandonment. With ten calls, some changes may be flat—run another batch to compare.`;
 
         resultsStatus.textContent = `Handoff after ${threshold} turns. Containment ${asPercent(selected.containment)}. Task completion ${asPercent(selected.completion)}. Abandonment ${asPercent(selected.abandonment)}.`;
 
