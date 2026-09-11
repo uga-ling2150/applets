@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore explicature by rewriting conversational turns and comparing your interpretation with a language model.">
+  <title>LING2150 5C: Explicature and query rewriting</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="5c/applet.css">
+  <script defer src="5c/config.js"></script>
+  <script defer src="5c/applet.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <p><a href="https://linguistics.uga.edu/">University of Georgia</a></p>
+  <p><a href="../index.html">Quantitative Linguistics Webapps · LING2150</a></p>
+</header>
+<main id="main">
+  <section class="lesson-container" aria-labelledby="title">
+    <p class="eyebrow">Activity 5C · Conversational AI</p>
+    <h1 id="title">Explicature and <span>query rewriting</span></h1>
+    <p class="intro">What does a short utterance leave unsaid? Make its meaning explicit, then compare your interpretation with a model’s.</p>
+    <h2>Learning Objectives</h2>
+    <ul><li>Identify how pronouns and omitted words depend on conversational context.</li><li>Rewrite a human turn so that it can be understood on its own while preserving its meaning.</li><li>Evaluate whether your rewrite and a model’s rewrite make justified interpretations.</li></ul>
+    <details><summary>Background: making meaning explicit</summary>
+      <p>An utterance can communicate more than its words state on their own. Context helps us identify referents and fill in omitted information. In this activity, query rewriting makes some of that context-dependent meaning explicit.</p>
+      <p>After “I’m deciding between a red bag and a blue bag,” the reply “The blue one” may become “I choose the blue bag.” This is an interpretation of the utterance, not an answer to it. Query rewriting illustrates aspects of explicature; it does not capture every kind of pragmatic interpretation.</p>
+      <p>Sometimes the context leaves more than one interpretation open. A good rewrite should not invent information to hide that uncertainty.</p>
+    </details>
+    <h2>Instructions</h2>
+    <ol><li>Use the example or write both sides of your own conversation.</li><li>For each Human turn, write a standalone version before revealing the model’s version. An already complete utterance may stay unchanged.</li><li>Compare the versions and explain your judgment. The model’s version is not an answer key.</li></ol>
+  </section>
+  <section class="app-wrapper" aria-labelledby="conversation-title">
+    <div class="section-heading"><h2 id="conversation-title"><span class="step">1</span> Your conversation</h2><span id="turn-count" class="tag"></span></div>
+    <details id="editor-panel" open><summary>Edit conversation</summary>
+    <p id="conversation-help">Write both speakers’ turns. Use fictional examples. Up to 16 turns, 500 characters per turn, and 4,500 characters in total.</p>
+    <div class="toolbar"><button id="load-example" type="button">Load example</button><button id="start-blank" type="button">Start a new conversation</button></div>
+    <div id="replace-confirm" class="notice" hidden><p>Replace this conversation and its saved work?</p><button id="confirm-replace" type="button">Replace conversation</button> <button id="cancel-replace" type="button">Keep my work</button></div>
+    <div id="turns"></div>
+    <div class="toolbar"><button id="add-turn" type="button">Add a turn</button><button id="start-practice" class="primary" type="button">Practice human turns</button></div>
+    <p class="hint">Editing a turn resets practice for that turn and later turns. Earlier practice stays saved.</p>
+    <p id="editor-error" class="error" role="alert"></p>
+    </details>
+  </section>
+  <section id="practice" class="app-wrapper" aria-labelledby="practice-title" hidden>
+    <h2 id="practice-title" tabindex="-1"><span class="step">2</span> Rewrite & compare</h2>
+    <div class="toolbar"><label for="human-turn">Human turn</label><select id="human-turn"></select><span id="progress" class="tag"></span></div>
+    <div class="context"><h3>Conversation so far</h3><ol id="context"></ol><p class="hint">Only these turns are used for this rewrite.</p></div>
+    <h3>Original utterance</h3><p id="original" class="utterance"></p>
+    <h3><label for="my-rewrite">Your standalone rewrite</label></h3>
+    <p id="rewrite-help" class="hint">Preserve the meaning. Make clear references explicit, but do not add facts or answer the utterance. If it is already standalone, you can keep it unchanged.</p>
+    <textarea id="my-rewrite" rows="3" maxlength="1600" aria-describedby="rewrite-help" required></textarea>
+    <div class="toolbar"><button id="keep-original" type="button">Use original unchanged</button><button id="compare" class="primary" type="button">Show model rewrite</button></div>
+    <p id="service-notice" class="notice" hidden></p>
+    <p id="request-status" role="status" aria-live="polite" aria-atomic="true"></p>
+    <p id="request-error" class="error" role="alert"></p>
+    <div id="comparison" hidden>
+      <h3 id="comparison-heading" tabindex="-1">Compare the interpretations</h3>
+      <div class="comparison-grid"><section aria-labelledby="yours-heading"><h4 id="yours-heading">Your rewrite at reveal</h4><p id="submitted-rewrite"></p></section><section aria-labelledby="model-heading"><h4 id="model-heading">Model rewrite</h4><p id="model-rewrite"></p><p id="model-name" class="hint"></p></section></div>
+      <p class="hint">Both versions may work, or either may make an unsupported assumption. There is no automatic score.</p>
+      <label for="judgment">Which interpretation works better?</label>
+      <select id="judgment"><option value="">Choose a judgment</option><option>Both work equally well</option><option>My rewrite works better</option><option>The model rewrite works better</option><option>Neither works well</option><option>The context is too ambiguous to decide</option></select>
+      <label for="reason">Explain your judgment</label>
+      <textarea id="reason" rows="3" maxlength="2000" placeholder="What did each version make explicit? Did either add unsupported information?"></textarea>
+      <button id="save-reflection" class="primary" type="button">Save reflection & continue</button>
+    </div>
+  </section>
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h2 id="reflection-title">Reflection & Discussion Guide</h2>
+    <ol><li>Which pronouns or omitted expressions depended on earlier turns? Identify the exact words that supported your interpretation.</li><li>Did you and the model express the same meaning with different wording? Could both be acceptable?</li><li>Did either version add information that was not established, or change a request into a question?</li><li>When the context is ambiguous, what clarification would you ask for?</li></ol>
+    <label for="overall-reflection">Your takeaway <span class="hint">(optional)</span></label>
+    <textarea id="overall-reflection" rows="3" maxlength="3000"></textarea>
+    <div class="toolbar"><button id="download-work" type="button">Download my work</button><span id="save-status" class="hint" role="status"></span></div>
+    <p class="hint">Work is saved in this browser tab when storage is available. Download it before closing the tab. Conversation text is sent to the model service only when you request a rewrite; your own rewrite and reflections are not sent.</p>
+  </section>
+</main>
+<footer class="applet-feedback-card" aria-labelledby="feedback-heading">
+  <div><h2 id="feedback-heading">Help us improve this applet</h2><p>Report a problem, content error, accessibility concern, or suggestion. Please do not include private or sensitive information.</p><a href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="hint">(opens in a new tab)</span></a></div>
+  <a id="feedback-link" class="button primary" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20LING2150%205C%3A%20Explicature%20and%20query%20rewriting&amp;applet=LING2150%205C%3A%20Explicature%20and%20query%20rewriting" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="sr-only">(opens in a new tab)</span></a>
+</footer>
+<noscript><p class="notice">Please enable JavaScript to use this interactive activity.</p></noscript>
+</body></html>

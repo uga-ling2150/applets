@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ling2150-query-rewrite",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-09-01",
+  "ai": {"binding": "AI"},
+  "durable_objects": {"bindings": [{"name": "CLASSROOM", "class_name": "Classroom"}]},
+  "migrations": [{"tag": "v1", "new_sqlite_classes": ["Classroom"]}],
+  "vars": {
+    "MODEL": "@cf/meta/llama-3.1-8b-instruct-fast",
+    "ALLOWED_ORIGINS": "https://uga-ling2150.github.io",
+    "ENABLED": "false",
+    "DAILY_REQUEST_LIMIT": "360",
+    "SESSION_REQUEST_LIMIT": "24",
+    "RPM_LIMIT": "240",
+    "CONCURRENCY_LIMIT": "60"
+  },
+  "observability": {"enabled": false}
+}
