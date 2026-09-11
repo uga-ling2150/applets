@@ -1,4 +1,2 @@
-/* Deployment setting only. Students never enter credentials or configure an endpoint.
- * Replace apiBase with the verified HTTPS Worker URL before course publication.
- * Empty means the service is unavailable; no fabricated model output is substituted. */
-window.QUERY_REWRITE_CONFIG = Object.freeze({ apiBase: '' });
+/* Public service URL; students do not enter credentials. */
+window.QUERY_REWRITE_CONFIG = Object.freeze({ apiBase: 'https://ling2150-query-rewrite.ling2150-query-rewrite.workers.dev' });

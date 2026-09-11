@@ -31,7 +31,8 @@ export default {async fetch(request,env,ctx){
   let timer;
   try{
     const result=await Promise.race([env.AI.run(env.MODEL||MODEL,{messages:messages(turns),max_tokens:LIMITS.output,temperature:0}),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('timeout')),25000);})]);
-    const rewrite=parseRewrite(result.response);
+    const raw=typeof result.response==='string'?result.response:result.choices?.[0]?.message?.content;
+    const rewrite=parseRewrite(raw);
     return reply({rewrite,model:env.MODEL||MODEL});
   }catch(e){return reply({error:e.message==='timeout'?'timeout':'model_unavailable'},503);}
   finally{clearTimeout(timer);ctx.waitUntil(gate.fetch('https://internal/release',{method:'POST',body:JSON.stringify({id})}).catch(()=>{}));}

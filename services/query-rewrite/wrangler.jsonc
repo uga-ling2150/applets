@@ -9,7 +9,7 @@
   "vars": {
     "MODEL": "@cf/meta/llama-3.1-8b-instruct-fast",
     "ALLOWED_ORIGINS": "https://uga-ling2150.github.io",
-    "ENABLED": "false",
+    "ENABLED": "true",
     "DAILY_REQUEST_LIMIT": "360",
     "SESSION_REQUEST_LIMIT": "24",
     "RPM_LIMIT": "240",
