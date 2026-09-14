@@ -793,3 +793,7 @@ a:focus-visible { outline: 3px solid #f9a825; outline-offset: 3px; }
   .applet-feedback-card__content { align-items: stretch; flex-direction: column; }
   .applet-feedback-card__button { width: 100%; }
 }
+
+.source-note { border-top: 1px solid #d6d2c4; color: #554f47; font-size: .82rem; line-height: 1.55; margin-top: 1.5rem; padding-top: 1rem; }
+.source-note p { margin: 0; }
+.source-note strong { color: #222; }

@@ -15,11 +15,38 @@
 </head>
 <body x-data="winogradApp()">
 
-    <div class="app-wrapper">
+    
+    <section class="lesson-container">
+        <h3 class="mb-4">Activity: Reflecting on Winograd schemas</h3>
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="uga-accent">Learning Objectives</h4>
+                <ul>
+                    <li><strong>Describe</strong> the structure of a Winograd schema</li>
+                    <li><strong>Explain</strong> the reasoning that underlies responses to Winograd schemas</li>
+                    <li><strong>Evaluate</strong> the extent to which correct answers to Winograd schemas are dictated by cultural assumptions and norms that may not be universal</li>
+                </ul>
+            </div>
+            <div class="col-md-12">
+                <h4 class="uga-accent">Background</h4>
+                <p>A Winograd schema is a common type of question used in AI benchmarks to evaluate language models in terms of their ability to determine coreference. This activity will examine some of its assumptions.</p>
+            </div>
+            <div class="col-md-12">
+                <h4 class="uga-accent">Instructions</h4>
+                <ol>
+                <li>Select what you think is the correct answer to each Winograd schema.</li>
+                <li>Write down why you think that answer was correct.</li>
+                <li>Look at the correct answer provided, and compare it to your own answer</li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <main class="app-wrapper">
         <!-- Hero Section -->
         <header class="hero">
             <div class="hero-text">
-                <h1>Winograd Schema <span>Reflection Lab</span></h1>
+                <h2>Winograd <span>Schemas</span></h2>
                 <p>Explore pronoun disambiguation, hidden human common-sense reasoning, and AI structural limitations through classic linguistic pairs.</p>
             </div>
             <div>
@@ -108,7 +135,7 @@
             <div><button @click="resetLab()" class="reset-btn">Reset Lab</button></div>
         </div>
 
-    </div>
+    </main>
 
     <!-- Report Card Modal (Bootstrap Modal Overlay) -->
     <div class="modal fade" id="reportModal" tabindex aria-hidden="true" x-bind:class="{'show d-block': isFinished}" style="background: rgba(0,0,0,0.6);" x-show="isFinished">
@@ -150,6 +177,22 @@
         </div>
     </div>
 
+    
+    <section class="reflection-container">
+        <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
+        
+        <div class="row text-dark">
+        <div class="col-md-12">
+            Think about the following questions:
+    <ul>
+        <li>Were there any situations where your answers or explanations diverged with the one given? If so, why?</li>
+        <li>Compare your answers with your groupmates'. Did anyone arrive at a different answer or explanation? If so, why?</li>
+        <li>If your answers to 1-2 are both no, can you think of how a reasonable person might still come up with a different answer or explanation?</li>
+    </ul>
+        </div>
+        </div>
+    </section>
+
     <!-- Application Script -->
     <script>
         function winogradApp() {
@@ -176,7 +219,7 @@
                         options: ["The trophy", "The suitcase"],
                         correctAnswer: "The suitcase",
                         question: "What does 'it' refer to as being too small?",
-                        explanation: "Changing a single adjective ('large' to 'small') completely flips the referent to the container, demonstrating the sensitivity of language to local word shifts."
+                        explanation: "Physical reasoning dictates that objects fail to fit into containers when the container is too small to contain the object."
                     },
                     {
                         title: "Permits and Violence (Case A)",
@@ -185,7 +228,7 @@
                         options: ["The city councilmen", "The demonstrators"],
                         correctAnswer: "The city councilmen",
                         question: "Who feared violence?",
-                        explanation: "Authority figures (city councils) typically deny public assembly permits due to institutional concerns over public safety and potential unrest."
+                        explanation: "Authority figures (city councils) typically deny public assembly permits due to institutional concerns over public safety and potential unrest, so the fear rests on the authority figures."
                     },
                     {
                         title: "Permits and Violence (Case B)",
@@ -194,7 +237,7 @@
                         options: ["The city councilmen", "The demonstrators"],
                         correctAnswer: "The demonstrators",
                         question: "Who advocated violence?",
-                        explanation: "Swapping 'feared' to 'advocated' shifts the core attribution of responsibility to the petitioning group based on behavioral norms."
+                        explanation: "Authority figures (city councils) typically deny public assembly permits due to institutional concerns over public safety and potential unrest, which in this case would come from the demonstrators."
                     },
                     {
                         title: "The Delivery Truck & Car",

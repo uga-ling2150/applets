@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picture Reference — A Two-Player Language Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+.step-box {
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  padding: 18px 20px;
+  border-radius: 8px;
+  margin-bottom: 1.25rem;
+}
+.step-box h3 { font-size: 15px; text-transform: none; margin-bottom: 10px; }
+.step-box ol, .step-box ul { margin: 0; padding-left: 1.2em; color: var(--text); }
+.step-box li { margin-bottom: 6px; line-height: 1.55; }
+.step-box li:last-child { margin-bottom: 0; }
+
+.label-sm {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+.field { margin-bottom: 1.1rem; }
+.field input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 15px;
+  color: var(--text);
+  background: white;
+}
+.field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 15.5px;
+  color: var(--text);
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+}
+.field textarea.has-violation { border-color: var(--uga-red); }
+.char-count {
+  font-family: sans-serif;
+  font-size: 0.75rem;
+  text-align: right;
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.violation-note {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--uga-red);
+  margin-top: 6px;
+}
+
+.rule-banner {
+  border: 1px solid var(--uga-red);
+  background: rgba(186, 12, 47, 0.06);
+  color: var(--uga-red);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13.5px;
+  margin-bottom: 16px;
+}
+
+.btn-uga {
+  background-color: var(--uga-red);
+  border: none;
+  color: #fff;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 12px 22px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-uga:hover { opacity: 0.9; }
+.btn-uga:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-uga-outline {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 10px 18px;
+  cursor: pointer;
+}
+.btn-uga-outline:hover { border-color: var(--uga-red); color: var(--uga-red); }
+
+.button-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1.5rem; }
+
+.turn-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 22px;
+}
+.turn-banner .who {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--uga-black);
+}
+.turn-banner .role-tag {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--uga-red);
+}
+.turn-banner .progress {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.grid-row {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 22px 0;
+}
+.grid-card {
+  background: var(--panel-alt);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  width: 210px;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.grid-card.is-target {
+  border-color: var(--uga-red);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(186, 12, 47, 0.12);
+}
+.grid-card.is-selected {
+  border-color: var(--olympic);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 78, 96, 0.12);
+}
+.grid-card.is-correct {
+  border-color: var(--olympic);
+  background: rgba(0, 78, 96, 0.06);
+}
+.grid-card.is-wrong-guess {
+  border-color: var(--uga-red);
+  background: rgba(186, 12, 47, 0.06);
+}
+.grid-label {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.photo-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+}
+.photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.photo-placeholder {
+  display: none;
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px;
+  background: var(--panel-alt);
+  border: 2px dashed var(--border-strong);
+}
+.photo-placeholder .cam-icon { font-size: 26px; opacity: 0.55; }
+.photo-placeholder .ph-title {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.photo-placeholder .ph-file {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  color: var(--uga-red);
+  word-break: break-all;
+}
+.photo-placeholder .ph-hint {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.grid-option-btn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.badge-row { display: flex; justify-content: center; gap: 6px; margin-top: 12px; min-height: 24px; flex-wrap: wrap; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-family: "IBM Plex Mono", monospace;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge.target { background: rgba(186, 12, 47, 0.1); color: var(--uga-red); border: 1px solid var(--uga-red); }
+.badge.selected { background: rgba(0, 78, 96, 0.1); color: var(--olympic); border: 1px solid var(--olympic); }
+.badge.correct { background: rgba(0, 78, 96, 0.1); color: var(--olympic); border: 1px solid var(--olympic); }
+.badge.wrong { background: rgba(186, 12, 47, 0.1); color: var(--uga-red); border: 1px solid var(--uga-red); }
+
+.status-success { color: var(--olympic); font-weight: 700; }
+.status-note { color: var(--uga-red); font-weight: 700; }
+
+.feedback-box {
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin: 20px 0;
+  border: 1px solid var(--line);
+  background: var(--panel-alt);
+}
+.feedback-box.win { border-color: var(--olympic); background: rgba(0, 78, 96, 0.05); }
+.feedback-box.miss { border-color: var(--uga-red); background: rgba(186, 12, 47, 0.05); }
+.feedback-box h3 { font-size: 16px; text-transform: none; margin-bottom: 6px; }
+.feedback-box p { margin: 0; color: var(--text); font-size: 14.5px; }
+.feedback-box .quoted-desc {
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 8px;
+  border-left: 3px solid var(--border-strong);
+  padding-left: 12px;
+}
+
+.score-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.chip {
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 20px;
+  padding: 7px 14px;
+  font-size: 12.5px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.chip .k { color: var(--muted); }
+.chip .v { color: var(--olympic); font-weight: 700; }
+
+.reflect-list { padding-left: 1.2em; }
+.reflect-list li { margin-bottom: 10px; line-height: 1.6; }
+
+.gallery { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.gallery-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--panel-alt);
+}
+.gallery-item.win { border-color: var(--olympic); background: rgba(0, 78, 96, 0.04); }
+.gallery-item.miss { border-color: var(--uga-red); background: rgba(186, 12, 47, 0.04); }
+.gallery-item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.gallery-item-head .category-tag { margin-bottom: 0; }
+.gallery-item-desc {
+  font-style: italic;
+  color: var(--text);
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.gallery-item-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 8px;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.statusbar {
+  margin-top: 36px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+}
+.reset-btn {
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+.reset-btn:hover { border-color: var(--uga-red); color: var(--uga-red); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.handoff-icon {
+  font-size: 40px;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.category-tag {
+  display: inline-block;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--olympic);
+  background: rgba(0, 78, 96, 0.08);
+  border: 1px solid var(--olympic);
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 640px) {
+  .wrap { padding: 1.5rem; }
+  .grid-row { gap: 16px; }
+  .grid-card { width: 100%; max-width: 220px; }
+}
+
+:focus-visible {
+  outline: 2px solid var(--uga-red);
+  outline-offset: 2px;
+}
+</style>
+</head>
+<body>
+<header class="text-center mb-4 page-header">
+    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+</header>
+
+<section class="lesson-container">
+    <h3 class="mb-4">Activity: Picture Reference</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="uga-accent">Learning Objectives</h4>
+            <ul>
+                <li><strong>Describe</strong> what a referring expression is, and how speakers pick out one specific thing among similar alternatives using words alone</li>
+                <li><strong>Explain</strong> why referring expression comprehension can be difficult for AI systems to achieve, 
+                including cultural and linguistic factors</li>
+            </ul>
+        </div>
+        <div class="col-md-12">
+            <h4 class="uga-accent">Background</h4>
+            <p>AI systems can look at images or documents have to figure out exactly which thing a person means when they refer to something in what they've uploaded. In this activity, you'll experience that same challenge from the human side: one of you (the Describer) sees a target object among two similar-looking alternatives and has to describe it in words; the other (the Guesser) only has that description to go on. A few rounds add an extra wrinkle: a specific word you're not allowed to use, forcing you to find another way to refer to the same thing.</p>
+        </div>
+        <div class="col-md-12">
+            <h4 class="uga-accent">Instructions</h4>
+            <ol>
+              <li>Two students share this screen, taking turns.</li>
+              <li>The <strong>Describer</strong> sees three real objects. One is marked as the target. They write a short description that would let someone pick it out. In a couple of rounds, one specific word is off-limits &mdash; you'll be told which.</li>
+              <li>The device is passed over. The <strong>Guesser</strong> reads the description (without knowing which one was the target) and clicks the photo they think it matches.</li>
+              <li>You'll swap roles each round. There are 5 rounds, so everyone gets a close-to-equal turn at both jobs.</li>
+            </ol>
+        </div>
+    </div>
+</section>
+
+<main class="app-wrapper">
+
+  <div class="hero">
+    <div class="hero-text">
+      <h2>Picture <span>Reference</span></h2>
+      <p>One of you looks at a real object and describes it in your own words. The other only hears the description and has to spot the right one among two convincing look-alikes. It's the same everyday skill as saying "the one on the left" &mdash; and it's trickier than it sounds.</p>
+    </div>
+  </div>
+
+  <div id="live-region" class="sr-only" aria-live="polite"></div>
+  <div id="app"></div>
+
+  <div class="statusbar">
+    <span id="footer-status">Ready to start.</span>
+    <button type="button" class="reset-btn" id="reset-btn">Restart activity</button>
+  </div>
+</main>
+
+
+<section class="reflection-container">
+    <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
+    
+    <div class="row text-dark">
+      <div class="col-md-12">
+        Think about the following questions:
+  <ul class="reflect-list">
+    <li>When constructing descriptions, what did you do to ensure that your friend could understand what you were saying?</li>
+    <li>Did you run into any situation where a reasonable person could have produced a description that confused another person - possibly from a different community?</li>
+    <li>Do you think a description that worked for your partner would also work for a system like SHRDLU looking at the same three photos?
+      For each of the questions, what kind of knowledge do modern AI systems need to comprehend the expression?</li>
+  </ul>
+      </div>
+    </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  var TOTAL_ROUNDS = 5;
+
+  // Each puzzle needs three photos, saved as images/{puzzleId}-slot1.jpg,
+  // slot2.jpg, slot3.jpg (an RA can drop these in later — see the shot list
+  // for exactly what belongs in each slot). Filenames are deliberately
+  // generic so nothing on-screen gives away which slot is the answer.
+  // Every alt text is written to avoid the puzzle's own "banned" word (or,
+  // for the color puzzle, any color name), so screen-reader users get an
+  // equivalent challenge rather than a shortcut.
+  //
+  // Photos are cropped to a square and centered by default. If a photo's
+  // main subject isn't centered, add a "focus" property to that slot to
+  // shift the crop, e.g. focus: "50% 20%" (shift toward the top) or
+  // focus: "20% 50%" (shift toward the left). Values are CSS object-position
+  // strings — "left"/"right"/"top"/"bottom"/"center" also work.
+  // Always played first, before the shuffled puzzles below.
+  var OPENING_PUZZLE = {
+    id: "applepear",
+    label: "Apple or pear?",
+    forbiddenWords: [],
+    fixedTargetSlot: null,
+    slots: [
+      { slot: "slot1", alt: "A round fruit with a short stem, typically eaten whole with the skin on" },
+      { slot: "slot2", alt: "A fruit that is narrower near the stem and rounder toward the bottom" },
+      { slot: "slot3", alt: "A round, crisp fruit that could reasonably be called either an apple or a pear" }
+    ]
+  };
+
+  var PUZZLES = [
+    {
+      id: "colorset",
+      label: "Color family",
+      forbiddenWords: [],
+      fixedTargetSlot: "slot1",
+      slots: [
+        { slot: "slot1", alt: "An item colored like a ripe blueberry or dark denim" },
+        { slot: "slot2", alt: "An item colored like a clear daytime sky or faded chambray fabric" },
+        { slot: "slot3", alt: "An item colored like a ripe plum or a bunch of lavender" }
+      ]
+    },
+    {
+      id: "cupbowl",
+      label: "Cup or bowl?",
+      forbiddenWords: [],
+      fixedTargetSlot: null,
+      slots: [
+        { slot: "slot1", alt: "A tall drinking vessel with a handle" },
+        { slot: "slot2", alt: "A wide, shallow vessel without a handle", focus: "50% 30%" },
+        { slot: "slot3", alt: "A rounded vessel of a size and shape that could reasonably be called either a cup or a bowl" }
+      ]
+    },
+    {
+      id: "vest",
+      label: "Clothing \u2014 one word is off-limits",
+      forbiddenWords: ["vest"],
+      fixedTargetSlot: "slot2",
+      slots: [
+        { slot: "slot1", alt: "A sleeveless top with thin shoulder straps" },
+        { slot: "slot2", alt: "A bright, high-visibility sleeveless garment with reflective stripes, worn open over other clothing" },
+        { slot: "slot3", alt: "A clothing item with long sleeves covering the arms" }
+      ]
+    },
+    {
+      id: "sandwich",
+      label: "Food \u2014 one word is off-limits",
+      forbiddenWords: ["sub"],
+      fixedTargetSlot: "slot2",
+      slots: [
+        { slot: "slot1", alt: "A round sandwich with a bun on the top and bottom" },
+        { slot: "slot2", alt: "A long sandwich served in an elongated bread roll" },
+        { slot: "slot3", alt: "A folded flatbread filled with ingredients" }
+      ]
+    }
+  ];
+
+  var state = {
+    screen: "start",
+    playerA: "",
+    playerB: "",
+    round: 0,
+    rounds: [],
+    puzzleQueue: [],
+  };
+
+  var app = document.getElementById("app");
+  var liveRegion = document.getElementById("live-region");
+  var footerStatus = document.getElementById("footer-status");
+
+  function announce(msg) {
+    liveRegion.textContent = "";
+    window.setTimeout(function () { liveRegion.textContent = msg; }, 30);
+  }
+
+  function esc(str) {
+    var div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function findViolation(text, forbiddenWords) {
+    for (var i = 0; i < forbiddenWords.length; i++) {
+      var re = new RegExp("\\b" + forbiddenWords[i] + "\\b", "i");
+      if (re.test(text)) return forbiddenWords[i];
+    }
+    return null;
+  }
+
+  // ---------- Round setup ----------
+  function buildRound(roundNumber, puzzle) {
+    var order = shuffle([0, 1, 2]); // order[displayPosition] = slot index
+    var targetSlotIndex = 0;
+    if (puzzle.fixedTargetSlot) {
+      for (var i = 0; i < puzzle.slots.length; i++) {
+        if (puzzle.slots[i].slot === puzzle.fixedTargetSlot) { targetSlotIndex = i; break; }
+      }
+    } else {
+      targetSlotIndex = Math.floor(Math.random() * 3);
+    }
+    var targetPosition = order.indexOf(targetSlotIndex);
+    var describer = (roundNumber % 2 === 1) ? "A" : "B";
+    var guesser = (describer === "A") ? "B" : "A";
+    return {
+      roundNumber: roundNumber,
+      puzzle: puzzle,
+      order: order,
+      targetPosition: targetPosition,
+      describer: describer,
+      guesser: guesser,
+      description: "",
+      guessPosition: null,
+      correct: null,
+    };
+  }
+
+  // ---------- Helpers ----------
+  function playerName(role) {
+    return role === "A" ? (state.playerA || "Student A") : (state.playerB || "Student B");
+  }
+
+  function imgPath(puzzle, slotObj, extIndex) {
+    var exts = ["jpg", "jpeg", "png", "webp"];
+    return "images/" + puzzle.id + "-" + slotObj.slot + "." + exts[extIndex || 0];
+  }
+
+  function renderPhotoCard(opts) {
+    // opts: { label, puzzle, slotObj, classes, badges, clickable, position, uid }
+    var classes = "grid-card" + (opts.classes ? " " + opts.classes : "");
+    var placeholderId = "ph-" + opts.puzzle.id + "-" + opts.slotObj.slot + "-" + opts.uid;
+    var inner =
+      '<div class="grid-label">' + esc(opts.label) + "</div>" +
+      '<div class="photo-frame">' +
+        '<img class="photo-img" src="' + imgPath(opts.puzzle, opts.slotObj, 0) + '" alt="' + esc(opts.slotObj.alt) + '" ' +
+          'style="object-position: ' + esc(opts.slotObj.focus || "center") + ';" ' +
+          'data-puzzle="' + esc(opts.puzzle.id) + '" data-slot="' + esc(opts.slotObj.slot) + '" data-ext="0" ' +
+          'onerror="window.__pictureRefImgError(this)">' +
+        '<div class="photo-placeholder" id="' + placeholderId + '">' +
+          '<div class="cam-icon" aria-hidden="true">&#128248;</div>' +
+          '<div class="ph-title">Photo needed</div>' +
+          '<div class="ph-file">' + esc(imgPath(opts.puzzle, opts.slotObj, 0)) + "</div>" +
+          '<div class="ph-hint">See the shot list for what belongs here.</div>' +
+        "</div>" +
+      "</div>" +
+      '<div class="badge-row">' + (opts.badges || "") + "</div>";
+
+    if (opts.clickable) {
+      return (
+        '<div class="' + classes + '" data-pos="' + opts.position + '">' +
+          '<button type="button" class="grid-option-btn" data-pick="' + opts.position + '" ' +
+          'aria-pressed="' + (opts.selected ? "true" : "false") + '" ' +
+          'aria-label="' + esc(opts.label) + (opts.selected ? ", currently selected" : "") + '">' +
+            inner +
+          "</button>" +
+        "</div>"
+      );
+    }
+    return '<div class="' + classes + '">' + inner + "</div>";
+  }
+
+  // Fallback chain: try jpg -> jpeg -> png -> webp -> show placeholder box.
+  window.__pictureRefImgError = function (img) {
+    var exts = ["jpg", "jpeg", "png", "webp"];
+    var nextIdx = parseInt(img.getAttribute("data-ext"), 10) + 1;
+    if (nextIdx < exts.length) {
+      img.setAttribute("data-ext", nextIdx);
+      img.src = "images/" + img.getAttribute("data-puzzle") + "-" + img.getAttribute("data-slot") + "." + exts[nextIdx];
+    } else {
+      img.style.display = "none";
+      var frame = img.parentElement;
+      var placeholder = frame ? frame.querySelector(".photo-placeholder") : null;
+      if (placeholder) placeholder.style.display = "flex";
+    }
+  };
+
+  var cardUidCounter = 0;
+
+  function slotsInDisplayOrder(round) {
+    return round.order.map(function (slotIndex) { return round.puzzle.slots[slotIndex]; });
+  }
+
+  // ---------- Screens ----------
+  function renderStart() {
+    footerStatus.textContent = "Set up your pair and start when ready.";
+    app.innerHTML =
+      '<div class="field">' +
+        '<label class="label-sm" for="name-a">First player\u2019s name (optional)</label>' +
+        '<input type="text" id="name-a" placeholder="Student A" maxlength="30">' +
+      "</div>" +
+      '<div class="field">' +
+        '<label class="label-sm" for="name-b">Second player\u2019s name (optional)</label>' +
+        '<input type="text" id="name-b" placeholder="Student B" maxlength="30">' +
+      "</div>" +
+      '<div class="button-row">' +
+        '<button type="button" class="btn-uga" id="start-btn">Start round 1</button>' +
+      "</div>";
+
+    document.getElementById("start-btn").addEventListener("click", function () {
+      state.playerA = document.getElementById("name-a").value.trim();
+      state.playerB = document.getElementById("name-b").value.trim();
+      state.round = 1;
+      state.puzzleQueue = [OPENING_PUZZLE].concat(shuffle(PUZZLES));
+      state.rounds[0] = buildRound(1, state.puzzleQueue[0]);
+      state.screen = "handoff-describe";
+      render();
+    });
+  }
+
+  function renderHandoff(nextRole, nextScreen, promptVerb) {
+    var name = playerName(nextRole);
+    footerStatus.textContent = "Round " + state.round + " of " + TOTAL_ROUNDS + " \u2014 pass the device.";
+    app.innerHTML =
+      '<div class="turn-banner">' +
+        '<span class="who">Round ' + state.round + " of " + TOTAL_ROUNDS + "</span>" +
+        '<span class="progress">Pass-the-device moment</span>' +
+      "</div>" +
+      '<div class="step-box" style="text-align:center;">' +
+        '<div class="handoff-icon" aria-hidden="true">&#128421;&#65039;</div>' +
+        "<h3>Hand the device to " + esc(name) + "</h3>" +
+        "<p>" + esc(name) + " is " + promptVerb + " this round. Everyone else, look away for a second so the screen stays a surprise.</p>" +
+      "</div>" +
+      '<div class="button-row">' +
+        '<button type="button" class="btn-uga" id="ready-btn">' + esc(name) + ", I\u2019m ready</button>" +
+      "</div>";
+
+    document.getElementById("ready-btn").addEventListener("click", function () {
+      state.screen = nextScreen;
+      render();
+    });
+  }
+
+  function renderDescribe() {
+    var round = state.rounds[state.round - 1];
+    var puzzle = round.puzzle;
+    var describerName = playerName(round.describer);
+    var guesserName = playerName(round.guesser);
+    footerStatus.textContent = describerName + " is describing round " + state.round + ".";
+
+    var slots = slotsInDisplayOrder(round);
+    var cardsHtml = slots.map(function (slotObj, pos) {
+      var isTarget = pos === round.targetPosition;
+      var badges = isTarget ? '<span class="badge target">&#9733; Your target</span>' : "";
+      return renderPhotoCard({
+        label: "Photo " + (pos + 1),
+        puzzle: puzzle,
+        slotObj: slotObj,
+        classes: isTarget ? "is-target" : "",
+        badges: badges,
+        clickable: false,
+        uid: cardUidCounter++,
+      });
+    }).join("");
+
+    var ruleBanner = puzzle.forbiddenWords.length
+      ? '<div class="rule-banner">Rule: you can\u2019t use the word' + (puzzle.forbiddenWords.length > 1 ? "s" : "") +
+        " \u201c" + puzzle.forbiddenWords.map(esc).join('\u201d or \u201c') + "\u201d anywhere in your description.</div>"
+      : "";
+
+    app.innerHTML =
+      '<div class="turn-banner">' +
+        '<span class="who">' + esc(describerName) + '<span class="role-tag"> &middot; Describer</span></span>' +
+        '<span class="progress">Round ' + state.round + " of " + TOTAL_ROUNDS + "</span>" +
+      "</div>" +
+      '<div class="category-tag">' + esc(puzzle.label) + "</div>" +
+      ruleBanner +
+      "<p>Write a description of the photo marked <strong>Your target</strong>, precise enough that " + esc(guesserName) + " could pick it out from the other two. You won't be able to point &mdash; words only.</p>" +
+      '<div class="grid-row">' + cardsHtml + "</div>" +
+      '<div class="field">' +
+        '<label class="label-sm" for="desc-input">Your description</label>' +
+        '<textarea id="desc-input" maxlength="220" placeholder="e.g. It\u2019s the one with the thin metal frame and the rounded corners..."></textarea>' +
+        '<div class="char-count"><span id="char-count">0</span>/220</div>' +
+        '<div class="violation-note" id="violation-note" aria-live="polite"></div>' +
+      "</div>" +
+      '<div class="button-row">' +
+        '<button type="button" class="btn-uga" id="submit-desc" disabled>Lock in description</button>' +
+      "</div>";
+
+    var textarea = document.getElementById("desc-input");
+    var counter = document.getElementById("char-count");
+    var violationNote = document.getElementById("violation-note");
+    var submitBtn = document.getElementById("submit-desc");
+
+    function checkText() {
+      var text = textarea.value;
+      counter.textContent = text.length;
+      var violation = findViolation(text, puzzle.forbiddenWords);
+      if (violation) {
+        textarea.classList.add("has-violation");
+        violationNote.textContent = "Remove the word \u201c" + violation + "\u201d to continue.";
+        submitBtn.disabled = true;
+      } else {
+        textarea.classList.remove("has-violation");
+        violationNote.textContent = "";
+        submitBtn.disabled = text.trim().length === 0;
+      }
+    }
+    textarea.addEventListener("input", checkText);
+    submitBtn.addEventListener("click", function () {
+      round.description = textarea.value.trim();
+      state.screen = "handoff-guess";
+      render();
+    });
+  }
+
+  function renderGuess() {
+    var round = state.rounds[state.round - 1];
+    var puzzle = round.puzzle;
+    var describerName = playerName(round.describer);
+    var guesserName = playerName(round.guesser);
+    footerStatus.textContent = guesserName + " is guessing round " + state.round + ".";
+
+    var selected = round.guessPosition;
+    var slots = slotsInDisplayOrder(round);
+    var cardsHtml = slots.map(function (slotObj, pos) {
+      var isSelected = pos === selected;
+      return renderPhotoCard({
+        label: "Photo " + (pos + 1),
+        puzzle: puzzle,
+        slotObj: slotObj,
+        classes: isSelected ? "is-selected" : "",
+        badges: isSelected ? '<span class="badge selected">Selected</span>' : "",
+        clickable: true,
+        selected: isSelected,
+        position: pos,
+        uid: cardUidCounter++,
+      });
+    }).join("");
+
+    app.innerHTML =
+      '<div class="turn-banner">' +
+        '<span class="who">' + esc(guesserName) + '<span class="role-tag"> &middot; Guesser</span></span>' +
+        '<span class="progress">Round ' + state.round + " of " + TOTAL_ROUNDS + "</span>" +
+      "</div>" +
+      '<div class="category-tag">' + esc(puzzle.label) + "</div>" +
+      '<div class="step-box">' +
+        '<h3>' + esc(describerName) + "\u2019s description</h3>" +
+        "<p>&ldquo;" + esc(round.description || "(no description given)") + "&rdquo;</p>" +
+      "</div>" +
+      "<p>Click the photo you think matches the description.</p>" +
+      '<div class="grid-row">' + cardsHtml + "</div>" +
+      '<div class="button-row">' +
+        '<button type="button" class="btn-uga" id="submit-guess" disabled>Lock in guess</button>' +
+      "</div>";
+
+    var buttons = app.querySelectorAll(".grid-option-btn");
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener("click", function (e) {
+        round.guessPosition = parseInt(e.currentTarget.getAttribute("data-pick"), 10);
+        render();
+      });
+    }
+    var submitBtn = document.getElementById("submit-guess");
+    submitBtn.disabled = round.guessPosition === null;
+    submitBtn.addEventListener("click", function () {
+      round.correct = (round.guessPosition === round.targetPosition);
+      state.screen = "feedback";
+      announce(round.correct ? "Correct guess." : "Not the target photo.");
+      render();
+    });
+  }
+
+  function renderFeedback() {
+    var round = state.rounds[state.round - 1];
+    var puzzle = round.puzzle;
+    var describerName = playerName(round.describer);
+    var guesserName = playerName(round.guesser);
+    footerStatus.textContent = "Round " + state.round + " result: " + (round.correct ? "correct." : "not quite.");
+
+    var slots = slotsInDisplayOrder(round);
+    var cardsHtml = slots.map(function (slotObj, pos) {
+      var isTarget = pos === round.targetPosition;
+      var isGuess = pos === round.guessPosition;
+      var classes = "";
+      var badges = "";
+      if (isTarget) {
+        classes = "is-correct";
+        badges += '<span class="badge correct">&#10003; Target</span>';
+      }
+      if (isGuess && !isTarget) {
+        classes = "is-wrong-guess";
+        badges += '<span class="badge wrong">Guessed this</span>';
+      } else if (isGuess && isTarget) {
+        badges += '<span class="badge selected">Guessed this</span>';
+      }
+      return renderPhotoCard({
+        label: "Photo " + (pos + 1),
+        puzzle: puzzle,
+        slotObj: slotObj,
+        classes: classes,
+        badges: badges,
+        clickable: false,
+        uid: cardUidCounter++,
+      });
+    }).join("");
+
+    var scoreSoFar = state.rounds.slice(0, state.round).filter(function (r) { return r.correct; }).length;
+
+    var feedbackBox = round.correct
+      ? '<div class="feedback-box win"><h3 class="status-success">Correct &mdash; nice teamwork.</h3><p>' +
+        esc(guesserName) + "\u2019s guess matched " + esc(describerName) + "\u2019s target." +
+        '<div class="quoted-desc">&ldquo;' + esc(round.description) + '&rdquo;</div></p></div>'
+      : '<div class="feedback-box miss"><h3 class="status-note">Not quite &mdash; here\u2019s what happened.</h3><p>' +
+        esc(guesserName) + " picked a different photo than " + esc(describerName) + "\u2019s target. Take a look at the description again and see what made it ambiguous." +
+        '<div class="quoted-desc">&ldquo;' + esc(round.description) + '&rdquo;</div></p></div>';
+
+    app.innerHTML =
+      '<div class="turn-banner">' +
+        '<span class="who">Round ' + state.round + " result</span>" +
+        '<span class="progress">Score so far: ' + scoreSoFar + "/" + state.round + "</span>" +
+      "</div>" +
+      feedbackBox +
+      '<div class="grid-row">' + cardsHtml + "</div>" +
+      '<div class="button-row">' +
+        '<button type="button" class="btn-uga" id="next-btn">' +
+          (state.round < TOTAL_ROUNDS ? "Continue to round " + (state.round + 1) : "See final results") +
+        "</button>" +
+      "</div>";
+
+    document.getElementById("next-btn").addEventListener("click", function () {
+      if (state.round < TOTAL_ROUNDS) {
+        state.round += 1;
+        state.rounds[state.round - 1] = buildRound(state.round, state.puzzleQueue[state.round - 1]);
+        state.screen = "handoff-describe";
+      } else {
+        state.screen = "summary";
+      }
+      render();
+    });
+  }
+
+  function scoreChip(label, hits, total) {
+    return '<div class="chip"><span class="k">' + esc(label) + '</span><span class="v">' + hits + "/" + total + "</span></div>";
+  }
+
+  function galleryItem(round, index) {
+    var describerName = playerName(round.describer);
+    var guesserName = playerName(round.guesser);
+
+    var outcomeBadge = round.correct
+      ? '<span class="badge correct">&#10003; Correct</span>'
+      : '<span class="badge wrong">Not quite</span>';
+
+    var slots = slotsInDisplayOrder(round);
+
+    var photosHtml = slots.map(function (slotObj, pos) {
+      var isTarget = pos === round.targetPosition;
+      var isGuess = pos === round.guessPosition;
+
+      var badges = "";
+
+      if (isTarget) {
+        badges += '<span class="badge correct">&#10003; Target</span>';
+      }
+
+      if (isGuess) {
+        badges += '<span class="badge selected">Guessed</span>';
+      }
+
+      return renderPhotoCard({
+        label: "Photo " + (pos + 1),
+        puzzle: round.puzzle,
+        slotObj: slotObj,
+        classes: isTarget ? "is-correct" : (isGuess ? "is-selected" : ""),
+        badges: badges,
+        clickable: false,
+        uid: "gallery-" + index + "-" + pos
+      });
+    }).join("");
+
+    return (
+      '<div class="gallery-item ' + (round.correct ? "win" : "miss") + '">' +
+
+        '<div class="gallery-item-head">' +
+          '<span class="badge selected">Round ' + (index + 1) + '</span>' +
+          '<span class="category-tag">' + esc(round.puzzle.label) + '</span>' +
+          outcomeBadge +
+        '</div>' +
+
+        '<div class="grid-row">' +
+          photosHtml +
+        '</div>' +
+
+        '<p class="gallery-item-desc">&ldquo;' +
+          esc(round.description || "(no description given)") +
+        '&rdquo;</p>' +
+
+        '<div class="gallery-item-meta">' +
+          'Described by ' + esc(describerName) +
+          ' &middot; Guessed by ' + esc(guesserName) +
+        '</div>' +
+
+      '</div>'
+    );
+  }
+
+  function renderSummary() {
+    footerStatus.textContent = "Activity complete.";
+    var total = state.rounds.length;
+    var correct = state.rounds.filter(function (r) { return r.correct; }).length;
+
+    function roleStats(role) {
+      var described = state.rounds.filter(function (r) { return r.describer === role; });
+      var guessed = state.rounds.filter(function (r) { return r.guesser === role; });
+      var describedHits = described.filter(function (r) { return r.correct; }).length;
+      var guessedHits = guessed.filter(function (r) { return r.correct; }).length;
+      return {
+        describedTotal: described.length, describedHits: describedHits,
+        guessedTotal: guessed.length, guessedHits: guessedHits,
+      };
+    }
+    var statsA = roleStats("A");
+    var statsB = roleStats("B");
+
+    app.innerHTML =
+      '<div class="turn-banner">' +
+        '<span class="who">Final results</span>' +
+        '<span class="progress">' + correct + "/" + total + " rounds correct</span>" +
+      "</div>" +
+      '<div class="score-row">' +
+        scoreChip(playerName("A") + " as describer", statsA.describedHits, statsA.describedTotal) +
+        scoreChip(playerName("A") + " as guesser", statsA.guessedHits, statsA.guessedTotal) +
+        scoreChip(playerName("B") + " as describer", statsB.describedHits, statsB.describedTotal) +
+        scoreChip(playerName("B") + " as guesser", statsB.guessedHits, statsB.guessedTotal) +
+      "</div>" +
+      '<div class="step-box">' +
+        "<h3>All your descriptions</h3>" +
+        '<div class="gallery">' + state.rounds.map(galleryItem).join("") + "</div>" +
+      "</div>" +
+      '<div class="button-row">' +
+        '<button type="button" class="btn-uga" id="replay-btn">Play again</button>' +
+      "</div>";
+
+    document.getElementById("replay-btn").addEventListener("click", resetGame);
+  }
+
+  function render() {
+    switch (state.screen) {
+      case "start": renderStart(); break;
+      case "handoff-describe": renderHandoff(state.rounds[state.round - 1].describer, "describe", "describing"); break;
+      case "describe": renderDescribe(); break;
+      case "handoff-guess": renderHandoff(state.rounds[state.round - 1].guesser, "guess", "guessing"); break;
+      case "guess": renderGuess(); break;
+      case "feedback": renderFeedback(); break;
+      case "summary": renderSummary(); break;
+      default: renderStart();
+    }
+  }
+
+  function resetGame() {
+    state = { screen: "start", playerA: "", playerB: "", round: 0, rounds: [], puzzleQueue: [] };
+    announce("Activity reset.");
+    render();
+  }
+
+  document.getElementById("reset-btn").addEventListener("click", function () {
+    if (state.screen === "start" || window.confirm("Restart the activity? This clears the current game.")) {
+      resetGame();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
