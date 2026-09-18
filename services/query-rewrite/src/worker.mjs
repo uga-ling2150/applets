@@ -11,10 +11,9 @@ async function session(request,secret){
   return await crypto.subtle.verify('HMAC',await key(secret),bytes,enc.encode(`${id}.${exp}`))?id:null;
 }
 export default {async fetch(request,env,ctx){
-  const origin=request.headers.get('Origin');
-  const allowed=(env.ALLOWED_ORIGINS||'').split(',').map(s=>s.trim());
-  if(!origin || !allowed.includes(origin))return json({error:'origin_not_allowed'},403);
-  const cors={'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Session','Access-Control-Expose-Headers':'Retry-After'};
+  // Public classroom API: allow hosted pages, local previews and file:// exports.
+  // Signed sessions and the shared usage budget still apply to every rewrite.
+  const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type, X-Session','Access-Control-Expose-Headers':'Retry-After'};
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
   const reply=(d,s=200,h={})=>json(d,s,{...cors,...h});
   const path=new URL(request.url).pathname;
