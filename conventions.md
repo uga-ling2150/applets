@@ -7,7 +7,11 @@ from `docs/`. Each week's activities live in `docs/week_N/`. Shared look-and-fee
 This file exists so a new applet page starts consistent with the rest of the site instead
 of drifting. It was written after reconciling `docs/week_5/5C_explicit_query_rewriting.html`
 against the established pattern (`docs/week_3/3F_rlhf_rewards.html`,
-`docs/week_4/4B_chatbot_metrics.html`, `docs/week_2/3_coref.html`).
+`docs/week_4/4B_chatbot_metrics.html`, `docs/week_2/3_coref.html`), and later updated after a
+full-site audit found and fixed drift across every other applet page.
+
+See `docs/template/applet_template.html` for a walkthrough build that demonstrates every rule
+in this file on a fake (non-real) applet — use it as a starting point for a new page.
 
 ## Page shell
 
@@ -16,7 +20,7 @@ Every applet's `<head>` loads, in this order:
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=...">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="<slug>/applet.css">  <!-- only if the page needs page-specific CSS -->
@@ -26,6 +30,16 @@ Load Bootstrap even if a given applet doesn't use its components directly. `styl
 assumes Bootstrap's reboot is present (heading sizes, form-control resets, etc.), and
 several applets *do* use Bootstrap grid/utility classes — loading it everywhere keeps every
 page's baseline typography and spacing identical. `<!DOCTYPE html>` is uppercase site-wide.
+
+Use the exact Google Fonts URL above — copy it, don't invent your own subset. `style.css`
+sets `body`/`h1`/`h2`/`h3` to `"Merriweather", "Georgia", serif` and several widget classes
+(`.stage-title`, `.mic-label`, `.hero-text .eyebrow`, etc.) to `"Merriweather Sans"` or
+`"IBM Plex Mono"`. A page that loads a different font family (Space Grotesk, Oswald, ...)
+instead of, or in addition to, this set doesn't get a parse error — it just silently falls
+back to a generic serif/sans font for text that's supposed to be in the site's brand font,
+so the page's header and headings end up looking subtly different from every other applet.
+This was the single most common deviation found in the first full-site audit: check any new
+page's rendered header against another applet's side by side, not just its markup.
 
 ## Header
 
@@ -95,6 +109,12 @@ change, grep for `aria-labelledby="..."` and confirm each target `id` still exis
 - Background/Instructions are plain, always-visible content — not a collapsible `<details>`.
   Collapsing this section makes one page behave differently from every other applet for no
   functional reason.
+- Don't put `class="small"` (or any other font-shrinking class) on the Learning Objectives,
+  Instructions, or Reflection & Discussion Guide lists, or on the row/div wrapping them. These
+  are the same substantive, always-visible course content as the Background paragraph next to
+  them and should read at the same size — a smaller size on the list items alone (while
+  Background stays full-size) reads as an unintentional accident, not a deliberate choice, and
+  was the second most common deviation found in the first full-site audit.
 
 ## Reflection & Discussion Guide
 

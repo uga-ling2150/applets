@@ -6,11 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cross-Turn Coreference & Discourse Explorer · Line-by-Line</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
-
     <link href="../style.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/compromise@14/builds/compromise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/compromise@14/builds/compromise.min.js"></script>
     <style>
         /* Page-specific additions layered on top of style.css — kept to what style.css
            doesn't already define, and built entirely from the UGA palette in :root. */
@@ -66,8 +67,6 @@
         .badge-org{ background:var(--olympic) !important; color:#fff; }
         .badge-other{ background:var(--stegeman) !important; color:#1a1a1a; }
 
-        .legend{ display:flex; gap:14px; flex-wrap:wrap; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted); margin-top:10px; }
-
         /* coreference chain IDs (E1, E2... / T1, T2...), attached in stages 2 & 3 and
            carried through stage 4; hovering any occurrence highlights the whole chain */
         .chain-badge{
@@ -93,26 +92,25 @@
             color:var(--uga-red);
             font-weight:700;
         }
-        .legend span.dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle; }
     </style>
 </head>
 <body>
   
-<header class="text-center mb-4 page-header">
-    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 
 <main>
 
-<div class="lesson-container">
-    <h3 class="h4 mb-4">Activity: Recognizing Coreference</h3>
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity: Recognizing Coreference</h3>
 
 <div class=" mt-5">    
     <div class="row mb-4">
         <div class="col-md-12">
             <h4 class="uga-accent">Learning Objectives</h4>
-            <ul class="small">
+            <ul>
                 <li><strong>Analyze</strong> how linguistic features are used to identify named entities and coreference relationships</li>
                 <li><strong>Experiment</strong> with a (weak) named entity recognition, coreference resolution, and entity linking tool to explore the difficulties inherent in the task</li>
             </ul>
@@ -146,21 +144,20 @@
         </div>
         <div class="col-md-12">
                 <h4 class="uga-accent">Instructions</h4>
-                <p class="small mb-0 mt-2"> 
-                <ol>
+                <ol class="mb-0 mt-2">
                     <li>Try the demo conversation. What do you notice? Does the system make any mistakes? If it does, where in the pipeline did the error arise, and what type of linguistic information could have been used to make the correct decision?</li>
                     <li>Now try typing in your own conversations. Have one groupmate play the role of the human, and another play the role of the AI. What happens? Can you spot any errors?</li>
-                </ol></p>
+                </ol>
     </div>
 </div>
-</div>
+</section>
 
-    <div class="app-wrapper">
+    <section class="app-wrapper" aria-labelledby="applet-title">
 
         <div class="hero">
             <div class="hero-text">
                 <div class="eyebrow">NLP Research · Temporal Pronoun &amp; Coreference Pipeline — Line-by-Line Edition</div>
-                <h2>Add one line.<br>Watch the <span>entities</span> stack.</h2>
+                <h2 id="applet-title">Add one line.<br>Watch the <span>entities</span> stack.</h2>
                 <p>Build a dialogue one turn at a time. Every added line re-runs named-entity recognition (via compromise.js), temporal normalization, cross-turn coreference, and Wikidata linking over the whole transcript so far — anchored to August 10, 2026.</p>
             </div>
         </div>
@@ -278,24 +275,24 @@
             <button class="reset-btn" id="resetBtn" onclick="resetAll()">Reset pipeline</button>
         </div>
 
-    </div>
+    </section>
 
-    
 
-    <div class="reflection-container">
-        <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
+
+    <section class="reflection-container" aria-labelledby="reflection-title">
+        <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
         
-        <div class="row small text-dark">
+        <div class="row text-dark">
         <div class="col-md-12">
             Think about the following questions:
-        <ul>
+        <ol>
             <li> What kind of linguistic information is useful for detecting and classifying named entities?</li>
             <li> What additional information do you think might improve the system's performance?</li>
             <li> Why do you think connecting to external databases is useful? How might they be useful for the named entity recognition process itself?</li>
-        </ul>
+        </ol>
         </div>
         </div>
-</div>
+</section>
 
 </main>
 

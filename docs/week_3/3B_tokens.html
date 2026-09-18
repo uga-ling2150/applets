@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>UGA Explicature Lab - SmolLM2 ONNX</title>
+    <title>UGA Tokenization Lab - SmolLM2 ONNX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="../style.css" rel="stylesheet">
+    <link href="../style.css" rel="stylesheet">
     <style>
         #chat-box { height: 350px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px; border-radius: 8px; background: #fff; }
         .msg { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 0.95rem; line-height: 1.4; }
@@ -31,7 +34,6 @@
         }
         .debug-view { background: #1a1a1a; color: #00ff41; padding: 20px; font-family: 'Fira Code', monospace; font-size: 0.8rem; border-radius: 8px; min-height: 400px; border: 1px solid #333; }
         .token { display: inline-block; border: 1px solid #444; padding: 2px 5px; margin: 2px; color: #111; background: #222; border-radius: 3px; font-weight: 600; }
-        .tag { color: #8be9fd; font-weight: bold; }
 
         /* ---- Token-highlight palette ----
            Same class (tok-c0..tok-c7) is reused on both the raw-string
@@ -74,33 +76,25 @@
             margin-top: 10px;
             font-style: italic;
         }
-
-        /* Bootstrap's default danger red (#dc3545) is only ~4.53:1 on
-           white -- passes AA but with almost no margin. The project's own
-           --uga-red is ~6.6:1, so reuse that for status text instead of
-           Bootstrap's borderline default. */
-        .status-text {
-            color: var(--uga-red);
-        }
     </style>
 </head>
 <body>
 
     
-<header class="text-center mb-4 page-header">
-    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 
 <main>
 
-<section class="lesson-container">
-    <h3 class="h4 mb-4">Activity: Under the Hood</h3>
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity: Under the Hood</h3>
     
     <div class="row">
         <div class="col-md-12">
             <h4 class="uga-accent">Learning Objectives</h4>
-            <ul class="small">
+            <ul>
                 <li><strong>Describe</strong> how texts are underlyingly represented by tokens in modern language models.</li>
                 <li><strong>Compare</strong> how humans and LLMs perceive language.</li>
             </ul>
@@ -118,7 +112,7 @@
         <div class="col-md-12">
             <h4 class="uga-accent">Instructions</h4>
           
-            <ol class="small">
+            <ol>
                 <li>Wait for the LLM to finish loading. It will take a while!</li>
                 <li>Type a message in the textbox under 'Student View', then hit 'Add'. Your message should appear on the screen.</li>
                 <li>Wait for the LLM to respond. Do this a few times as you wish.</li>
@@ -129,8 +123,12 @@
 </section>
 
 
-<section class="app-wrapper">
-    <h2 class="fw-bold mb-1">Looking inside chatbots</h2>
+<section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero">
+        <div class="hero-text">
+            <h2 id="applet-title" class="fw-bold mb-1">Looking inside chatbots</h2>
+        </div>
+    </div>
     <p id="status" class="text-danger small fw-bold mb-3">INITIALIZING ONNX RUNTIME...</p>
 
     <div class="row">
@@ -163,18 +161,18 @@
 </section>
 
 
-<section class="reflection-container">
-    <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
+<section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
     
-    <div class="row small text-dark">
+    <div class="row text-dark">
       <div class="col-md-12">
         Think about the following questions:
-      <ul>
+      <ol>
         <li> What tokens appear in addition to the text that you see directly in the chatroom interface? How are they useful?</li>
         <li> Look at where the token-color boundaries fall in the raw string. Do they line up with whole words, sub-word pieces, or something else?</li>
         <li> How might what you've seen here explain why ChatGPT doesn't know the number of 'r's in 'strawberry'?</li>
         <li> How do you think this mode of thinking about language differs from how humans think of language?</li>
-     </ul>
+     </ol>
       </div>
     </div>
 </section>

@@ -6,27 +6,27 @@
 <title>Signal Chain — Order Voice Pipeline</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="../style.css">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
 </head>
 <body>
 
     
-<header class="text-center mb-4 page-header">
-    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 
 <main>
 
-<div class="lesson-container">
-    <h3 class="h4 mb-4">Activity: Modular Conversational AI systems </h3>
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity: Modular Conversational AI systems </h3>
     
     <div class="row">
         <div class="col-md-12">
             <h4 class="uga-accent">Learning Objectives</h4>
-            <ul class="small">
+            <ul>
                 <li><strong>Describe</strong> the five stages of the traditional conversational AI pipeline.</li>
                 <li><strong>Locate</strong> where errors in the pipeline take place.</li>
                 <li><strong>Evaluate</strong> the advantages and disadvantages of this model.</li>
@@ -34,22 +34,27 @@
         </div>
 
         <div class="col-md-12">
+            <h4 class="uga-accent">Background</h4>
+            <p>Traditional conversational AI systems are often built as a pipeline of separate modules, each handling one step of the conversation. Speech is first converted to text (Automatic Speech Recognition), then interpreted to identify what the user wants and any relevant details (Intent &amp; Slot Recognition). A dialogue manager maps that recognized intent to a specific action the system should take, which is filled into a response template (Natural Language Generation) and finally spoken back to the user (Text-to-Speech). Because each stage passes its output to the next, an error introduced early in the pipeline (for example, a mistranscribed word) can propagate through every later stage.</p>
+        </div>
+
+        <div class="col-md-12">
             <h4 class="uga-accent">Instructions</h4>
           
-            <ol class="small">
+            <ol>
                 <li>Take turns in your group to try out the app below.</li>
                 <li>If you encounter an error in the pipeline, write down where it occurred.</li>
             </ol>
         </div>
     </div>
-</div>
+</section>
 
 
-<div class="app-wrapper">
+<section class="app-wrapper" aria-labelledby="pipeline-title">
 
   <div class="hero">
     <div class="hero-text">
-      <h2>Say it once.<br>Watch the <span>signal</span> move.</h2>
+      <h2 id="pipeline-title">Say it once.<br>Watch the <span>signal</span> move.</h2>
       <p>Speak an order request. Each stage of the pipeline — ASR, intent &amp; slot recognition, dialogue management, NLG, and TTS — lights up in order as your voice becomes a spoken reply.</p>
     </div>
     <div class="mic-wrap">
@@ -156,7 +161,7 @@
     <button class="reset-btn" id="resetBtn">Reset pipeline</button>
   </div>
 
-</div>
+</section>
 
 <script>
 (function(){
@@ -441,20 +446,20 @@
 </script>
 
 
-<div class="reflection-container">
-    <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
-    
-    <div class="row small text-dark">
+<section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+
+    <div class="row text-dark">
       <div class="col-md-12">
         Think about the following questions:
-      <ul>
+      <ol>
         <li> Did you produce any errors? At what stage did the error occur? Why do you think it occurred?</li>
         <li> Try to 'break' the system in some way. Can you try to make the system 'break' at different stages?</li>
         <li> What are the benefits and drawbacks of this multi-stage approach?</li>
-      </ul>
+      </ol>
       </div>
     </div>
-</div>
+</section>
 
 </main>
 

@@ -10,18 +10,9 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
   <style>
-    .lesson-container,
-    .reflection-container {
-      line-height: 1.6;
-    }
-
     .metrics-app {
       color: var(--text);
       font-family: "Merriweather", "Georgia", serif;
-    }
-
-    .page-header h2 {
-      color: #555;
     }
 
     .metrics-app h4,
@@ -33,12 +24,6 @@
     .results-table th,
     .threshold-table th {
       font-family: "Merriweather Sans", sans-serif;
-    }
-
-    .simulation-heading {
-      font-size: clamp(1.35rem, 3vw, 1.8rem);
-      margin-bottom: .4rem;
-      text-transform: none;
     }
 
     .simulation-intro {
@@ -366,16 +351,16 @@
 <body class="pt-3 mt-1">
   <header class="page-header">
     <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-    <h2><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
   </header>
 
   <main aria-label="Activity 4B content">
     <section class="lesson-container" aria-labelledby="activity-title">
-      <h3 class="h4 mb-4" id="activity-title">Activity 4B: Chatbot Metrics Tug-of-War</h3>
+      <h3 class="h3 mb-4" id="activity-title">Activity 4B: Chatbot Metrics Tug-of-War</h3>
 
       <div class="row">
         <div class="col-md-12">
-          <h4 class="uga-accent">Learning objectives</h4>
+          <h4 class="uga-accent">Learning Objectives</h4>
           <p>After this activity, you will be able to:</p>
           <ul>
             <li><strong>Explain</strong> containment, task completion, and abandonment rates.</li>
@@ -404,8 +389,12 @@
     </section>
 
     <section class="app-wrapper metrics-app" aria-labelledby="simulation-title">
-      <h4 class="simulation-heading" id="simulation-title">Call-center simulation</h4>
-      <p class="simulation-intro">Set the automatic handoff rule, then see what happens across fifty calls. The simulation varies problem difficulty and customer patience behind the scenes.</p>
+      <div class="hero">
+        <div class="hero-text">
+          <h2 id="simulation-title">Call-center simulation</h2>
+          <p class="simulation-intro">Set the automatic handoff rule, then see what happens across fifty calls. The simulation varies problem difficulty and customer patience behind the scenes.</p>
+        </div>
+      </div>
 
       <div class="control-panel">
         <div>
@@ -506,19 +495,19 @@
 
     <section class="reflection-container" aria-labelledby="reflection-title">
       <h3 class="uga-accent mb-3" id="reflection-title">Reflection &amp; Discussion Guide</h3>
-      <div class="row small text-dark">
+      <div class="row text-dark">
         <div class="col-md-12">
-          <ul>
+          <ol>
             <li>Which handoff setting would you choose if the company cared most about containment? Who bears the cost of that choice?</li>
             <li>Which setting best protects task completion and reduces abandonment? What business cost might increase?</li>
             <li>Containment is widely used in practice. If it is the only metric that is valued, how might this affect the development of the chatbot? How would chatbot designers be incentivised to change the chatbot's behaviour?</li>
             <li>What other evidence would you want before deciding that one handoff policy creates a better customer experience?</li>
-          </ul>
+          </ol>
         </div>
       </div>
 
       <h3 class="uga-accent mb-3">Closing Note</h3>
-      <div class="row small text-dark">
+      <div class="row text-dark">
         <div class="col-md-12">
           <p>Changing one operational rule can improve one metric while worsening another. This is one example of Goodhart's Law: when an organization turns a measure into a target, people and systems may optimize the number without improving the underlying experience. A useful evaluation therefore needs several measures and careful interpretation.</p>
         </div>

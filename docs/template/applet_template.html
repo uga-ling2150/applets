@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Applet Template &amp; Style Guide — LING2150</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+    /* ============================================================
+       Everything in this block is either (a) copied verbatim from
+       an existing applet's page-specific CSS, so instructors can see
+       what "genuinely page-specific" looks like, or (b) styling for
+       the meta / documentation layer of THIS page (the "note" boxes,
+       the palette swatches, the big banner) which a real applet
+       would never need and should not copy.
+       ============================================================ */
+
+    /* --- meta / documentation layer only (not part of the applet pattern) --- */
+    .template-banner {
+        background: var(--uga-black);
+        color: #fff;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        text-align: center;
+        padding: 10px 16px;
+        letter-spacing: 0.02em;
+    }
+    .template-banner strong { color: #ffd400; }
+    .spec-callout {
+        background: #eef5fb;
+        border-left: 4px solid var(--uni-blue);
+        border-radius: 0 6px 6px 0;
+        padding: 12px 16px;
+        margin: 16px 0;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: #1a1a1a;
+    }
+    .spec-callout .tag {
+        display: inline-block;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--uni-blue);
+        font-size: 11px;
+        margin-bottom: 4px;
+    }
+    .spec-callout code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 3px; }
+    .divider-note {
+        max-width: 1000px;
+        margin: 3rem auto;
+        text-align: center;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+    }
+    .divider-note::before, .divider-note::after {
+        content: "";
+        display: block;
+        border-top: 1px dashed var(--border-strong);
+        margin: 10px auto;
+        max-width: 300px;
+    }
+    .doc-section {
+        max-width: 1000px;
+        margin: 0 auto 2rem auto;
+        padding: 0 2.5rem;
+    }
+    .doc-section h3 { margin-top: 1.75rem; }
+    .palette-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 14px;
+        margin: 1rem 0 1.5rem;
+    }
+    .swatch {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        background: #fff;
+    }
+    .swatch-color { height: 52px; }
+    .swatch-label { padding: 8px 10px; }
+    .swatch-label .name { font-weight: 700; display: block; }
+    .swatch-label .hex { color: var(--muted); }
+    .swatch-label .use { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+    /* --- widget CSS genuinely copied from real applets, to demonstrate the pattern --- */
+
+    /* Streamlined input row pattern — copied from docs/week_2/3_coref.html.
+       Not in shared style.css, because it's a per-page widget choice, not a
+       site-wide primitive. Copy this block into your own page's <style> when
+       you need a "one item at a time" list builder. */
+    .turn-row { display:flex; align-items:flex-start; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line); }
+    .turn-row:last-of-type { border-bottom:none; }
+    .turn-stamp {
+        font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:11px;
+        width:26px; height:26px; flex:0 0 26px; border-radius:50%;
+        border:2px solid var(--line); color:var(--muted);
+        display:flex; align-items:center; justify-content:center; background:var(--panel-alt);
+    }
+    .turn-row.just-added .turn-stamp {
+        border-color:var(--uga-red); color:var(--uga-red);
+        box-shadow:0 0 0 3px rgba(186,12,47,0.12);
+    }
+    .turn-body { flex:1; min-width:0; }
+    .turn-speaker {
+        font-family:"IBM Plex Mono",monospace; font-size:10.5px; text-transform:uppercase;
+        letter-spacing:0.08em; font-weight:700; margin-right:8px; color: var(--uni-blue);
+    }
+    .turn-text { font-size:14.5px; color:var(--text); }
+    .add-turn-form { margin-top:14px; padding-top:14px; border-top:1px solid var(--line); display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .add-turn-form input { font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
+    .add-turn-form input[type=text] { flex:1; min-width:220px; }
+    .form-hint { font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted); width:100%; margin-top:2px; }
+
+    /* Per-step discussion callout — copied from docs/week_3/3F_rlhf_rewards.html.
+       Fine for a discussion prompt tied to one specific step; NOT for the
+       final wrap-up Reflection & Discussion Guide, which is always a plain list. */
+    .discussion-box {
+        background: rgba(180, 189, 0, 0.12);
+        border-left: 4px solid var(--hedges);
+        padding: 12px 16px;
+        margin: 16px 0;
+        font-size: 14px;
+        border-radius: 0 6px 6px 0;
+    }
+    .discussion-box h4 {
+        margin: 0 0 6px;
+        color: var(--sanford);
+        font-family: "Merriweather Sans", sans-serif;
+        font-size: 12.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* Optional supplementary-info box, collapsed by default — also from 3F.
+       This is the one place <details> is appropriate: it's genuinely optional
+       reference material, not the Background/Instructions the student needs
+       to read to do the activity. */
+    .glossary-box {
+        background: var(--panel-alt);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 12px 16px;
+        margin: 14px 0;
+        font-size: 13px;
+    }
+    .glossary-box summary {
+        font-family: "Merriweather Sans", sans-serif;
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .glossary-box ul { margin: 10px 0 0; padding-left: 20px; }
+
+    /* Skip-link — optional but recommended, copied from docs/week_5/5c/applet.css.
+       Not (yet) in the shared stylesheet, so copy this block if you add one. Note
+       the :focus rule: it must become visible on keyboard focus, or it defeats the
+       purpose of a skip link entirely. */
+    .skip-link {
+        position: absolute;
+        top: -100px;
+        left: 16px;
+        background: #fff;
+        border: 1px solid var(--uga-red);
+        padding: 12px 16px;
+        border-radius: 6px;
+        z-index: 100;
+    }
+    .skip-link:focus { top: 12px; }
+    [tabindex="-1"]:focus { outline: 2px solid var(--uga-red); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="template-banner">
+    📎 This is a <strong>template</strong>, not a real activity. It exists to show instructors how
+    to build a new applet page. See <a href="https://github.com/uga-ling2150/applets/blob/main/conventions.md" style="color:#9fd6ff;" target="_blank" rel="noopener noreferrer">conventions.md</a> in the repo for the full written rules this page demonstrates.
+</div>
+
+<a class="skip-link" href="#main">Skip to activity</a>
+
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+
+<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+    <span class="tag">Convention note — header</span>
+    This <code>&lt;header class="page-header"&gt;</code> block is copied byte-for-byte from
+    every other applet (see conventions.md § Header). Never redeclare
+    <code>.page-header h1/h2</code> locally, and never swap the real anchor tags for a
+    <code>&lt;p&gt;</code> — screen-reader users rely on the page having exactly one
+    <code>&lt;h1&gt;</code>/<code>&lt;h2&gt;</code> pair here, and it doubles as a working link
+    back to the department site and the app index.
+</div>
+
+<main id="main" tabindex="-1">
+
+<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+    <span class="tag">Convention note — landmarks</span>
+    Everything specific to <em>this page</em> — the lesson card, the interactive widget, the
+    reflection guide — lives inside one <code>&lt;main&gt;</code>. There is exactly one
+    <code>&lt;main&gt;</code> per page. <code>&lt;header&gt;</code> is reused site chrome, so it
+    sits outside <code>&lt;main&gt;</code>. Each distinct region inside main
+    (<code>.lesson-container</code>, <code>.app-wrapper</code>, <code>.reflection-container</code>)
+    is a <code>&lt;section&gt;</code> with <code>aria-labelledby</code> pointing at that section's
+    own visible heading <code>id</code> — never a bare <code>&lt;div&gt;</code>, and never
+    <code>aria-label</code> duplicating text that's already visible on screen.
+</div>
+
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 0T: How This Applet Was Built</h3>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="uga-accent">Learning Objectives</h4>
+            <ul>
+                <li><strong>Identify</strong> the four page regions every applet uses: page header, activity card, applet card, reflection guide.</li>
+                <li><strong>Locate</strong> where the shared look-and-feel (colors, fonts, card styling) is defined versus where page-specific widget CSS belongs.</li>
+                <li><strong>Apply</strong> the <code>id</code> / <code>aria-labelledby</code> pairing rule when labeling a new section.</li>
+            </ul>
+        </div>
+
+        <div class="col-md-12">
+            <h4 class="uga-accent">Background</h4>
+            <p>Every LING2150 applet is a single static HTML file (plus, optionally, a page-specific
+            CSS/JS pair) that loads the shared <code>docs/style.css</code>. That shared stylesheet
+            supplies the card look, the color palette, the fonts, and a handful of reusable widgets
+            (buttons, a stage-rack, a feedback card). A page's own CSS should only add what is
+            <em>genuinely specific</em> to its own interactive widget — this page's widget gallery
+            below shows both kinds side by side.</p>
+        </div>
+
+        <div class="col-md-12">
+            <h4 class="uga-accent">Instructions</h4>
+            <ol>
+                <li>Scroll through the fake applet below like a student would.</li>
+                <li>Read the blue "Convention note" callouts next to each part — they explain the rule that part demonstrates.</li>
+                <li>When you're ready to build your own page, copy this file, delete the callouts and the banner, and replace the content.</li>
+            </ol>
+        </div>
+    </div>
+</section>
+
+<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+    <span class="tag">Convention note — no shrinking substantive text</span>
+    Learning Objectives, Instructions, and the Reflection &amp; Discussion Guide are course
+    content the student is meant to read, same as Background — don't add <code>class="small"</code>
+    to their lists or wrap it around them. If you want a lighter visual touch, that's what
+    <code>uga-accent</code> headings and generous line-height already provide.
+</div>
+
+<section class="app-wrapper" aria-labelledby="applet-title">
+
+  <div class="hero">
+    <div class="hero-text">
+      <h2 id="applet-title">Widget <span>gallery</span></h2>
+      <p>Two working demo widgets, a button set, and two optional callout patterns — copy whichever pieces your activity actually needs.</p>
+    </div>
+  </div>
+
+  <div class="spec-callout">
+      <span class="tag">Convention note — applet title</span>
+      The <code>&lt;h2 id="applet-title"&gt;</code> above lives inside <code>.hero</code>/
+      <code>.hero-text</code>, both defined once in <code>style.css</code>. The
+      <code>id</code> here must match the <code>aria-labelledby</code> on the
+      <code>&lt;section class="app-wrapper"&gt;</code> that contains it — that's what gives a
+      screen reader user a named landmark to jump straight to the interactive part of the page.
+  </div>
+
+  <div class="rack">
+    <div class="stage active" id="tplStage1" data-stage="1">
+      <div class="stage-num">1</div>
+      <div class="stage-body">
+        <div class="stage-title">Stage-rack pattern</div>
+        <div class="stage-sub">Already defined in style.css — no local CSS needed</div>
+        <div class="stage-content">
+          <p style="margin:0 0 10px;">Use <code>.rack</code> / <code>.stage</code> /
+          <code>.stage-num</code> / <code>.stage-body</code> for any "step 1, step 2, step 3..."
+          flow the student walks through in order — see <code>1_five_stage_pipeline.html</code>
+          or <code>3F_rlhf_rewards.html</code> for real examples. Click through:</p>
+          <button class="btn-uga" type="button" onclick="advanceTemplateStage()">Advance stage →</button>
+        </div>
+      </div>
+    </div>
+    <div class="stage" id="tplStage2" data-stage="2">
+      <div class="stage-num">2</div>
+      <div class="stage-body">
+        <div class="stage-title">Per-step discussion box</div>
+        <div class="stage-sub">Optional — copy from 3F if a step needs its own prompt</div>
+        <div class="stage-content">
+          <div class="discussion-box">
+            <h4>Discuss</h4>
+            <p style="margin:0;">This tinted box is fine <em>here</em>, attached to one specific
+            step. It is not fine as the final wrap-up section at the bottom of the page — that one
+            is always a plain list (see the Reflection &amp; Discussion Guide further down).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="stage" id="tplStage3" data-stage="3">
+      <div class="stage-num">3</div>
+      <div class="stage-body">
+        <div class="stage-title">Optional supplementary info</div>
+        <div class="stage-sub">Collapsed by default — this is what &lt;details&gt; is for</div>
+        <div class="stage-content">
+          <details class="glossary-box">
+            <summary>📖 Extra terminology (optional)</summary>
+            <ul>
+              <li><strong>Landmark:</strong> a region of the page (header, main, nav, ...) that assistive technology lets a user jump directly to.</li>
+              <li><strong>Contrast ratio:</strong> a measure of how easy text is to read against its background; WCAG AA asks for at least 4.5:1 for normal text.</li>
+            </ul>
+          </details>
+          <p style="margin-top:10px;">Compare this to Background/Instructions above, which are
+          never collapsed — a student shouldn't have to click to reveal what they're supposed to
+          do. <code>&lt;details&gt;</code> is for genuinely optional extras.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-callout">
+      <span class="tag">Convention note — turn-row pattern</span>
+      Not every applet needs a stage-rack. For a simple "type one thing, see it appended to a
+      list" interaction, the compact row pattern below (copied from
+      <code>3_coref.html</code>) beats a heavier boxed-fieldset editor. The CSS for
+      <code>.turn-row</code>/<code>.turn-stamp</code>/<code>.turn-body</code> is <em>not</em> in
+      the shared stylesheet — copy the block from this page's <code>&lt;style&gt;</code> into your
+      own page when you use it.
+  </div>
+
+  <div>
+    <div id="tplTurnList"></div>
+    <div class="add-turn-form">
+      <label for="tplTurnInput" class="visually-hidden">Next line</label>
+      <input type="text" id="tplTurnInput" class="form-control form-control-sm" placeholder="Type a line and press Add…">
+      <button class="btn-uga" type="button" id="tplAddBtn" onclick="addTemplateTurn()">＋ Add line</button>
+      <div class="form-hint">Speaker alternates automatically, same as 3_coref.html's transcript builder.</div>
+    </div>
+  </div>
+
+  <div class="spec-callout">
+      <span class="tag">Convention note — buttons</span>
+      <code>.btn-uga</code>, <code>.btn-uga-dark</code>, <code>.btn-uga-outline</code>, and
+      <code>.btn-reset</code> are all defined once in <code>style.css</code> — reuse them instead
+      of inventing a page-local button style, so every applet's buttons look and behave the same.
+  </div>
+  <div style="display:flex; gap:10px; flex-wrap:wrap; padding: 4px 0 4px;">
+    <button class="btn-uga" type="button" onclick="alert('Primary action — e.g. Run, Submit, Add.')">Primary (.btn-uga)</button>
+    <button class="btn-uga-dark" type="button" onclick="alert('Secondary dark action.')">Dark (.btn-uga-dark)</button>
+    <button class="btn-uga-outline" type="button" onclick="alert('Low-emphasis action — e.g. Auto-demo, Show example.')">Outline (.btn-uga-outline)</button>
+    <button class="btn-reset" type="button" onclick="resetTemplateWidgets()">Reset (.btn-reset)</button>
+  </div>
+
+</section>
+
+<div class="divider-note">Fake applet ends here — reference material for instructors follows</div>
+
+<div class="doc-section">
+    <h3 class="uga-accent">Color palette</h3>
+    <p>All colors are CSS custom properties on <code>:root</code> in <code>style.css</code> — reference
+    them with <code>var(--name)</code> rather than hard-coding a hex value, so a future palette
+    change only has to happen in one place.</p>
+    <div class="palette-grid">
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--uga-red);"></div>
+            <div class="swatch-label"><span class="name">--uga-red</span><span class="hex">#ba0c2f</span><span class="use">Primary accent: buttons, the left border on every card, active/error states.</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--olympic);"></div>
+            <div class="swatch-label"><span class="name">--olympic</span><span class="hex">#004e60</span><span class="use">"Done"/success-adjacent state (e.g. a completed stage).</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--hedges);"></div>
+            <div class="swatch-label"><span class="name">--hedges</span><span class="hex">#b4bd00</span><span class="use">Discussion-box tint. Text on it must stay dark (see contrast note below).</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--uni-blue);"></div>
+            <div class="swatch-label"><span class="name">--uni-blue</span><span class="hex">#0055a4</span><span class="use">Used sparingly for a second categorical color (e.g. a speaker label).</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--sanford);"></div>
+            <div class="swatch-label"><span class="name">--sanford</span><span class="hex">#554f47</span><span class="use">Muted heading text inside a tinted box.</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--panel-alt); border-bottom:1px solid var(--line);"></div>
+            <div class="swatch-label"><span class="name">--panel-alt</span><span class="hex">#f9f9f9</span><span class="use">Neutral surface for a stage-num circle, a glossary box, an inert control.</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--text);"></div>
+            <div class="swatch-label"><span class="name">--text</span><span class="hex">#1a1a1a</span><span class="use">Body text.</span></div>
+        </div>
+        <div class="swatch">
+            <div class="swatch-color" style="background:var(--muted);"></div>
+            <div class="swatch-label"><span class="name">--muted</span><span class="hex">#555555</span><span class="use">Secondary text (sub-labels, hints, timestamps).</span></div>
+        </div>
+    </div>
+
+    <h3 class="uga-accent">Widget catalog — quick reference</h3>
+    <table class="table table-sm table-bordered" style="font-size:14px;">
+        <thead><tr><th>Widget</th><th>Defined in</th><th>Use for</th></tr></thead>
+        <tbody>
+            <tr><td><code>.rack</code> / <code>.stage</code></td><td>shared <code>style.css</code></td><td>A linear, numbered, step-by-step process the student walks through.</td></tr>
+            <tr><td><code>.turn-row</code> / <code>.turn-stamp</code></td><td>copy from <code>3_coref.html</code></td><td>An append-only "add one item, see the list grow" interaction.</td></tr>
+            <tr><td><code>.discussion-box</code></td><td>copy from <code>3F_rlhf_rewards.html</code></td><td>A discussion prompt tied to one specific step — never the final wrap-up.</td></tr>
+            <tr><td><code>.glossary-box</code> (a styled <code>&lt;details&gt;</code>)</td><td>copy from <code>3F_rlhf_rewards.html</code></td><td>Genuinely optional supplementary info the student can choose to expand.</td></tr>
+            <tr><td><code>.btn-uga</code> / <code>-dark</code> / <code>-outline</code>, <code>.btn-reset</code></td><td>shared <code>style.css</code></td><td>Every clickable action in every applet — don't invent a new button style.</td></tr>
+            <tr><td><code>.applet-feedback-card</code></td><td>shared <code>style.css</code></td><td>The "report a problem" card at the very bottom of the page (see below).</td></tr>
+        </tbody>
+    </table>
+
+    <h3 class="uga-accent">Accessibility notes</h3>
+    <ul>
+        <li><strong>Landmarks:</strong> one <code>&lt;header&gt;</code> (site chrome), one
+        <code>&lt;main&gt;</code> (this page's unique content), and a <code>&lt;section&gt;</code>
+        for each distinct labeled region inside main. Don't reach for <code>&lt;section&gt;</code>
+        for small internal wrappers like <code>.hero</code> or <code>.turn-row</code> — those
+        aren't destinations a screen-reader user would want to jump to on their own.</li>
+        <li><strong><code>aria-labelledby</code> over <code>aria-label</code>:</strong> when a
+        section already has a visible heading, point <code>aria-labelledby</code> at that
+        heading's <code>id</code> instead of duplicating the text in <code>aria-label</code> — one
+        source of truth, and it stays correct if the heading text is edited later. Reserve
+        <code>aria-label</code> for controls with no visible text, like an icon-only mic button.</li>
+        <li><strong>Every <code>aria-labelledby</code> needs a real target:</strong> after editing
+        any heading, grep the file for <code>aria-labelledby="..."</code> and confirm each target
+        <code>id</code> still exists. This is the single easiest thing to silently break when
+        restyling a heading.</li>
+        <li><strong>Contrast:</strong> check any new color-coded badge or tinted box against WCAG
+        AA (4.5:1 for normal text, 3:1 for large text/UI components) before shipping it. A real
+        example from this codebase: <code>3_coref.html</code>'s "place" entity badge originally
+        used white text on <code>--lake-herrick</code> teal (3.07:1 — fails AA); it was changed to
+        dark text on the same teal (5.67:1) while keeping the swatch color itself unchanged.</li>
+        <li><strong>Uppercase headings are CSS, not typed text:</strong> <code>style.css</code>
+        applies <code>text-transform: uppercase</code> to every <code>h1</code>/<code>h2</code>/<code>h3</code>.
+        Always type heading text in normal sentence/title case in your HTML and let CSS transform
+        it visually — never type an actual all-caps string, which can read strangely to some
+        assistive tech.</li>
+        <li><strong><code>&lt;details&gt;</code> is for optional content only:</strong> Background
+        and Instructions must always be visible without a click — a student shouldn't have to
+        discover that there's more to read. Reserve collapsible sections for genuinely optional
+        extras, like the glossary box in stage 3 above.</li>
+        <li><strong>Skip link (optional, recommended):</strong> a
+        <code>&lt;a class="skip-link" href="#main"&gt;</code> as the very first thing in
+        <code>&lt;body&gt;</code>, paired with <code>&lt;main id="main" tabindex="-1"&gt;</code>,
+        lets a keyboard user jump straight past the repeated page header. It must actually become
+        visible on keyboard focus (see the <code>:focus</code> rule in this page's CSS) — a skip
+        link that stays permanently hidden isn't usable by anyone.</li>
+    </ul>
+</div>
+
+<div class="divider-note">The rest of the page is real, reusable structure again</div>
+
+<section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <div class="spec-callout">
+        <span class="tag">Convention note — reflection guide</span>
+        Always a plain <code>&lt;ol&gt;</code>, no tinted callout box, and never
+        <code>class="small"</code> — this is the same weight of content as everything else on
+        the page, just placed at the end, outside the interactive area.
+    </div>
+    <ol>
+        <li>Which widget above would you reuse for your own activity, and which would you skip?</li>
+        <li>Look at this file's source. Which parts are the reusable pattern, and which parts (the banner, the blue callouts, the divider lines) exist only to explain the pattern and should be deleted when you copy this file?</li>
+        <li>Pick one heading on this page and confirm its <code>id</code> matches the <code>aria-labelledby</code> of the section that contains it.</li>
+    </ol>
+</section>
+
+</main>
+
+<section class="applet-feedback-card" aria-labelledby="applet-feedback-heading">
+    <div class="applet-feedback-card__content">
+      <div>
+        <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+        <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide</a>
+      </div>
+      <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%200T%3A%20How%20This%20Applet%20Was%20Built%3A%20&amp;applet=Activity%200T%3A%20How%20This%20Applet%20Was%20Built" target="_blank" rel="noopener noreferrer">Report a problem or give feedback</a>
+    </div>
+</section>
+<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+    <span class="tag">Convention note — feedback card</span>
+    This card is optional but recommended, and is already fully styled by <code>style.css</code>.
+    The one thing to get right when copying it: the <code>title=</code> and <code>applet=</code>
+    query parameters in the button's <code>href</code> must name <em>this</em> activity — a
+    site-wide audit once found two pages that had copy-pasted this link from a third page and
+    were silently mislabeling every bug report with the wrong activity name.
+</div>
+
+<script>
+    // --- demo widget #1: stage rack ---
+    let tplCurrentStage = 1;
+    function advanceTemplateStage(){
+        if (tplCurrentStage >= 3) return;
+        document.getElementById('tplStage' + tplCurrentStage).classList.remove('active');
+        document.getElementById('tplStage' + tplCurrentStage).classList.add('done');
+        tplCurrentStage++;
+        document.getElementById('tplStage' + tplCurrentStage).classList.add('active');
+    }
+
+    // --- demo widget #2: turn-row list builder ---
+    const tplTurns = [];
+    function addTemplateTurn(){
+        const input = document.getElementById('tplTurnInput');
+        const text = input.value.trim();
+        if (!text) return;
+        const speaker = tplTurns.length % 2 === 0 ? 'Speaker A' : 'Speaker B';
+        tplTurns.push({ speaker, text });
+        input.value = '';
+        renderTemplateTurns();
+    }
+    function renderTemplateTurns(){
+        const list = document.getElementById('tplTurnList');
+        list.innerHTML = tplTurns.map((t, i) => `
+            <div class="turn-row ${i === tplTurns.length - 1 ? 'just-added' : ''}">
+              <div class="turn-stamp">${i + 1}</div>
+              <div class="turn-body">
+                <span class="turn-speaker">${t.speaker}</span>
+                <span class="turn-text" id="tpl-turn-text-${i}"></span>
+              </div>
+            </div>
+        `).join('');
+        // Text is set via textContent below, not baked into the innerHTML template
+        // above, so a line containing "<" or "&" can never be interpreted as markup.
+        tplTurns.forEach((t, i) => {
+            const el = document.getElementById('tpl-turn-text-' + i);
+            if (el) el.textContent = t.text;
+        });
+    }
+    document.getElementById('tplTurnInput').addEventListener('keydown', function(e){
+        if (e.key === 'Enter') addTemplateTurn();
+    });
+
+    function resetTemplateWidgets(){
+        tplTurns.length = 0;
+        renderTemplateTurns();
+        document.querySelectorAll('#tplStage1, #tplStage2, #tplStage3').forEach(el => el.classList.remove('active', 'done'));
+        document.getElementById('tplStage1').classList.add('active');
+        tplCurrentStage = 1;
+    }
+</script>
+
+</body>
+</html>

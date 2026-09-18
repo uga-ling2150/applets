@@ -57,7 +57,7 @@ summary {
 
 /* ---------- Toolbar / form controls ---------- */
 .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
-button, .button, select, textarea { font: inherit; }
+button, select, textarea { font: inherit; }
 label {
   display: block;
   font-family: "Merriweather Sans", sans-serif;
@@ -84,7 +84,7 @@ textarea { resize: vertical; }
 textarea::placeholder { color: var(--muted); }
 
 /* ---------- Buttons: outline by default, red for the primary action ---------- */
-button, .button {
+button {
   display: inline-block;
   border: 1px solid var(--border-strong);
   border-radius: 6px;
@@ -100,15 +100,15 @@ button, .button {
   letter-spacing: 0.02em;
   transition: border-color 0.2s, color 0.2s, opacity 0.2s;
 }
-button:hover, .button:hover { border-color: var(--uga-red); color: var(--uga-red); }
-button.primary, .button.primary {
+button:hover { border-color: var(--uga-red); color: var(--uga-red); }
+button.primary {
   background: var(--uga-red);
   border-color: var(--uga-red);
   color: #fff;
   text-transform: uppercase;
 }
-button.primary:hover, .button.primary:hover { opacity: 0.9; color: #fff; }
-button:disabled, .button:disabled { opacity: 0.55; cursor: not-allowed; border-color: var(--line); color: var(--muted); background: transparent; }
+button.primary:hover { opacity: 0.9; color: #fff; }
+button:disabled { opacity: 0.55; cursor: not-allowed; border-color: var(--line); color: var(--muted); background: transparent; }
 
 /* ---------- Turn editor (mirrors 3_coref.html's streamlined turn-row list) ---------- */
 .turn-row {

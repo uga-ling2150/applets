@@ -13,30 +13,12 @@
 <style>
 
 /* ---------- Hero ---------- */
-.hero {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 36px;
-}
-.hero-text .eyebrow {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
+/* .hero and .hero-text .eyebrow are already defined identically in style.css;
+   only the title clamp() range below is genuinely page-specific. */
 .hero-text h2 {
   font-size: clamp(24px, 3.5vw, 34px);
   line-height: 1.2;
 }
-.hero-text h2 span { color: var(--uga-red); }
-
 .hero-text p {
   color: var(--muted);
   max-width: 56ch;
@@ -77,15 +59,17 @@
 }
 
 /* ---------- Rack / step sequence ---------- */
-.rack { display: flex; flex-direction: column; gap: 0; }
-.stage {
+/* Named reward-rack/reward-stage (not .rack/.stage) to avoid colliding with
+   the differently-shaped .rack/.stage pipeline widget in the shared style.css. */
+.reward-rack { display: flex; flex-direction: column; gap: 0; }
+.reward-stage {
   position: relative;
   display: grid;
   grid-template-columns: 54px 1fr;
   gap: 18px;
   padding: 0 0 26px;
 }
-.stage:not(:last-child)::after {
+.reward-stage:not(:last-child)::after {
   content: "";
   position: absolute;
   left: 26px;
@@ -96,9 +80,9 @@
   background: var(--muted-dim);
   transition: background 0.35s;
 }
-.stage.done:not(:last-child)::after { background: var(--olympic); }
+.reward-stage.done:not(:last-child)::after { background: var(--olympic); }
 
-.stage-num {
+.reward-stage-num {
   width: 54px;
   height: 54px;
   border-radius: 50%;
@@ -114,13 +98,13 @@
   z-index: 1;
   transition: all 0.3s;
 }
-.stage.active .stage-num {
+.reward-stage.active .reward-stage-num {
   border-color: var(--uga-red);
   color: var(--uga-red);
   background: #fff;
   box-shadow: 0 0 0 4px rgba(186, 12, 47, 0.12);
 }
-.stage.done .stage-num {
+.reward-stage.done .reward-stage-num {
   border-color: var(--olympic);
   color: var(--olympic);
   background: rgba(0, 78, 96, 0.08);
@@ -135,9 +119,9 @@
   padding: 22px 24px;
   transition: border-color 0.3s, background 0.3s;
 }
-.stage.active .card, .stage.done .card { background: #fff; }
-.stage.active .card { border-color: var(--uga-red); }
-.stage.done .card { border-color: var(--olympic); }
+.reward-stage.active .card, .reward-stage.done .card { background: #fff; }
+.reward-stage.active .card { border-color: var(--uga-red); }
+.reward-stage.done .card { border-color: var(--olympic); }
 
 .card-locked { background: var(--panel-alt); border: 2px dashed var(--border-strong); padding: 16px 20px; }
 .card-locked .card-body { display: none; }
@@ -245,12 +229,6 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
   align-items: center;
   gap: 6px;
 }
-.discussion-box.warning {
-  background: rgba(186, 12, 47, 0.07);
-  border-left-color: var(--uga-red);
-}
-.discussion-box.warning h4 { color: var(--uga-red); }
-
 .glossary-box {
   background: var(--panel-alt);
   border: 1px solid var(--line);
@@ -308,11 +286,11 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
 
 @media (max-width: 640px) {
   .lesson-container { padding: 1.5rem; }
-  .hero { flex-direction: column; align-items: flex-start; }
+  /* .hero { flex-direction: column; align-items: flex-start; } already in style.css's own 640px breakpoint */
   .progress-wrap { align-self: center; }
-  .stage { grid-template-columns: 42px 1fr; gap: 12px; }
-  .stage-num { width: 42px; height: 42px; font-size: 14px; }
-  .stage:not(:last-child)::after { left: 20px; top: 42px; }
+  .reward-stage { grid-template-columns: 42px 1fr; gap: 12px; }
+  .reward-stage-num { width: 42px; height: 42px; font-size: 14px; }
+  .reward-stage:not(:last-child)::after { left: 20px; top: 42px; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
@@ -321,14 +299,14 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
 </style>
 </head>
 <body>
-<header class="text-center mb-4 page-header">
-    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 
 
-<section class="lesson-container">
-    <h3 class="h3 mb-4">Activity: RLHF Process and Reward Hacking</h3>
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity: RLHF Process and Reward Hacking</h3>
     
     <div class="row">
         <div class="col-md-12">
@@ -342,7 +320,7 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
         <div class="col-md-12">
             <h4 class="uga-accent">Background</h4>
             <p>In class, we talked about the idea of reinforcement learning from human feedback (RLHF), that is the process whereby we ask human participants to rate LLM outputs. And then we train the LLM to maximize the ratings that they would get from humans. In traditional RLHF, this involves first training a reward model which predicts the reward that an LLM output will receive, and then using the reward model to train the LLM itself.</p>
-            <p> In this activity, you will go through the main processes involved in RLHF, using a highly simplified simulation of how RLHF works. You will then reflect on the phenomenon of reward hacking, which is where the model learns to behave in a way that maximizes rewards 2ithout actually satisfying the intended goal of the RLHF training.</p>
+            <p> In this activity, you will go through the main processes involved in RLHF, using a highly simplified simulation of how RLHF works. You will then reflect on the phenomenon of reward hacking, which is where the model learns to behave in a way that maximizes rewards without actually satisfying the intended goal of the RLHF training.</p>
         </div>
 
         <div class="col-md-12">
@@ -355,11 +333,11 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
 </section>
 
 
-<main class="app-wrapper">
+<main class="app-wrapper" aria-labelledby="applet-title">
 
   <div class="hero">
     <div class="hero-text">
-      <h2>RLHF <span>Simulator</span></h2>
+      <h2 id="applet-title">RLHF <span>Simulator</span></h2>
       <p>Explore how Reinforcement Learning from Human Feedback (RLHF) works under the hood, using an intuitive animal and colours knowledge base. Walk through each step in order — later steps unlock as you go.</p>
     </div>
     <div class="progress-wrap">
@@ -368,11 +346,11 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
     </div>
   </div>
 
-  <div class="rack">
+  <div class="reward-rack">
 
     <!-- STEP 0: INITIAL LLM BASELINE RESPONSES -->
-    <div class="stage active" id="stage-0">
-      <div class="stage-num">1</div>
+    <div class="reward-stage active" id="stage-0">
+      <div class="reward-stage-num">1</div>
       <div class="card" id="section-0">
         <div class="card-body">
           <h3>Step 1: Initial LLM Baselines (Before RLHF)</h3>
@@ -403,8 +381,8 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
     </div>
 
     <!-- STEP 1 & 2: BASE CLASSIFIERS & KNOWLEDGE BASES -->
-    <div class="stage" id="stage-1">
-      <div class="stage-num">2</div>
+    <div class="reward-stage" id="stage-1">
+      <div class="reward-stage-num">2</div>
       <div class="card card-locked" id="section-1">
         <div class="locked-banner">
           <span>🔒 Step 2: Features &amp; Knowledge Bases (Locked)</span>
@@ -437,8 +415,8 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
     </div>
 
     <!-- STEP 3 & 4: TRAINING THE REWARD MODELS -->
-    <div class="stage" id="stage-2">
-      <div class="stage-num">3</div>
+    <div class="reward-stage" id="stage-2">
+      <div class="reward-stage-num">3</div>
       <div class="card card-locked" id="section-2">
         <div class="locked-banner">
           <span>🔒 Step 3: Training Reward Models (Locked)</span>
@@ -493,8 +471,8 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
     </div>
 
     <!-- STEP 5: STEP-BY-STEP LLM ALIGNMENTS -->
-    <div class="stage" id="stage-3">
-      <div class="stage-num">4</div>
+    <div class="reward-stage" id="stage-3">
+      <div class="reward-stage-num">4</div>
       <div class="card card-locked" id="section-3">
         <div class="locked-banner">
           <span>🔒 Step 4: Aligning LLMs via Step-by-Step Steering (Locked)</span>
@@ -550,8 +528,8 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
     </div>
 
     <!-- STEP 6: FINAL POST-RLHF SUMMARIES -->
-    <div class="stage" id="stage-4">
-      <div class="stage-num">5</div>
+    <div class="reward-stage" id="stage-4">
+      <div class="reward-stage-num">5</div>
       <div class="card card-locked" id="section-4" style="border-style: dashed; border-color: var(--olympic);">
         <div class="locked-banner">
           <span>🔒 Step 5: Final Post-RLHF Model Evaluations (Locked)</span>
@@ -561,15 +539,15 @@ tr.matched td:first-child { color: var(--olympic); font-weight: 600; }
           <h3>Step 5: Final Post-RLHF Model Evaluations</h3>
           <p>Let's review the final performance of our aligned model against the expected gold standard labels. As you inspect these results with your group, reflect on whether achieving high numerical scores truly guarantees accurate understanding, or if loopholes might be present.</p>
 
-          <div class="discussion-box">
+          <div>
             <strong>Reflect on the Complete Process:</strong> Examine the final results across all domains.
-            <ul>
+            <ol>
               <li>In what domains does the model show stronger performance, and where is it weaker?</li>
               <li>Do higher scores always guarantee that a system has genuinely understood human intent, or if shortcuts might be occurring? These shortcuts are called <i>reward hacking</i>.</li>
               <li>How does reward hacking threaten the reliability of AI models deployed for humans? How might reward hacking hinder the effectiveness
                 of helpfulness/harmlessness/honesty training, as we saw in the previous applet?
               </li>
-            </ul>
+            </ol>
           </div>
 
           <div class="table-scroll">

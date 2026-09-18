@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Picture Reference — A Two-Player Language Game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
 <style>
 .step-box {
@@ -94,17 +96,6 @@
 }
 .btn-uga:hover { opacity: 0.9; }
 .btn-uga:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-uga-outline {
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  color: var(--muted);
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 13px;
-  border-radius: 6px;
-  padding: 10px 18px;
-  cursor: pointer;
-}
-.btn-uga-outline:hover { border-color: var(--uga-red); color: var(--uga-red); }
 
 .button-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1.5rem; }
 
@@ -382,7 +373,6 @@
 }
 
 @media (max-width: 640px) {
-  .wrap { padding: 1.5rem; }
   .grid-row { gap: 16px; }
   .grid-card { width: 100%; max-width: 220px; }
 }
@@ -394,13 +384,13 @@
 </style>
 </head>
 <body>
-<header class="text-center mb-4 page-header">
-    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 
-<section class="lesson-container">
-    <h3 class="mb-4">Activity: Picture Reference</h3>
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity: Picture Reference</h3>
     <div class="row">
         <div class="col-md-12">
             <h4 class="uga-accent">Learning Objectives</h4>
@@ -426,11 +416,11 @@
     </div>
 </section>
 
-<main class="app-wrapper">
+<section class="app-wrapper" aria-labelledby="applet-title">
 
   <div class="hero">
     <div class="hero-text">
-      <h2>Picture <span>Reference</span></h2>
+      <h2 id="applet-title">Picture <span>Reference</span></h2>
       <p>One of you looks at a real object and describes it in your own words. The other only hears the description and has to spot the right one among two convincing look-alikes. It's the same everyday skill as saying "the one on the left" &mdash; and it's trickier than it sounds.</p>
     </div>
   </div>
@@ -442,24 +432,24 @@
     <span id="footer-status">Ready to start.</span>
     <button type="button" class="reset-btn" id="reset-btn">Restart activity</button>
   </div>
-</main>
+</section>
 
 
-<section class="reflection-container">
-    <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
+<section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
     
     <div class="row text-dark">
       <div class="col-md-12">
         Think about the following questions:
-  <ul class="reflect-list">
+  <ol class="reflect-list">
     <li>When constructing descriptions, what did you do to ensure that your friend could understand what you were saying?</li>
     <li>Did you run into any situation where a reasonable person could have produced a description that confused another person - possibly from a different community?</li>
     <li>Do you think a description that worked for your partner would also work for a system like SHRDLU looking at the same three photos?
       For each of the questions, what kind of knowledge do modern AI systems need to comprehend the expression?</li>
-    <li>This style of question is taken from an AI evaluation benchmark, ClemBench. 
+    <li>This style of question is taken from an AI evaluation benchmark, ClemBench.
       What kinds of information can such a benchmark tell us? What can't it tell us?</li>
 
-  </ul>
+  </ol>
       </div>
     </div>
 </section>
@@ -472,7 +462,7 @@
         <p>Report a problem, content error, accessibility concern, or suggestion. Please do not include private or sensitive information.</p>
         <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide</a>
       </div>
-      <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%204B%3A%20Chatbot%20Metrics%20Tug-of-War%3A%20&amp;applet=Activity%204B%3A%20Chatbot%20Metrics%20Tug-of-War" target="_blank" rel="noopener noreferrer">Report a problem or give feedback</a>
+      <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%205A%3A%20Picture%20reference%20game%3A%20&amp;applet=Activity%205A%3A%20Picture%20reference%20game" target="_blank" rel="noopener noreferrer">Report a problem or give feedback</a>
     </div>
   </section>
 <script>

@@ -2,32 +2,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-            <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;700&display=swap" rel="stylesheet">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UGA Intent Recognition App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 
-<header class="text-center mb-4 page-header">
-    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 <main>
 
-<section class="lesson-container">
-    <h3 class="h4 mb-4">Activity: Recognizing Intents</h3>
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity: Recognizing Intents</h3>
 
 <div class=" mt-5">    
     <div class="row mb-4">
         <div class="col-md-12">
             <h4 class="uga-accent">Learning Objectives</h4>
-            <ul class="small">
+            <ul>
                 <li><strong>Analyze</strong> how linguistic features (e.g. syntax, word choice) relate to underlying intents.</li>
                 <li><strong>Experiment</strong> with variable language (slang, typos, emotional language) to see if the model maintains accuracy</li>
                 <li><strong>Evaluate</strong> the confidence score and determine a threshold where a human agent should intervene</li>
@@ -54,21 +53,20 @@
     
         <div class="col-md-12">
                 <h4 class="uga-accent">Instructions</h4>
-                <p class="small mt-2">
-                <ol>
+                <ol class="mt-2">
                     <li>Type three different variations of a refund request into the app (e.g., indirect and polite, direct and angry...). How do the confidence percentages shift, and why do you think?</li>
                     <li>Can you write a sentence that a <em>human</em> would clearly understand as a refund request, but makes the <em>AI</em> give a score of less than 30% for the Refund intent? Or the other way around - a human would clearly see it as not a refund request, but the AI does? </li>
                 </ol>
-                </p>
     </div>
 </div>
 </section>
-<section class="app-wrapper">
-            <div class="hero-text">
-        <h2>Zero-Shot Intent Recognizer</h2>
-        <p>Enter a customer turn to get sample intents about an order.</p>
-
-            </div>
+<section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero">
+        <div class="hero-text">
+            <h2 id="applet-title">Zero-Shot Intent Recognizer</h2>
+            <p>Enter a customer turn to get sample intents about an order.</p>
+        </div>
+    </div>
     <div id="loader-container" class="mb-4">
         <div class="d-flex justify-content-between mb-1">
             <span id="load-status" class="small fw-bold text-danger">INITIALIZING...</span>
@@ -179,18 +177,18 @@
     init();
 </script>
 
-<section class="reflection-container">
-    <h3 class="uga-accent mb-3">Reflection & Discussion Guide</h3>
+<section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
     
-    <div class="row small text-dark">
+    <div class="row text-dark">
       <div class="col-md-12">
         Think about the following questions:
-      <ul>
+      <ol>
         <li> What aspects of language were useful for intent recognition? What kinds of language is difficult for the model to understand?</li>
         <li> What additional information do you think might improve the system's performance?</li>
         <li> At what degree of confidence do you think it will be helpful for a human agent to automatically be called to intervene?</li>
         <li> Is there anything that this type of system simply cannot be equipped to handle, no matter how good the classifier? What are the consequences of this type of restriction?</li>
-      </ul>
+      </ol>
       </div>
     </div>
 </section>
