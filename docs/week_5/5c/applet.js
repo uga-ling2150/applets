@@ -15,19 +15,18 @@
   function editor(){
     $('turns').replaceChildren();
     state.turns.forEach((turn,i)=>{
-      const field=document.createElement('fieldset');field.className='turn';
-      const legend=document.createElement('legend');legend.textContent=`Turn ${i+1}`;field.append(legend);
-      const bar=document.createElement('div');bar.className='toolbar';
-      const label=document.createElement('label');label.htmlFor=`speaker-${i}`;label.textContent='Speaker';
-      const select=document.createElement('select');select.id=label.htmlFor;select.setAttribute('aria-label',`Speaker for turn ${i+1}`);
+      const row=document.createElement('div');row.className='turn-row';
+      const stamp=document.createElement('div');stamp.className='turn-stamp';stamp.textContent=i+1;stamp.setAttribute('aria-hidden','true');
+      const body=document.createElement('div');body.className='turn-body';
+      const select=document.createElement('select');select.id=`speaker-${i}`;select.setAttribute('aria-label',`Speaker for turn ${i+1}`);
       for(const role of ['human','ai']){const o=document.createElement('option');o.value=role;o.textContent=role==='human'?'Human':'AI';select.append(o);}select.value=turn.role;
       select.addEventListener('change',()=>{turn.role=select.value;invalidate(i);});
-      const remove=document.createElement('button');remove.type='button';remove.className='remove';remove.textContent='Remove turn';remove.setAttribute('aria-label',`Remove turn ${i+1}`);remove.disabled=state.turns.length<=1;
+      const textarea=document.createElement('textarea');textarea.id=`utterance-${i}`;textarea.rows=1;textarea.maxLength=500;textarea.value=turn.text;textarea.placeholder='Type this turn…';textarea.setAttribute('aria-label',`Utterance for turn ${i+1}`);
+      textarea.addEventListener('input',()=>{turn.text=textarea.value;invalidate(i);count();});
+      body.append(select,textarea);
+      const remove=document.createElement('button');remove.type='button';remove.className='remove';remove.textContent='✕';remove.setAttribute('aria-label',`Remove turn ${i+1}`);remove.disabled=state.turns.length<=1;
       remove.addEventListener('click',()=>{state.turns.splice(i,1);invalidate(i);editor();$(`utterance-${Math.min(i,state.turns.length-1)}`).focus();});
-      bar.append(label,select,remove);field.append(bar);
-      const tl=document.createElement('label');tl.htmlFor=`utterance-${i}`;tl.textContent='Utterance';
-      const textarea=document.createElement('textarea');textarea.id=tl.htmlFor;textarea.rows=2;textarea.maxLength=500;textarea.value=turn.text;textarea.setAttribute('aria-label',`Utterance for turn ${i+1}`);
-      textarea.addEventListener('input',()=>{turn.text=textarea.value;invalidate(i);count();});field.append(tl,textarea);$('turns').append(field);
+      row.append(stamp,body,remove);$('turns').append(row);
     });count();
   }
   function count(){$('turn-count').textContent=`${state.turns.length}/16 turns · ${state.turns.reduce((n,t)=>n+t.text.length,0)}/4,500 characters`;$('add-turn').disabled=state.turns.length>=16;}
