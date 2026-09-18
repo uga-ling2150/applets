@@ -22,6 +22,15 @@
         .turn-speaker.human{ color:var(--uni-blue); }
         .turn-speaker.ai{ color:var(--sanford); }
 
+        /* Stages 2/3/5 show raw extraction/lookup output (entity list, temporal
+           parses, Wikidata IDs) — genuinely technical readouts, kept monospace now
+           that style.css's default .stage-content font is Merriweather Sans.
+           Stage 1 (turns) and stage 4 (highlighted transcript) are ordinary
+           readable text and use that new sans default as-is. */
+        #ner-results, #temporal-results, #linking-results {
+            font-family: "IBM Plex Mono", monospace;
+        }
+
         .new-flag{
             font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:700;
             color:var(--uga-red); border:1px dashed var(--uga-red); border-radius:10px;

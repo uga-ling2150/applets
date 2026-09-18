@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity 3E: Understanding RLHF — LING2150</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="3e/applet.css">
+  </head>
+  <body>
+
+    <header class="page-header">
+      <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+      <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+    </header>
+
+    <main id="main">
+
+      <section class="lesson-container" aria-labelledby="activity-title">
+        <h3 id="activity-title" class="h3 mb-4">Activity 3E: Understanding RLHF</h3>
+
+        <h4 class="uga-accent">Learning Objectives</h4>
+        <ul>
+          <li><strong>Explain</strong> how pairwise human preferences become feedback data.</li>
+          <li><strong>Apply</strong> helpful, honest, and responsible criteria when comparing responses.</li>
+          <li><strong>Reflect</strong> on why human raters may disagree and how their choices influence training.</li>
+        </ul>
+
+        <h4 class="uga-accent">Background</h4>
+        <p>Reinforcement Learning from Human Feedback (RLHF) starts with human raters comparing pairs of model
+          responses to the same prompt and recording which one they prefer. Many such comparisons form a
+          preference dataset, which a later stage of training uses to build a reward signal. This classroom
+          simulation uses only prewritten, non-sensitive examples: it does not contact a live AI model, and
+          nothing you select here is stored or submitted anywhere.</p>
+
+        <h4 class="uga-accent">Instructions</h4>
+        <ol>
+          <li>Read the user request and the two possible assistant responses.</li>
+          <li>Choose which response you prefer and how strong your preference is.</li>
+          <li>Select at least one reason that influenced your judgment.</li>
+          <li>Select <strong>Submit Preference</strong>, then compare your reasoning with the teaching note.</li>
+          <li>Complete five comparisons and review your preference record.</li>
+          <li>You may select <strong>Skip This Comparison</strong> at any time. Human preference is not the
+            same as objective correctness.</li>
+        </ol>
+      </section>
+
+      <section class="app-wrapper" aria-labelledby="applet-title">
+
+        <div class="hero">
+          <div class="hero-text">
+            <h2 id="applet-title">Compare responses like a <span>human rater</span></h2>
+            <p>Judge which response is more helpful, honest, and responsible, then record what mattered to you.</p>
+          </div>
+        </div>
+
+        <div class="rack">
+          <div class="stage" id="stage1">
+            <div class="stage-num">1</div>
+            <div class="stage-body" id="readStageCard" tabindex="-1">
+              <div class="stage-title">Read the comparison</div>
+              <div class="stage-sub" id="progressLabel">Comparison 1 of 5</div>
+              <div class="stage-content">
+                <p id="goalLabel"><strong>Rating goal:</strong> &nbsp;</p>
+                <p class="prompt-text" id="promptLabel"></p>
+                <div class="response-grid">
+                  <div class="response-card">
+                    <h4 class="response-heading" id="response-a-heading">Response A</h4>
+                    <p id="responseALabel"></p>
+                  </div>
+                  <div class="response-card">
+                    <h4 class="response-heading" id="response-b-heading">Response B</h4>
+                    <p id="responseBLabel"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage" id="stage2">
+            <div class="stage-num">2</div>
+            <div class="stage-body">
+              <div class="stage-title">Rate the pair</div>
+              <div class="stage-content">
+                <p>Choose one response — there is no tie option in this simulation, matching the pairwise
+                  preference records used in the study. You may skip instead.</p>
+
+                <fieldset class="rating-fieldset">
+                  <legend>Which response do you prefer?</legend>
+                  <label class="rating-choice"><input type="radio" name="preference" value="A_much"> A — much better</label>
+                  <label class="rating-choice"><input type="radio" name="preference" value="A_slightly"> A — slightly better</label>
+                  <label class="rating-choice"><input type="radio" name="preference" value="B_slightly"> B — slightly better</label>
+                  <label class="rating-choice"><input type="radio" name="preference" value="B_much"> B — much better</label>
+                </fieldset>
+
+                <fieldset class="rating-fieldset">
+                  <legend>Why did you make that choice? Select one or more.</legend>
+                  <label class="rating-choice"><input type="checkbox" name="reason" value="More helpful"> More helpful</label>
+                  <label class="rating-choice"><input type="checkbox" name="reason" value="More honest about uncertainty"> More honest about uncertainty</label>
+                  <label class="rating-choice"><input type="checkbox" name="reason" value="Clearer and more specific"> Clearer and more specific</label>
+                  <label class="rating-choice"><input type="checkbox" name="reason" value="Better follows the user's request"> Better follows the user's request</label>
+                  <label class="rating-choice"><input type="checkbox" name="reason" value="More respectful and responsible"> More respectful and responsible</label>
+                </fieldset>
+
+                <div class="action-row">
+                  <button class="btn-uga" id="submitBtn" type="button" disabled>Submit Preference</button>
+                  <button class="btn-uga-outline" id="skipBtn" type="button">Skip This Comparison</button>
+                  <button class="btn-reset" id="resetBtn" type="button">Reset</button>
+                </div>
+
+                <p class="teaching-note" id="rationaleNote" role="note" hidden></p>
+
+                <button class="btn-uga" id="nextBtn" type="button" hidden>Next Comparison</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage" id="stage3">
+            <div class="stage-num">3</div>
+            <div class="stage-body" id="recordStageCard" tabindex="-1">
+              <div class="stage-title">Review your preference record</div>
+              <div class="stage-content">
+                <p>Your choices stay in this browser only. The table grows as you complete comparisons;
+                  skipped comparisons are not recorded.</p>
+                <div id="recordTableWrap"><p>No preferences recorded yet.</p></div>
+                <p id="processNote"><strong>What happens next in real RLHF?</strong> Many pairwise comparisons
+                  form a preference dataset. Researchers use that dataset to train a preference model, which
+                  can later provide a training signal. This activity stops at the human-rating stage.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="status-line" id="statusLabel" role="status" aria-live="polite" aria-atomic="true">Ready. Read the first comparison and make a rating.</p>
+
+      </section>
+
+      <section class="reflection-container" aria-labelledby="reflection-title">
+        <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+        <ol>
+          <li>Did helpfulness, honesty, and responsibility ever point toward different choices? If so, how did
+            you weigh the different criteria?</li>
+          <li>Could another reasonable rater have preferred the other response? Why?</li>
+          <li>What kinds of bias could enter a dataset through human ratings? What might happen if a small
+            group of people with restricted demographics supplies most of the ratings?</li>
+          <li>What are the pros and cons of using RLHF to guarantee reliability (e.g. factuality, logical
+            soundness) of results?</li>
+        </ol>
+      </section>
+
+    </main>
+
+    <section class="applet-feedback-card" aria-labelledby="applet-feedback-heading">
+      <div class="applet-feedback-card__content">
+        <div>
+          <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+          <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide</a>
+        </div>
+        <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%203E%3A%20Understanding%20RLHF%3A%20&amp;applet=Activity%203E%3A%20Understanding%20RLHF" target="_blank" rel="noopener noreferrer">Report a problem or give feedback</a>
+      </div>
+    </section>
+
+    <script>
+      const scenarios = [
+        {
+          goal: "Helpfulness and clarity",
+          prompt: "A student asks: In simple language, why does my phone's autocomplete sometimes suggest the wrong next word?",
+          a: "Autocomplete predicts from patterns it learned and the words you have already typed. A common pattern can receive the highest score even when it is not the word you intended.",
+          b: "It suggests the wrong word because phones do not understand grammar very well.",
+          better: "a",
+          note: "The stronger response explains prediction using learned patterns and the current context without requiring technical vocabulary. The other response is too broad and treats one possible limitation as the whole explanation."
+        },
+        {
+          goal: "Helpfulness and honesty",
+          prompt: "A student asks: Someone told me the campus library is open 24 hours every day. Is that definitely true?",
+          a: "I cannot verify the current hours from here. Check the library's official hours page or call the front desk, because hours can change by day or term.",
+          b: "Yes. The library is open 24 hours every day, so you can go at any time.",
+          better: "a",
+          note: "The stronger response is open about uncertainty and gives a practical way to verify changing information. Confidence is not a substitute for evidence."
+        },
+        {
+          goal: "Helpful communication",
+          prompt: "A student asks: Please rewrite this message to my instructor: 'I missed class. Send me everything I need.'",
+          a: "Hello Professor, I am sorry I missed class today. Could you please let me know which materials or assignments I should review? Thank you for your help.",
+          b: "Hey, I missed class. Can you send me everything so I can catch up?",
+          better: "a",
+          note: "The stronger response is respectful, acknowledges the missed class, and makes a specific request without demanding extra work from the instructor."
+        },
+        {
+          goal: "Privacy and responsible help",
+          prompt: "A student asks: What grade did my lab partner receive? I briefly saw the gradebook open on a shared screen.",
+          a: "I cannot help reveal or guess another student's grade. If you want to compare progress, ask your partner directly, or ask the instructor about feedback on your own work.",
+          b: "If the grade was visible, you can write down what you remember and use that to work out the likely score.",
+          better: "a",
+          note: "The stronger response protects another person's privacy while still suggesting appropriate ways to get useful feedback."
+        },
+        {
+          goal: "Helpful boundaries",
+          prompt: "A student asks: Write the full response for my graded discussion post so I can submit it unchanged.",
+          a: "I cannot help with that request.",
+          b: "I cannot write a submission for you to turn in as your own, but I can help you brainstorm, make an outline, or give feedback on a draft you write.",
+          better: "b",
+          note: "Both responses set a boundary, but the stronger response remains helpful by offering learning support that preserves the student's own work."
+        }
+      ];
+
+      const readStageCard = document.getElementById("readStageCard");
+      const recordStageCard = document.getElementById("recordStageCard");
+      const progressLabel = document.getElementById("progressLabel");
+      const goalLabel = document.getElementById("goalLabel");
+      const promptLabel = document.getElementById("promptLabel");
+      const responseALabel = document.getElementById("responseALabel");
+      const responseBLabel = document.getElementById("responseBLabel");
+      const preferenceInputs = Array.from(document.querySelectorAll('input[name="preference"]'));
+      const reasonInputs = Array.from(document.querySelectorAll('input[name="reason"]'));
+      const submitBtn = document.getElementById("submitBtn");
+      const skipBtn = document.getElementById("skipBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const rationaleNote = document.getElementById("rationaleNote");
+      const recordTableWrap = document.getElementById("recordTableWrap");
+      const processNote = document.getElementById("processNote");
+      const statusLabel = document.getElementById("statusLabel");
+
+      let records = [];
+      let scenarioIndex = 0;
+      let finished = false;
+      let displayOrder = [];
+
+      const DEFAULT_PROCESS_NOTE =
+        "<strong>What happens next in real RLHF?</strong> Many pairwise comparisons form a preference " +
+        "dataset. Researchers use that dataset to train a preference model, which can later provide a " +
+        "training signal. This activity stops at the human-rating stage.";
+
+      function shuffled(values) {
+        const copy = values.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function moveToRegion(el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        el.focus();
+      }
+
+      function resetControls() {
+        preferenceInputs.forEach((input) => { input.checked = false; input.disabled = false; });
+        reasonInputs.forEach((input) => { input.checked = false; input.disabled = false; });
+        submitBtn.disabled = true;
+        skipBtn.disabled = false;
+        rationaleNote.hidden = true;
+        rationaleNote.textContent = "";
+        nextBtn.hidden = true;
+      }
+
+      function showScenario() {
+        const scenario = scenarios[scenarioIndex];
+        const swapped = displayOrder[scenarioIndex];
+        progressLabel.textContent = "Comparison " + (scenarioIndex + 1) + " of " + scenarios.length;
+        goalLabel.innerHTML = "<strong>Rating goal:</strong> " + scenario.goal;
+        promptLabel.textContent = scenario.prompt;
+        responseALabel.textContent = swapped ? scenario.b : scenario.a;
+        responseBLabel.textContent = swapped ? scenario.a : scenario.b;
+        resetControls();
+      }
+
+      function updateSubmitState() {
+        const hasPreference = preferenceInputs.some((input) => input.checked);
+        const hasReason = reasonInputs.some((input) => input.checked);
+        submitBtn.disabled = !(hasPreference && hasReason);
+      }
+      preferenceInputs.forEach((input) => input.addEventListener("change", updateSubmitState));
+      reasonInputs.forEach((input) => input.addEventListener("change", updateSubmitState));
+
+      function selectedPreference() {
+        const checked = preferenceInputs.find((input) => input.checked);
+        return checked ? checked.value : null;
+      }
+      function selectedReasons() {
+        return reasonInputs.filter((input) => input.checked).map((input) => input.value);
+      }
+
+      function renderRecordTable() {
+        if (!records.length) {
+          recordTableWrap.innerHTML = "<p>No preferences recorded yet.</p>";
+          return;
+        }
+        recordTableWrap.innerHTML = "";
+        const heading = document.createElement("h4");
+        heading.textContent = "Your preference record";
+        const table = document.createElement("table");
+        table.className = "dm-table";
+        table.setAttribute("aria-label", "Your preference record");
+        const thead = document.createElement("thead");
+        const headRow = document.createElement("tr");
+        ["Round", "Rating goal", "Preferred response", "Strength", "Reasons"].forEach((text) => {
+          const th = document.createElement("th");
+          th.scope = "col";
+          th.textContent = text;
+          headRow.appendChild(th);
+        });
+        thead.appendChild(headRow);
+        const tbody = document.createElement("tbody");
+        records.forEach((record) => {
+          const row = document.createElement("tr");
+          [record.round, record.goal, record.choice, record.strength, record.reasons.join(", ")].forEach((value) => {
+            const td = document.createElement("td");
+            td.textContent = value;
+            row.appendChild(td);
+          });
+          tbody.appendChild(row);
+        });
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        recordTableWrap.appendChild(heading);
+        recordTableWrap.appendChild(table);
+      }
+
+      function finishActivity(skipped) {
+        finished = true;
+        progressLabel.textContent = "Activity complete";
+        preferenceInputs.forEach((input) => { input.disabled = true; });
+        reasonInputs.forEach((input) => { input.disabled = true; });
+        submitBtn.disabled = true;
+        skipBtn.disabled = true;
+        nextBtn.hidden = true;
+        const ending = skipped ? " The final comparison was skipped." : "";
+        statusLabel.textContent = "Activity complete. You recorded " + records.length + " preference" +
+          (records.length === 1 ? "" : "s") + ". Review the table and discussion questions below." + ending;
+        processNote.innerHTML = "<strong>Activity complete.</strong> Your table represents the kind of " +
+          "pairwise preference record that many human raters can contribute to a dataset. A real preference " +
+          "model learns statistical patterns from many such judgments; it does not treat one person's choice " +
+          "as unquestionable truth.";
+        moveToRegion(recordStageCard);
+      }
+
+      submitBtn.addEventListener("click", () => {
+        if (finished) return;
+        const preference = selectedPreference();
+        const reasons = selectedReasons();
+        if (!preference) {
+          statusLabel.textContent = "Choose a response preference before submitting.";
+          preferenceInputs[0].focus();
+          return;
+        }
+        if (!reasons.length) {
+          statusLabel.textContent = "Select at least one reason before submitting.";
+          reasonInputs[0].focus();
+          return;
+        }
+
+        const scenario = scenarios[scenarioIndex];
+        const chosenDisplay = preference.split("_")[0];
+        const strength = preference.endsWith("much") ? "Much better" : "Slightly better";
+        const swapped = displayOrder[scenarioIndex];
+        const chosenOriginal = swapped
+          ? (chosenDisplay === "A" ? "b" : "a")
+          : chosenDisplay.toLowerCase();
+        let referenceDisplay = scenario.better.toUpperCase();
+        if (swapped) referenceDisplay = scenario.better === "a" ? "B" : "A";
+
+        records.push({
+          round: scenarioIndex + 1,
+          goal: scenario.goal,
+          choice: "Response " + chosenDisplay,
+          strength: strength,
+          reasons: reasons
+        });
+        renderRecordTable();
+
+        preferenceInputs.forEach((input) => { input.disabled = true; });
+        reasonInputs.forEach((input) => { input.disabled = true; });
+        submitBtn.disabled = true;
+        skipBtn.disabled = true;
+
+        const relation = chosenOriginal === scenario.better
+          ? "Your preference matches the reference response. "
+          : "Your preference differs from the reference response. ";
+        rationaleNote.textContent = "Teaching note — the reference favors Response " + referenceDisplay + ". " +
+          relation + scenario.note + " This comparison is for reflection, not a graded right-or-wrong answer.";
+        rationaleNote.hidden = false;
+
+        const isLast = scenarioIndex === scenarios.length - 1;
+        nextBtn.textContent = isLast ? "Finish Activity" : "Next Comparison";
+        nextBtn.hidden = false;
+        statusLabel.textContent = "Preference recorded. Read the teaching note, then select " +
+          (isLast ? "Finish Activity." : "Next Comparison.");
+      });
+
+      skipBtn.addEventListener("click", () => {
+        if (finished) return;
+        const isLast = scenarioIndex === scenarios.length - 1;
+        if (isLast) { finishActivity(true); return; }
+        scenarioIndex++;
+        showScenario();
+        statusLabel.textContent = "Comparison skipped. Now showing comparison " + (scenarioIndex + 1) +
+          " of " + scenarios.length + ".";
+        moveToRegion(readStageCard);
+      });
+
+      nextBtn.addEventListener("click", () => {
+        if (finished) return;
+        if (scenarioIndex === scenarios.length - 1) { finishActivity(false); return; }
+        scenarioIndex++;
+        showScenario();
+        statusLabel.textContent = "Now showing comparison " + (scenarioIndex + 1) + " of " + scenarios.length + ".";
+        moveToRegion(readStageCard);
+      });
+
+      function resetActivity() {
+        records = [];
+        scenarioIndex = 0;
+        finished = false;
+        displayOrder = shuffled([false, true, false, true, false]);
+        renderRecordTable();
+        processNote.innerHTML = DEFAULT_PROCESS_NOTE;
+        showScenario();
+        statusLabel.textContent = "Ready. Read comparison 1 of 5 and make a rating.";
+      }
+
+      resetBtn.addEventListener("click", () => {
+        resetActivity();
+        moveToRegion(readStageCard);
+      });
+
+      resetActivity();
+    </script>
+
+  </body>
+</html>

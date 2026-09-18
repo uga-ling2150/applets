@@ -1,0 +1,130 @@
+/* Response comparison grid — page-specific: no shared equivalent in style.css. */
+.response-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 14px;
+}
+.response-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.response-heading {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.prompt-text {
+  font-style: italic;
+}
+@media (max-width: 640px) {
+  .response-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Preference / reason controls — page-specific radio and checkbox rows. */
+.rating-fieldset {
+  border: none;
+  padding: 0;
+  margin: 16px 0;
+}
+.rating-fieldset legend {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0 0 8px;
+}
+.rating-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.rating-choice:hover {
+  border-color: var(--uga-red);
+}
+.rating-choice:has(input:checked) {
+  border-color: var(--uga-red);
+  background: rgba(186, 12, 47, 0.06);
+}
+.rating-choice input {
+  accent-color: var(--uga-red);
+}
+
+/* Preference (radio) choices run A-much / A-slightly / B-slightly / B-much,
+   left to right — on one line, that order visually mirrors Response A / B
+   sitting side by side above. Reason (checkbox) choices have no inherent
+   order to preserve, so they just get a denser 2-column grid. Both fall back
+   to a single stacked column when the row is too narrow for that. Targeted
+   by input type via :has() so the shared .rating-fieldset markup doesn't need
+   a second class. */
+@media (min-width: 700px) {
+  /* Setting display:grid directly on <fieldset> makes its <legend> a grid
+     item too (not a floating caption), so it needs an explicit full-width
+     span or it would land in column 1 next to the first choice. */
+  .rating-fieldset:has(input[type="radio"]) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .rating-fieldset:has(input[type="radio"]) legend {
+    grid-column: 1 / -1;
+  }
+  .rating-fieldset:has(input[type="radio"]) .rating-choice {
+    margin-bottom: 0;
+  }
+}
+@media (min-width: 560px) {
+  .rating-fieldset:has(input[type="checkbox"]) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 14px;
+  }
+  .rating-fieldset:has(input[type="checkbox"]) legend {
+    grid-column: 1 / -1;
+  }
+  .rating-fieldset:has(input[type="checkbox"]) .rating-choice {
+    margin-bottom: 0;
+  }
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+/* Post-submission teaching note. Not .discussion-box: that class is reserved
+   for a discussion prompt tied to one step, not per-answer feedback. */
+.teaching-note {
+  background: rgba(0, 78, 96, 0.08);
+  border-left: 4px solid var(--olympic);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.status-line {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  color: var(--muted);
+}

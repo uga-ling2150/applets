@@ -320,7 +320,7 @@ h3 {
   font-size: 14px;
   color: var(--text);
   min-height: 20px;
-  font-family: "IBM Plex Mono", monospace;
+  font-family: "Merriweather Sans", sans-serif;
 }
 .placeholder {
   color: var(--muted);
@@ -331,6 +331,7 @@ h3 {
   font-size: 15px;
   line-height: 1.5;
   color: var(--text);
+  font-family: "IBM Plex Mono", monospace;
 }
 .transcript-box .interim {
   color: var(--muted);
@@ -348,6 +349,7 @@ h3 {
   border-radius: 20px;
   padding: 6px 14px;
   font-size: 12px;
+  font-family: "IBM Plex Mono", monospace;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -368,6 +370,14 @@ h3 {
   width: 100%;
   border-collapse: collapse;
   font-size: 12.5px;
+}
+/* This generic table look is reused for genuinely technical readouts (the
+   dialogue-manager mapping in 1_five_stage_pipeline.html) and for ordinary
+   human-readable summaries (a preference record in 3E_rlhf_try.html) — so the
+   mono/geek-y font is scoped to the specific technical instance, not the class
+   itself. */
+#dmOut .dm-table {
+  font-family: "IBM Plex Mono", monospace;
 }
 .dm-table th {
   text-align: left;
@@ -409,6 +419,7 @@ h3 {
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 13px;
+  font-family: "IBM Plex Mono", monospace;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -619,7 +630,7 @@ h3 {
   font-weight: 700;
   margin-right: 8px;
 }
-.turn-text { font-size: 14.5px; color: var(--text); }
+.turn-text { font-size: 14.5px; color: var(--text); font-family: "Merriweather Sans", sans-serif; }
 .add-turn-form { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .add-turn-form select, .add-turn-form input { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; }
 .add-turn-form input[type=text] { flex: 1; min-width: 220px; }
