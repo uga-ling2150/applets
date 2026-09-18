@@ -94,76 +94,11 @@
     .swatch-label .hex { color: var(--muted); }
     .swatch-label .use { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 
-    /* --- widget CSS genuinely copied from real applets, to demonstrate the pattern --- */
-
-    /* Streamlined input row pattern — copied from docs/week_2/3_coref.html.
-       Not in shared style.css, because it's a per-page widget choice, not a
-       site-wide primitive. Copy this block into your own page's <style> when
-       you need a "one item at a time" list builder. */
-    .turn-row { display:flex; align-items:flex-start; gap:12px; padding:8px 0; border-bottom:1px dashed var(--line); }
-    .turn-row:last-of-type { border-bottom:none; }
-    .turn-stamp {
-        font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:11px;
-        width:26px; height:26px; flex:0 0 26px; border-radius:50%;
-        border:2px solid var(--line); color:var(--muted);
-        display:flex; align-items:center; justify-content:center; background:var(--panel-alt);
-    }
-    .turn-row.just-added .turn-stamp {
-        border-color:var(--uga-red); color:var(--uga-red);
-        box-shadow:0 0 0 3px rgba(186,12,47,0.12);
-    }
-    .turn-body { flex:1; min-width:0; }
-    .turn-speaker {
-        font-family:"IBM Plex Mono",monospace; font-size:10.5px; text-transform:uppercase;
-        letter-spacing:0.08em; font-weight:700; margin-right:8px; color: var(--uni-blue);
-    }
-    .turn-text { font-size:14.5px; color:var(--text); }
-    .add-turn-form { margin-top:14px; padding-top:14px; border-top:1px solid var(--line); display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .add-turn-form input { font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
-    .add-turn-form input[type=text] { flex:1; min-width:220px; }
-    .form-hint { font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--muted); width:100%; margin-top:2px; }
-
-    /* Per-step discussion callout — copied from docs/week_3/3F_rlhf_rewards.html.
-       Fine for a discussion prompt tied to one specific step; NOT for the
-       final wrap-up Reflection & Discussion Guide, which is always a plain list. */
-    .discussion-box {
-        background: rgba(180, 189, 0, 0.12);
-        border-left: 4px solid var(--hedges);
-        padding: 12px 16px;
-        margin: 16px 0;
-        font-size: 14px;
-        border-radius: 0 6px 6px 0;
-    }
-    .discussion-box h4 {
-        margin: 0 0 6px;
-        color: var(--sanford);
-        font-family: "Merriweather Sans", sans-serif;
-        font-size: 12.5px;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-
-    /* Optional supplementary-info box, collapsed by default — also from 3F.
-       This is the one place <details> is appropriate: it's genuinely optional
-       reference material, not the Background/Instructions the student needs
-       to read to do the activity. */
-    .glossary-box {
-        background: var(--panel-alt);
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        padding: 12px 16px;
-        margin: 14px 0;
-        font-size: 13px;
-    }
-    .glossary-box summary {
-        font-family: "Merriweather Sans", sans-serif;
-        font-weight: 700;
-        font-size: 11px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-    .glossary-box ul { margin: 10px 0 0; padding-left: 20px; }
+    /* --- widget CSS this page needs of its own --- */
+    /* .turn-row/.turn-stamp/.turn-body/.turn-speaker/.turn-text/.add-turn-form/.form-hint
+       (originally from 3_coref.html) and .discussion-box/.glossary-box (originally from
+       3F_rlhf_rewards.html) are now defined once in the shared style.css, same as
+       .rack/.stage — this page needs no local CSS for any of them, just the classes. */
 
     /* Skip-link — optional but recommended, copied from docs/week_5/5c/applet.css.
        Not (yet) in the shared stylesheet, so copy this block if you add one. Note
@@ -300,7 +235,7 @@
       <div class="stage-num">2</div>
       <div class="stage-body">
         <div class="stage-title">Per-step discussion box</div>
-        <div class="stage-sub">Optional — copy from 3F if a step needs its own prompt</div>
+        <div class="stage-sub">Optional — already defined in style.css, just add the class</div>
         <div class="stage-content">
           <div class="discussion-box">
             <h4>Discuss</h4>
@@ -335,11 +270,10 @@
   <div class="spec-callout">
       <span class="tag">Convention note — turn-row pattern</span>
       Not every applet needs a stage-rack. For a simple "type one thing, see it appended to a
-      list" interaction, the compact row pattern below (copied from
-      <code>3_coref.html</code>) beats a heavier boxed-fieldset editor. The CSS for
-      <code>.turn-row</code>/<code>.turn-stamp</code>/<code>.turn-body</code> is <em>not</em> in
-      the shared stylesheet — copy the block from this page's <code>&lt;style&gt;</code> into your
-      own page when you use it.
+      list" interaction, the compact row pattern below (originally from
+      <code>3_coref.html</code>, now promoted into the shared stylesheet) beats a heavier
+      boxed-fieldset editor. <code>.turn-row</code>/<code>.turn-stamp</code>/<code>.turn-body</code>
+      are defined once in <code>style.css</code> — just use the classes, no local CSS needed.
   </div>
 
   <div>
@@ -414,9 +348,9 @@
         <thead><tr><th>Widget</th><th>Defined in</th><th>Use for</th></tr></thead>
         <tbody>
             <tr><td><code>.rack</code> / <code>.stage</code></td><td>shared <code>style.css</code></td><td>A linear, numbered, step-by-step process the student walks through.</td></tr>
-            <tr><td><code>.turn-row</code> / <code>.turn-stamp</code></td><td>copy from <code>3_coref.html</code></td><td>An append-only "add one item, see the list grow" interaction.</td></tr>
-            <tr><td><code>.discussion-box</code></td><td>copy from <code>3F_rlhf_rewards.html</code></td><td>A discussion prompt tied to one specific step — never the final wrap-up.</td></tr>
-            <tr><td><code>.glossary-box</code> (a styled <code>&lt;details&gt;</code>)</td><td>copy from <code>3F_rlhf_rewards.html</code></td><td>Genuinely optional supplementary info the student can choose to expand.</td></tr>
+            <tr><td><code>.turn-row</code> / <code>.turn-stamp</code></td><td>shared <code>style.css</code></td><td>An append-only "add one item, see the list grow" interaction.</td></tr>
+            <tr><td><code>.discussion-box</code></td><td>shared <code>style.css</code></td><td>A discussion prompt tied to one specific step — never the final wrap-up.</td></tr>
+            <tr><td><code>.glossary-box</code> (a styled <code>&lt;details&gt;</code>)</td><td>shared <code>style.css</code></td><td>Genuinely optional supplementary info the student can choose to expand.</td></tr>
             <tr><td><code>.btn-uga</code> / <code>-dark</code> / <code>-outline</code>, <code>.btn-reset</code></td><td>shared <code>style.css</code></td><td>Every clickable action in every applet — don't invent a new button style.</td></tr>
             <tr><td><code>.applet-feedback-card</code></td><td>shared <code>style.css</code></td><td>The "report a problem" card at the very bottom of the page (see below).</td></tr>
         </tbody>

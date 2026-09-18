@@ -128,19 +128,27 @@ At the end of the page, outside the interactive area:
   </ol>
 ```
 
-Plain list, no colored callout box. (A tinted `.discussion-box`-style callout is the right
-call for a discussion prompt *inline*, attached to a specific step of a multi-step applet —
+Plain list, no colored callout box. `.discussion-box` (defined in `style.css`) is the right
+choice for a discussion prompt *inline*, attached to a specific step of a multi-step applet —
 see 3F's per-stage discussion boxes — but the final wrap-up section at the bottom of the page
-is always presented as a plain list across every applet that has one.)
+is always presented as a plain list across every applet that has one.
 
 ## CSS discipline for page-specific `<slug>/applet.css`
 
 `style.css` already provides: the card look for `.lesson-container` / `.app-wrapper` /
 `.reflection-container` (padding, max-width, border, box-shadow, font-size), `.page-header`,
-`.hero` / `.hero-text`, `.uga-accent`, and global `h1,h2,h3` weight/transform/spacing. A
-page's own CSS file should contain **only** what's genuinely specific to that page's
-interactive widgets (e.g. a turn editor, a comparison grid, a stage rack) — not
-reimplementations or near-duplicates of anything above.
+`.hero` / `.hero-text`, `.uga-accent`, global `h1,h2,h3` weight/transform/spacing, the button
+set (`.btn-uga`/`.btn-uga-dark`/`.btn-uga-outline`/`.btn-reset`), the stage-rack
+(`.rack`/`.stage`/`.stage-num`/`.stage-body`), the streamlined input row
+(`.turn-row`/`.turn-stamp`/`.turn-body`/`.turn-speaker`/`.turn-text`/`.add-turn-form`), the
+per-step discussion callout (`.discussion-box`) and the optional-info box (`.glossary-box`),
+and `.applet-feedback-card`. See `docs/template/applet_template.html` for what each one looks
+like. A page's own CSS file should contain **only** what's genuinely specific to that page's
+own interactive widgets (a comparison grid, coreference-chain color coding, a domain-specific
+data table, ...) — not reimplementations or near-duplicates of anything above. Before adding a
+new widget pattern to a page-local `<style>` block, check whether it's actually a reusable
+primitive that belongs in `style.css` instead (as `.turn-row` and `.discussion-box`/
+`.glossary-box` turned out to be) rather than something genuinely one-page-specific.
 
 Before finishing a CSS edit, check for dead/duplicate rules:
 
@@ -157,8 +165,8 @@ just makes that one page's cards look different from every other page's for no r
 ## Streamlined input patterns
 
 For a simple "append one item, look at the result" interaction (adding a line to a
-transcript, etc.), prefer the compact row pattern from `docs/week_2/3_coref.html`
-(`.turn-row` / `.turn-stamp` / `.turn-body`: numbered circular stamp + inline fields, no
-per-item `<fieldset>`/`<legend>` chrome) over a heavier boxed-fieldset editor, unless the
-page has a real requirement (e.g. pre-authoring and freely editing *both* sides of a full
-conversation before doing anything with it) that the row pattern can't support.
+transcript, etc.), prefer the compact row pattern (`.turn-row` / `.turn-stamp` / `.turn-body`:
+numbered circular stamp + inline fields, no per-item `<fieldset>`/`<legend>` chrome, defined in
+`style.css`, originally from `docs/week_2/3_coref.html`) over a heavier boxed-fieldset editor,
+unless the page has a real requirement (e.g. pre-authoring and freely editing *both* sides of a
+full conversation before doing anything with it) that the row pattern can't support.

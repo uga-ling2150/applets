@@ -582,6 +582,94 @@ h3 {
   color: var(--uga-red);
 }
 
+/* ---------- Streamlined input row (append one item, see it added) ---------- */
+/* Originated in docs/week_2/3_coref.html's transcript builder; promoted here so
+   any page needing an "add one item, see the list grow" interaction can reuse it
+   instead of copying the rules into a page-local <style> block. Page-specific
+   coloring (e.g. speaker-role colors) should be added as a modifier class on
+   .turn-speaker, not by editing these base rules. */
+.turn-row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.turn-row:last-of-type { border-bottom: none; }
+.turn-stamp {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 700;
+  font-size: 11px;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-alt);
+}
+.turn-row.just-added .turn-stamp {
+  border-color: var(--uga-red);
+  color: var(--uga-red);
+  box-shadow: 0 0 0 3px rgba(186, 12, 47, 0.12);
+}
+.turn-body { flex: 1; min-width: 0; }
+.turn-speaker {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-right: 8px;
+}
+.turn-text { font-size: 14.5px; color: var(--text); }
+.add-turn-form { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.add-turn-form select, .add-turn-form input { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; }
+.add-turn-form input[type=text] { flex: 1; min-width: 220px; }
+.form-hint { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--muted); width: 100%; margin-top: 2px; }
+
+/* ---------- Per-step discussion box / optional supplementary info ---------- */
+/* Originated in docs/week_3/3F_rlhf_rewards.html. .discussion-box is for a prompt
+   tied to one specific step of a multi-step applet — never for the final wrap-up
+   Reflection & Discussion Guide, which is always a plain list (see conventions.md).
+   .glossary-box (a styled <details>) is for genuinely optional supplementary info,
+   never for Background/Instructions, which must stay always-visible. */
+.discussion-box {
+  background: rgba(180, 189, 0, 0.12);
+  border-left: 4px solid var(--hedges);
+  padding: 12px 16px;
+  margin: 16px 0;
+  font-size: 14px;
+  border-radius: 0 6px 6px 0;
+}
+.discussion-box h4 {
+  margin: 0 0 6px;
+  color: var(--sanford);
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.glossary-box {
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: 13px;
+}
+.glossary-box summary {
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--olympic);
+}
+.glossary-box ul { margin: 10px 0 0; padding-left: 20px; }
+.glossary-box li { margin-bottom: 6px; }
+
 .unsupported {
   border: 1px solid var(--uga-red);
   background: rgba(186, 12, 47, 0.08);
