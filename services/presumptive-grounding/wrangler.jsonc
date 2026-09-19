@@ -1,0 +1,11 @@
+{
+ "name":"ling2150-7b-grounding",
+ "main":"src/worker.mjs",
+ "compatibility_date":"2026-09-01",
+ "assets":{"directory":"./public","binding":"ASSETS","run_worker_first":["/api/*"]},
+ "ai":{"binding":"AI"},
+ "durable_objects":{"bindings":[{"name":"CLASSROOM","class_name":"Classroom"}]},
+ "migrations":[{"tag":"v1","new_sqlite_classes":["Classroom"]}],
+ "vars":{"MODEL":"@cf/meta/llama-3.1-8b-instruct-fast","ENABLED":"true","DAILY_REQUEST_LIMIT":"1200","SESSION_REQUEST_LIMIT":"40","RPM_LIMIT":"240","CONCURRENCY_LIMIT":"120"},
+ "observability":{"enabled":false}
+}
