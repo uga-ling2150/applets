@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Applet Template &amp; Style Guide — LING2150</title>
+<title>Activity 0T: How This Applet Was Built</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
 <style>
@@ -94,28 +94,10 @@
     .swatch-label .hex { color: var(--muted); }
     .swatch-label .use { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 
-    /* --- widget CSS this page needs of its own --- */
-    /* .turn-row/.turn-stamp/.turn-body/.turn-speaker/.turn-text/.add-turn-form/.form-hint
-       (originally from 3_coref.html) and .discussion-box/.glossary-box (originally from
-       3F_rlhf_rewards.html) are now defined once in the shared style.css, same as
-       .rack/.stage — this page needs no local CSS for any of them, just the classes. */
-
-    /* Skip-link — optional but recommended, copied from docs/week_5/5c/applet.css.
-       Not (yet) in the shared stylesheet, so copy this block if you add one. Note
-       the :focus rule: it must become visible on keyboard focus, or it defeats the
-       purpose of a skip link entirely. */
-    .skip-link {
-        position: absolute;
-        top: -100px;
-        left: 16px;
-        background: #fff;
-        border: 1px solid var(--uga-red);
-        padding: 12px 16px;
-        border-radius: 6px;
-        z-index: 100;
-    }
-    .skip-link:focus { top: 12px; }
-    [tabindex="-1"]:focus { outline: 2px solid var(--uga-red); outline-offset: 2px; }
+    /* --- widget CSS this page needs of its own: none. --- */
+    /* Everything below the banner: rack/stage, chat log + composer, fields,
+       buttons, discussion/glossary boxes, reflection notes, feedback and source
+       cards, the skip link. All of it is defined once in the shared style.css. */
 </style>
 </head>
 <body>
@@ -268,31 +250,59 @@
   </div>
 
   <div class="spec-callout">
-      <span class="tag">Convention note — turn-row pattern</span>
-      Not every applet needs a stage-rack. For a simple "type one thing, see it appended to a
-      list" interaction, the compact row pattern below (originally from
-      <code>3_coref.html</code>, now promoted into the shared stylesheet) beats a heavier
-      boxed-fieldset editor. <code>.turn-row</code>/<code>.turn-stamp</code>/<code>.turn-body</code>
-      are defined once in <code>style.css</code> — just use the classes, no local CSS needed.
+      <span class="tag">Convention note — chat</span>
+      Every applet that shows a conversation uses the same look: <code>.chat-log</code> (an
+      <code>&lt;ol role="log"&gt;</code>) holding <code>.chat-turn</code> items, with the role
+      as a class — <code>.human</code> sits left in grey, <code>.ai</code> sits right in a teal
+      tint. Each turn has a <code>.chat-turn__speaker</code> line that starts with its number
+      ("1. You") so students can cite turns, and a <code>.chat-turn__text</code> bubble.
+      Typing goes in <code>.chat-compose</code> (label + <code>.chat-compose__row</code> with the
+      field and a send button). Apps with extra needs use the slots instead of inventing new
+      chat CSS: <code>.chat-turn__extras</code> for a per-turn control (7B's "mark this turn"
+      select, used on the first AI turn below), <code>.chat-compose__extras</code> for options
+      that belong to the whole conversation (3B's auto-generate toggle, the checkbox below),
+      a select placed inside <code>.chat-compose__row</code> (3_coref's speaker picker),
+      <code>.just-added</code> to ring a new turn, <code>.thinking</code> + <code>.thinking-dots</code>
+      for "AI is typing", and <code>.chat-log--static</code> for a fixed example that shouldn't
+      scroll. For an <em>editable</em> list of turns (5C), use the <code>.turn-row</code> pattern instead.
   </div>
 
-  <div>
-    <div id="tplTurnList"></div>
-    <div class="add-turn-form">
-      <label for="tplTurnInput" class="visually-hidden">Next line</label>
-      <input type="text" id="tplTurnInput" class="form-control form-control-sm" placeholder="Type a line and press Add…">
-      <button class="btn-uga" type="button" id="tplAddBtn" onclick="addTemplateTurn()">＋ Add line</button>
-      <div class="form-hint">Speaker alternates automatically, same as 3_coref.html's transcript builder.</div>
+  <ol id="tplChat" class="chat-log" role="log" aria-label="Conversation" tabindex="0"></ol>
+  <p id="tplChatStatus" class="chat-status" role="status" aria-live="polite"></p>
+  <form class="chat-compose field" onsubmit="event.preventDefault(); addTemplateTurn();">
+    <label for="tplTurnInput">Your message</label>
+    <div class="chat-compose__row">
+      <input type="text" id="tplTurnInput" placeholder="Type a message…" autocomplete="off">
+      <button class="btn-uga" type="submit">Send</button>
     </div>
+    <div class="chat-compose__extras">
+      <label><input type="checkbox" id="tplAutoReply" checked> Auto-reply (an option for the whole conversation)</label>
+    </div>
+  </form>
+
+  <div class="spec-callout">
+      <span class="tag">Convention note — form fields</span>
+      Wrap a label and its control in <code>.field</code> and it gets the site look (13px bold
+      Merriweather Sans label, 15px control text, 44px minimum height). Put explanatory text in
+      <code>.field-hint</code>, mark optional labels with <code>.field-optional</code>, and show
+      validation problems in <code>.error-text</code> with <code>role="alert"</code>. Lay fields
+      out in a grid of your own; don't restyle the fields themselves.
+  </div>
+  <div class="field">
+    <label for="tplSelect">Choose a starting point <span class="field-optional">(optional)</span></label>
+    <select id="tplSelect"><option>An interview</option><option>An unclear reference</option></select>
+    <p class="field-hint">A hint sits under the control; use it for what the field is for or where the data goes.</p>
   </div>
 
   <div class="spec-callout">
       <span class="tag">Convention note — buttons</span>
       <code>.btn-uga</code>, <code>.btn-uga-dark</code>, <code>.btn-uga-outline</code>, and
-      <code>.btn-reset</code> are all defined once in <code>style.css</code> — reuse them instead
-      of inventing a page-local button style, so every applet's buttons look and behave the same.
+      <code>.btn-reset</code> are all defined once in <code>style.css</code> (same font, size and
+      44px touch target, whether the button sits in a card or in a <code>.stage-content</code>) —
+      reuse them instead of inventing a page-local button style. Group them in
+      <code>.btn-row</code>; a row whose buttons are all <code>hidden</code> takes no space.
   </div>
-  <div style="display:flex; gap:10px; flex-wrap:wrap; padding: 4px 0 4px;">
+  <div class="btn-row">
     <button class="btn-uga" type="button" onclick="alert('Primary action — e.g. Run, Submit, Add.')">Primary (.btn-uga)</button>
     <button class="btn-uga-dark" type="button" onclick="alert('Secondary dark action.')">Dark (.btn-uga-dark)</button>
     <button class="btn-uga-outline" type="button" onclick="alert('Low-emphasis action — e.g. Auto-demo, Show example.')">Outline (.btn-uga-outline)</button>
@@ -348,11 +358,16 @@
         <thead><tr><th>Widget</th><th>Defined in</th><th>Use for</th></tr></thead>
         <tbody>
             <tr><td><code>.rack</code> / <code>.stage</code></td><td>shared <code>style.css</code></td><td>A linear, numbered, step-by-step process the student walks through.</td></tr>
-            <tr><td><code>.turn-row</code> / <code>.turn-stamp</code></td><td>shared <code>style.css</code></td><td>An append-only "add one item, see the list grow" interaction.</td></tr>
+            <tr><td><code>.chat-log</code> / <code>.chat-turn</code> / <code>.chat-compose</code></td><td>shared <code>style.css</code></td><td>Any conversation display and its message box, including per-turn and per-conversation extras.</td></tr>
+            <tr><td><code>.turn-row</code> / <code>.turn-stamp</code> / <code>.turn-body</code></td><td>shared <code>style.css</code></td><td>An <em>editable</em> numbered list, one row per item (5C's conversation editor).</td></tr>
+            <tr><td><code>.field</code>, <code>.field-hint</code>, <code>.error-text</code></td><td>shared <code>style.css</code></td><td>Every label + input/select/textarea, its hint and its validation message.</td></tr>
             <tr><td><code>.discussion-box</code></td><td>shared <code>style.css</code></td><td>A discussion prompt tied to one specific step — never the final wrap-up.</td></tr>
             <tr><td><code>.glossary-box</code> (a styled <code>&lt;details&gt;</code>)</td><td>shared <code>style.css</code></td><td>Genuinely optional supplementary info the student can choose to expand.</td></tr>
             <tr><td><code>.btn-uga</code> / <code>-dark</code> / <code>-outline</code>, <code>.btn-reset</code></td><td>shared <code>style.css</code></td><td>Every clickable action in every applet — don't invent a new button style.</td></tr>
-            <tr><td><code>.applet-feedback-card</code></td><td>shared <code>style.css</code></td><td>The "report a problem" card at the very bottom of the page (see below).</td></tr>
+            <tr><td><code>.btn-row</code></td><td>shared <code>style.css</code></td><td>A wrapping row of buttons (and small status text).</td></tr>
+            <tr><td><code>.reflection-notes</code></td><td>shared <code>style.css</code></td><td>The standard "Write down your thoughts" box at the end of the Reflection &amp; Discussion Guide.</td></tr>
+            <tr><td><code>.applet-feedback-card</code></td><td>shared <code>style.css</code></td><td><strong>Required</strong> on every applet: the "report a problem" card after <code>&lt;/main&gt;</code>.</td></tr>
+            <tr><td><code>.source-card</code></td><td>shared <code>style.css</code></td><td>Credits for third-party material (datasets, recordings, papers, models), after the feedback card.</td></tr>
         </tbody>
     </table>
 
@@ -361,7 +376,7 @@
         <li><strong>Landmarks:</strong> one <code>&lt;header&gt;</code> (site chrome), one
         <code>&lt;main&gt;</code> (this page's unique content), and a <code>&lt;section&gt;</code>
         for each distinct labeled region inside main. Don't reach for <code>&lt;section&gt;</code>
-        for small internal wrappers like <code>.hero</code> or <code>.turn-row</code> — those
+        for small internal wrappers like <code>.hero</code> or <code>.chat-turn</code> — those
         aren't destinations a screen-reader user would want to jump to on their own.</li>
         <li><strong><code>aria-labelledby</code> over <code>aria-label</code>:</strong> when a
         section already has a visible heading, point <code>aria-labelledby</code> at that
@@ -386,12 +401,17 @@
         and Instructions must always be visible without a click — a student shouldn't have to
         discover that there's more to read. Reserve collapsible sections for genuinely optional
         extras, like the glossary box in stage 3 above.</li>
-        <li><strong>Skip link (optional, recommended):</strong> a
+        <li><strong>Skip link (recommended):</strong> a
         <code>&lt;a class="skip-link" href="#main"&gt;</code> as the very first thing in
         <code>&lt;body&gt;</code>, paired with <code>&lt;main id="main" tabindex="-1"&gt;</code>,
         lets a keyboard user jump straight past the repeated page header. It must actually become
-        visible on keyboard focus (see the <code>:focus</code> rule in this page's CSS) — a skip
+        visible on keyboard focus (the shared <code>.skip-link:focus</code> rule does this) — a skip
         link that stays permanently hidden isn't usable by anyone.</li>
+        <li><strong>Chat logs:</strong> give the <code>.chat-log</code> <code>role="log"</code>
+        (or, when a separate <code>role="status"</code> line already announces each reply, just an
+        <code>aria-label</code>) and <code>tabindex="0"</code> so a keyboard user can scroll it. Give
+        every message box a real <code>&lt;label&gt;</code> — use <code>.visually-hidden</code> if the
+        design has no room for a visible one, never a placeholder alone.</li>
     </ul>
 </div>
 
@@ -410,28 +430,68 @@
         <li>Look at this file's source. Which parts are the reusable pattern, and which parts (the banner, the blue callouts, the divider lines) exist only to explain the pattern and should be deleted when you copy this file?</li>
         <li>Pick one heading on this page and confirm its <code>id</code> matches the <code>aria-labelledby</code> of the section that contains it.</li>
     </ol>
+    <div class="spec-callout">
+        <span class="tag">Convention note — reflection notes</span>
+        If students can write anything down, use the one standard box, exactly as below:
+        <code>.reflection-notes</code> (also a <code>.field</code>), the fixed label "Write down your
+        thoughts", a textarea, a "Download my notes" button and the fixed note underneath. There is
+        no extra prompt: students are simply answering the numbered questions above it. The download
+        is always its own button, never merged into the applet's own download; it saves the guide's
+        questions plus the notes as a text file, via the shared <code>docs/reflection-notes.js</code>
+        (include it with <code>&lt;script src="../reflection-notes.js" defer&gt;</code>). If the applet
+        also lets students export their <em>work</em> (chat transcripts, rewrites, marker data), put that
+        button in the applet card, not here. 5C, 7A and 7B all use exactly this.
+    </div>
+    <div class="reflection-notes field">
+        <label for="tplNotes">Write down your thoughts</label>
+        <textarea id="tplNotes" rows="5" maxlength="4000"></textarea>
+        <div class="btn-row">
+            <button class="btn-uga" type="button" data-download-notes>Download my notes</button>
+            <span class="field-hint" role="status" data-download-status></span>
+        </div>
+        <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
 </section>
 
 </main>
 
-<section class="applet-feedback-card" aria-labelledby="applet-feedback-heading">
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading">
     <div class="applet-feedback-card__content">
       <div>
         <h2 id="applet-feedback-heading">Help us improve this applet</h2>
-        <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide</a>
+        <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a>
       </div>
-      <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%200T%3A%20How%20This%20Applet%20Was%20Built%3A%20&amp;applet=Activity%200T%3A%20How%20This%20Applet%20Was%20Built" target="_blank" rel="noopener noreferrer">Report a problem or give feedback</a>
+      <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%200T%3A%20How%20This%20Applet%20Was%20Built&amp;applet=Activity%200T%3A%20How%20This%20Applet%20Was%20Built&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Ftemplate%2Fapplet_template.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a>
     </div>
 </section>
 <div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
-    <span class="tag">Convention note — feedback card</span>
-    This card is optional but recommended, and is already fully styled by <code>style.css</code>.
-    The one thing to get right when copying it: the <code>title=</code> and <code>applet=</code>
-    query parameters in the button's <code>href</code> must name <em>this</em> activity — a
-    site-wide audit once found two pages that had copy-pasted this link from a third page and
-    were silently mislabeling every bug report with the wrong activity name.
+    <span class="tag">Convention note — feedback card (required)</span>
+    Every applet ends with this card, directly after <code>&lt;/main&gt;</code>; it is how
+    students and instructors report bugs and content errors. Copy the markup exactly. The three
+    query parameters in the button's <code>href</code> — <code>title</code>,
+    <code>applet</code> and <code>source-url</code> — must name <em>this</em> activity and its own
+    page URL; a site-wide audit once found two pages that had copy-pasted the link from a third
+    page and were mislabeling every bug report. Add <code>applet-feedback-card--followed</code>
+    when another card (the source card below) comes after it.
 </div>
 
+<footer class="source-card" aria-labelledby="sources-title">
+    <h3 id="sources-title">Sources &amp; permissions</h3>
+    <p>Example credit line: <strong>Dataset or recording name</strong>, authors and contributors. Downloaded from the <a href="https://example.org/" target="_blank" rel="noopener noreferrer">official archive<span class="visually-hidden"> (opens in a new tab)</span></a>. Released under a named license, with a link to it and a note of any changes made.</p>
+    <details>
+        <summary>Longer notes (optional)</summary>
+        <p>Clip details, model names, limitations and privacy notes go in collapsed <code>&lt;details&gt;</code> inside the card so the credit itself stays short.</p>
+    </details>
+</footer>
+<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+    <span class="tag">Convention note — source card</span>
+    Any applet that reproduces or adapts someone else's material (a benchmark, a corpus,
+    recordings, a paper, a hosted model) credits it in a <code>&lt;footer class="source-card"&gt;</code>
+    after the feedback card — not in a page-local card style and not buried in a
+    <code>&lt;details&gt;</code> in the app. If the applet uses no third-party material, omit it.
+</div>
+
+<script src="../reflection-notes.js" defer></script>
 <script>
     // --- demo widget #1: stage rack ---
     let tplCurrentStage = 1;
@@ -443,46 +503,76 @@
         document.getElementById('tplStage' + tplCurrentStage).classList.add('active');
     }
 
-    // --- demo widget #2: turn-row list builder ---
-    const tplTurns = [];
-    function addTemplateTurn(){
+    // --- demo widget #2: chat log + composer ---
+    const tplSeed = [
+        { role: 'human', text: 'Can you help me plan something for Friday?' },
+        { role: 'ai', text: 'Sure. What kind of plan do you have in mind?', extras: true }
+    ];
+    let tplChat = [];
+    function renderTemplateChat(newest) {
+        const log = document.getElementById('tplChat');
+        log.replaceChildren();
+        if (!tplChat.length) {
+            const empty = document.createElement('li');
+            empty.className = 'chat-empty';
+            empty.textContent = 'No messages yet — type one below.';
+            log.append(empty);
+            return;
+        }
+        tplChat.forEach((t, i) => {
+            const li = document.createElement('li');
+            li.className = 'chat-turn ' + t.role + (i === newest ? ' just-added' : '') + (t.thinking ? ' thinking' : '');
+            const who = document.createElement('span');
+            who.className = 'chat-turn__speaker';
+            who.textContent = (i + 1) + '. ' + (t.role === 'human' ? 'You' : 'AI');
+            const text = document.createElement('p');
+            text.className = 'chat-turn__text';
+            if (t.thinking) {
+                text.innerHTML = '<span class="thinking-dots"><span></span><span></span><span></span></span>';
+            } else {
+                // textContent, not innerHTML: a message containing "<" or "&" can never be read as markup.
+                text.textContent = t.text;
+            }
+            li.append(who, text);
+            if (t.extras) {
+                const extras = document.createElement('div');
+                extras.className = 'chat-turn__extras field';
+                extras.innerHTML = '<label for="tplMark">Mark this turn (optional)</label>' +
+                    '<select id="tplMark"><option>No mark</option><option>Clarification request</option></select>';
+                li.append(extras);
+            }
+            log.append(li);
+        });
+        log.scrollTop = log.scrollHeight;
+    }
+    function addTemplateTurn() {
         const input = document.getElementById('tplTurnInput');
         const text = input.value.trim();
         if (!text) return;
-        const speaker = tplTurns.length % 2 === 0 ? 'Speaker A' : 'Speaker B';
-        tplTurns.push({ speaker, text });
+        tplChat.push({ role: 'human', text });
         input.value = '';
-        renderTemplateTurns();
+        renderTemplateChat(tplChat.length - 1);
+        if (!document.getElementById('tplAutoReply').checked) return;
+        tplChat.push({ role: 'ai', thinking: true });
+        renderTemplateChat();
+        const status = document.getElementById('tplChatStatus');
+        status.textContent = 'Waiting for a reply…';
+        setTimeout(() => {
+            tplChat[tplChat.length - 1] = { role: 'ai', text: '(Demo reply) You said: ' + text };
+            renderTemplateChat(tplChat.length - 1);
+            status.textContent = 'Reply received.';
+        }, 900);
     }
-    function renderTemplateTurns(){
-        const list = document.getElementById('tplTurnList');
-        list.innerHTML = tplTurns.map((t, i) => `
-            <div class="turn-row ${i === tplTurns.length - 1 ? 'just-added' : ''}">
-              <div class="turn-stamp">${i + 1}</div>
-              <div class="turn-body">
-                <span class="turn-speaker">${t.speaker}</span>
-                <span class="turn-text" id="tpl-turn-text-${i}"></span>
-              </div>
-            </div>
-        `).join('');
-        // Text is set via textContent below, not baked into the innerHTML template
-        // above, so a line containing "<" or "&" can never be interpreted as markup.
-        tplTurns.forEach((t, i) => {
-            const el = document.getElementById('tpl-turn-text-' + i);
-            if (el) el.textContent = t.text;
-        });
-    }
-    document.getElementById('tplTurnInput').addEventListener('keydown', function(e){
-        if (e.key === 'Enter') addTemplateTurn();
-    });
 
     function resetTemplateWidgets(){
-        tplTurns.length = 0;
-        renderTemplateTurns();
+        tplChat = tplSeed.map(t => Object.assign({}, t));
+        renderTemplateChat();
+        document.getElementById('tplChatStatus').textContent = '';
         document.querySelectorAll('#tplStage1, #tplStage2, #tplStage3').forEach(el => el.classList.remove('active', 'done'));
         document.getElementById('tplStage1').classList.add('active');
         tplCurrentStage = 1;
     }
+    resetTemplateWidgets();
 </script>
 
 </body>

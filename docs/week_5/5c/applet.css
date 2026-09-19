@@ -110,45 +110,17 @@ button.primary {
 button.primary:hover { opacity: 0.9; color: #fff; }
 button:disabled { opacity: 0.55; cursor: not-allowed; border-color: var(--line); color: var(--muted); background: transparent; }
 
-/* ---------- Turn editor (mirrors 3_coref.html's streamlined turn-row list) ---------- */
-.turn-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px dashed var(--line);
-}
-.turn-row:last-of-type { border-bottom: none; }
-.turn-stamp {
-  flex: 0 0 26px;
-  width: 26px;
-  height: 26px;
-  margin-top: 7px;
-  border-radius: 50%;
-  border: 2px solid var(--line);
-  color: var(--muted);
-  background: var(--panel-alt);
-  font-family: "IBM Plex Mono", monospace;
-  font-weight: 700;
-  font-size: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.turn-body { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+/* ---------- Turn editor: shared .turn-row/.turn-stamp/.turn-body from style.css,
+   plus the inline speaker select + textarea layout this editor needs ---------- */
+.turn-row { padding: 10px 0; }
+.turn-stamp { margin-top: 7px; }
+.turn-body { display: flex; flex-wrap: wrap; gap: 8px; }
 .turn-body select { width: auto; flex: 0 0 auto; }
 .turn-body textarea { flex: 1 1 220px; min-width: 200px; }
 .turn-row .remove { flex: 0 0 auto; }
 
 /* ---------- Practice: context, original, rewrite comparison ---------- */
-.context {
-  background: rgba(0, 78, 96, 0.06);
-  border-left: 4px solid var(--olympic);
-  border-radius: 0 6px 6px 0;
-  padding: 14px 16px;
-}
 .context h3 { margin-top: 0; color: var(--olympic); }
-.context li { white-space: pre-wrap; overflow-wrap: anywhere; }
 
 .utterance {
   background: #fff;

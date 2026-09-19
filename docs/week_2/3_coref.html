@@ -5,22 +5,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cross-Turn Coreference & Discourse Explorer · Line-by-Line</title>
+    <title>Activity: Recognizing Coreference</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="../style.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/compromise@14/builds/compromise.min.js"></script>
     <style>
         /* Page-specific additions layered on top of style.css — kept to what style.css
            doesn't already define, and built entirely from the UGA palette in :root.
-           .turn-row/.turn-stamp/.turn-body/.turn-speaker/.turn-text/.add-turn-form/.form-hint
-           now live in style.css itself (promoted from here) — only this page's speaker-color
-           modifiers stay local, since they're specific to this activity's human/AI distinction. */
-
-        .turn-speaker.human{ color:var(--uni-blue); }
-        .turn-speaker.ai{ color:var(--sanford); }
+           The conversation list and its composer in stage 1 use the shared
+           .chat-log / .chat-turn / .chat-compose components from style.css. */
 
         /* Stages 2/3/5 show raw extraction/lookup output (entity list, temporal
            parses, Wikidata IDs) — genuinely technical readouts, kept monospace now
@@ -145,7 +141,6 @@
 
         <div class="hero">
             <div class="hero-text">
-                <div class="eyebrow">NLP Research · Temporal Pronoun &amp; Coreference Pipeline — Line-by-Line Edition</div>
                 <h2 id="applet-title">Add one line.<br>Watch the <span>entities</span> stack.</h2>
                 <p>Build a dialogue one turn at a time. Every added line re-runs named-entity recognition (via compromise.js), temporal normalization, cross-turn coreference, and Wikidata linking over the whole transcript so far — anchored to August 10, 2026.</p>
             </div>
@@ -158,21 +153,24 @@
                 <div class="stage-num">1</div>
                 <div class="stage-body">
                     <div class="stage-title">Conversation Turns</div>
-                    <div class="stage-sub" id="turnCount">0 lines · add the first one below</div>
+                    <div class="stage-sub" id="turnCount">0 lines, add the first one below</div>
                     <div class="stage-content">
-                        <div id="turnList"></div>
-                        <div class="add-turn-form">
-                            <label for="speakerSelect" class="visually-hidden">Speaker</label>
-                            <select id="speakerSelect" class="form-select form-select-sm" style="width:auto;">
-                                <option value="Human">Human</option>
-                                <option value="AI">AI</option>
-                            </select>
-                            <label for="turnInput" class="visually-hidden">Next line of the conversation</label>
-                            <input type="text" id="turnInput" class="form-control form-control-sm" placeholder="Type the next line of the conversation…">
-                            <button class="custom-btn-primary" id="addBtn" onclick="addTurn()">＋ Add line</button>
-                            <button class="btn-uga-outline" id="demoBtn" onclick="playDemo()">▶ Auto-demo</button>
-                            <div class="form-hint">Speaker alternates automatically — override any time with the dropdown.</div>
-                        </div>
+                        <ol id="turnList" class="chat-log" role="log" aria-label="Conversation" tabindex="0"></ol>
+                        <form class="chat-compose field" onsubmit="event.preventDefault(); addTurn();">
+                            <label for="turnInput">Next line of the conversation</label>
+                            <div class="chat-compose__row">
+                                <select id="speakerSelect" aria-label="Speaker">
+                                    <option value="Human">Human</option>
+                                    <option value="AI">AI</option>
+                                </select>
+                                <input type="text" id="turnInput" placeholder="Type the next line of the conversation…" autocomplete="off">
+                                <button type="submit" class="btn-uga" id="addBtn">＋ Add line</button>
+                            </div>
+                            <div class="chat-compose__extras">
+                                <button type="button" class="btn-uga-outline" id="demoBtn" onclick="playDemo()">▶ Auto-demo</button>
+                                <span>Speaker alternates automatically — override any time with the dropdown.</span>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -284,6 +282,17 @@
 </section>
 
 </main>
+
+<section class="applet-feedback-card" aria-labelledby="applet-feedback-heading">
+  <div class="applet-feedback-card__content">
+    <div>
+      <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+      <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a>
+    </div>
+    <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%3A%20Recognizing%20Coreference&amp;applet=Activity%3A%20Recognizing%20Coreference&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_2%2F3_coref.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a>
+  </div>
+</section>
+
 
     <script>
 
@@ -464,24 +473,25 @@ function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 function renderTurns(){
   const list = document.getElementById('turnList');
   document.getElementById('turnCount').textContent =
-    conversation.length === 0 ? "0 lines · add the first one below" :
-    `${conversation.length} line${conversation.length>1?'s':''} · anchor: Aug 10, 2026`;
+    conversation.length === 0 ? "0 lines, add the first one below" :
+    `${conversation.length} line${conversation.length>1?'s':''}, anchor: Aug 10, 2026`;
 
+  if(conversation.length === 0){
+    list.innerHTML = '<li class="chat-empty">No lines yet — add the first one below.</li>';
+    return;
+  }
   list.innerHTML = conversation.map((t, i) => `
-    <div class="turn-row ${i===latestTurnIndex ? 'just-added' : ''}">
-      <div class="turn-stamp">${i+1}</div>
-      <div class="turn-body">
-        <span class="turn-speaker ${t.speaker.toLowerCase()}">${t.speaker}</span>
-        <span class="turn-text" id="turn-text-${i}"></span>
-        ${i===latestTurnIndex ? '<span class="new-flag">just added</span>' : ''}
-      </div>
-    </div>
+    <li class="chat-turn ${t.speaker.toLowerCase()} ${i===latestTurnIndex ? 'just-added' : ''}">
+      <span class="chat-turn__speaker">${i+1}. ${t.speaker}${i===latestTurnIndex ? '<span class="new-flag">just added</span>' : ''}</span>
+      <p class="chat-turn__text" id="turn-text-${i}"></p>
+    </li>
   `).join('');
   // set text nodes separately to avoid re-escaping issues before highlighting pass fills them in
   conversation.forEach((t,i) => {
     const el = document.getElementById(`turn-text-${i}`);
     if(el) el.textContent = t.text;
   });
+  list.scrollTop = list.scrollHeight;
 }
 
 async function runPipeline(){

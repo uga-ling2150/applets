@@ -524,17 +524,44 @@ h3 {
   font-family: "IBM Plex Mono", monospace;
 }
 
-.btn-uga {
-    background-color: var(--uga-red);
-    border: none;
-    color: #fff;
-    font-family: 'Merriweather Sans', sans-serif;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+/* ---------- Buttons ---------- */
+/* One shared scale for every button variant: same font, size, padding and
+   minimum touch-target height, so a button looks the same whether it sits
+   directly in a card (19px inherited text) or inside a .stage-content (14px).
+   Works on <button> and on <a class="btn-uga">. */
+.btn-uga,
+.btn-uga-dark,
+.btn-uga-outline,
+.btn-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
     padding: 10px 20px;
     border-radius: 6px;
-    transition: opacity 0.2s;
+    font-family: 'Merriweather Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s, border-color 0.2s, color 0.2s;
+}
+.btn-uga,
+.btn-uga-dark,
+.btn-reset {
+    border: 1px solid transparent;
+    text-transform: uppercase;
+}
+.btn-uga:disabled, .btn-uga-dark:disabled, .btn-uga-outline:disabled, .btn-reset:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.btn-uga {
+    background-color: var(--uga-red);
+    color: #fff;
 }
 .btn-uga:hover {
     opacity: 0.9;
@@ -544,24 +571,14 @@ h3 {
 
 .btn-uga-dark {
     background-color: var(--uga-black);
-    border: none;
     color: #fff;
-    font-family: 'Merriweather Sans', sans-serif;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 10px 20px;
-    border-radius: 6px;
 }
 .btn-uga-dark:hover { background-color: #333; color: #fff; }
 .btn-uga-outline {
     background: transparent;
     border: 1px solid var(--border-strong);
     color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    border-radius: 6px;
-    padding: 8px 16px;
+    letter-spacing: 0.02em;
 }
 .btn-uga-outline:hover {
     border-color: var(--uga-red);
@@ -571,11 +588,17 @@ h3 {
 .btn-reset {
   background: #666;
   color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 4px;
-  font-weight: bold;
-  margin-top: 5px;
+}
+.btn-reset:hover { background: #4d4d4d; color: white; }
+
+/* A wrapping row of buttons (and small status text). Replaces the per-page
+   .actions / .bc-actions / .toolbar copies. */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
 }
 
 .reset-btn {
@@ -593,12 +616,200 @@ h3 {
   color: var(--uga-red);
 }
 
-/* ---------- Streamlined input row (append one item, see it added) ---------- */
-/* Originated in docs/week_2/3_coref.html's transcript builder; promoted here so
-   any page needing an "add one item, see the list grow" interaction can reuse it
-   instead of copying the rules into a page-local <style> block. Page-specific
-   coloring (e.g. speaker-role colors) should be added as a modifier class on
-   .turn-speaker, not by editing these base rules. */
+/* ---------- Form fields ---------- */
+/* Wrap a label + control (+ optional .field-hint) in .field and it gets the
+   site-standard look: 13px bold Merriweather Sans label, 15px control text,
+   44px minimum height. Applet-specific layout (grids, inline rows) goes on
+   the wrapper's parent, not on these rules. */
+.field { margin: 16px 0; }
+.field label,
+.field .field-label {
+  display: block;
+  font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.field select,
+.field textarea {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.field select { width: auto; max-width: 100%; }
+.field textarea { resize: vertical; }
+.field input::placeholder,
+.field textarea::placeholder { color: var(--muted); }
+.field-hint {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 6px 0 0;
+}
+.field-optional { font-weight: 400; color: var(--muted); }
+/* A prompt/hint sitting between a label and its control. */
+.field label + .field-hint { margin: 0 0 8px; }
+/* Inline error/validation message (put role="alert" on it; empty = invisible). */
+.error-text {
+  margin: 8px 0;
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8d0924;
+}
+.error-text:empty { display: none; }
+/* A button row whose buttons are all [hidden] takes no space. */
+.btn-row:not(:has(> :not([hidden]))) { display: none; }
+
+/* ---------- Reflection notes ("Write down your thoughts") ---------- */
+/* The one standard free-text box at the end of the Reflection & Discussion
+   Guide. Same markup, wording and spacing on every applet that has one. */
+.reflection-notes {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.reflection-notes > label { font-size: 1rem; }
+.reflection-notes .btn-row { margin-bottom: 4px; }
+
+/* ---------- Chat: conversation log + composer ---------- */
+/* One conversation look for every applet that shows a chat. Human turns sit
+   left in grey, AI turns sit right in a teal tint; each turn has a small
+   "1. You" speaker line so turns can be cited by number. Per-turn extras
+   (a mark/annotation control, a "just added" flag) go in .chat-turn__extras;
+   options that belong to the whole conversation (auto-generate toggle, speaker
+   select) go in .chat-compose__extras. */
+.chat-log {
+  list-style: none;
+  margin: 0;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 140px;
+  max-height: 420px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.chat-log--static { min-height: 0; max-height: none; overflow: visible; }
+.chat-empty {
+  margin: auto;
+  color: var(--muted);
+  font-style: italic;
+  text-align: center;
+}
+.chat-turn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: flex-start;
+  max-width: 90%;
+  min-width: 0;
+}
+.chat-turn.ai { align-items: flex-end; align-self: flex-end; }
+.chat-turn__speaker {
+  margin: 0 6px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.chat-turn.ai .chat-turn__speaker { color: var(--olympic); }
+.chat-turn__text {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #e3e3e3;
+  border-radius: 16px 16px 16px 4px;
+  background: #f1f1f1;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.chat-turn.ai .chat-turn__text {
+  border-color: rgba(0, 78, 96, 0.3);
+  border-radius: 16px 16px 4px 16px;
+  background: rgba(0, 78, 96, 0.09);
+}
+.chat-turn.just-added .chat-turn__text { box-shadow: 0 0 0 3px rgba(186, 12, 47, 0.15); }
+.chat-turn__extras { margin: 6px 6px 0; max-width: 100%; font-size: 13px; }
+.chat-turn__extras .field { margin: 0; }
+.chat-turn__extras select { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+
+/* "AI is typing" dots, shown inside an empty .chat-turn__text. */
+.chat-turn.thinking .chat-turn__text { display: flex; align-items: center; min-width: 52px; }
+.thinking-dots { display: flex; gap: 4px; align-items: center; height: 14px; }
+.thinking-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+  animation: think-bounce 1.4s infinite ease-in-out both;
+}
+.thinking-dots span:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dots span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes think-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thinking-dots span { animation: none; opacity: 0.9; }
+}
+
+.chat-status {
+  min-height: 1.6em;
+  margin: 10px 0 0;
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 13px;
+  color: var(--olympic);
+}
+.chat-compose { margin-top: 12px; }
+.chat-compose__row { display: flex; align-items: flex-end; gap: 8px; }
+.chat-compose__row > input,
+.chat-compose__row > textarea { flex: 1 1 auto; min-width: 0; }
+.chat-compose__row > select,
+.chat-compose__row > button { flex: 0 0 auto; }
+.chat-compose__extras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 8px;
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 13px;
+  color: var(--muted);
+}
+.chat-compose__extras label { display: inline; margin: 0; font-weight: 400; }
+@media (max-width: 640px) {
+  .chat-compose__row { flex-wrap: wrap; }
+  .chat-compose__row > input,
+  .chat-compose__row > textarea { flex: 1 1 100%; }
+  .chat-turn { max-width: 96%; }
+}
+
+/* ---------- Streamlined input row (editable list of numbered items) ---------- */
+/* For a list the student can edit line by line (see 5C's conversation editor):
+   numbered stamp + inline fields, no per-item <fieldset>/<legend> chrome. To
+   just *display* a conversation, use .chat-log instead. */
 .turn-row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
 .turn-row:last-of-type { border-bottom: none; }
 .turn-stamp {
@@ -622,19 +833,6 @@ h3 {
   box-shadow: 0 0 0 3px rgba(186, 12, 47, 0.12);
 }
 .turn-body { flex: 1; min-width: 0; }
-.turn-speaker {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 10.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 700;
-  margin-right: 8px;
-}
-.turn-text { font-size: 14.5px; color: var(--text); font-family: "Merriweather Sans", sans-serif; }
-.add-turn-form { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.add-turn-form select, .add-turn-form input { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; }
-.add-turn-form input[type=text] { flex: 1; min-width: 220px; }
-.form-hint { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--muted); width: 100%; margin-top: 2px; }
 
 /* ---------- Per-step discussion box / optional supplementary info ---------- */
 /* Originated in docs/week_3/3F_rlhf_rewards.html. .discussion-box is for a prompt
@@ -669,7 +867,7 @@ h3 {
   margin: 14px 0;
   font-size: 13px;
 }
-.glossary-box a { color: #0055a4; text-underline-offset: 3px; }
+.glossary-box a:not([class]) { color: #0055a4; text-underline-offset: 3px; }
 .glossary-box summary {
   font-family: "Merriweather Sans", sans-serif;
   font-weight: 700;
@@ -767,49 +965,6 @@ h3 {
 .label-sm { font-family: sans-serif; font-weight: bold; font-size: 0.85rem; color: #444; }
 .char-count { font-family: sans-serif; font-size: 0.75rem; text-align: right; margin-top: -10px; font-weight: bold; }
 
-.custom-btn-primary {
-    background-color: var(--uga-red);
-    border: none;
-    color: #fff;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 10px 20px;
-    border-radius: 6px;
-    transition: opacity 0.2s;
-}
-.custom-btn-primary:hover {
-    opacity: 0.9;
-    background-color: var(--uga-red);
-    color: #fff;
-}
-.custom-btn-dark {
-    background-color: var(--uga-black);
-    border: none;
-    color: #fff;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 10px 20px;
-    border-radius: 6px;
-}
-.custom-btn-dark:hover { background-color: #333; color: #fff; }
-.custom-btn-outline {
-    background: transparent;
-    border: 1px solid var(--border-strong);
-    color: var(--muted);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    border-radius: 6px;
-    padding: 8px 16px;
-}
-.custom-btn-outline:hover {
-    border-color: var(--uga-red);
-    color: var(--uga-red);
-}
-
 .applet-feedback-card {
   max-width: 1000px;
   margin: 32px auto 96px;
@@ -831,6 +986,34 @@ h3 {
   border-radius: 8px;
   background: #f7f7f7;
 }
+/* Sources & permissions card: where an applet credits third-party material
+   (datasets, recordings, papers, models). Goes after the feedback card. */
+.source-card h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+.source-card p,
+.source-card li {
+  margin: 0 0 0.6rem;
+  color: #554f47;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.source-card details {
+  margin: 0.6rem 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.source-card summary {
+  cursor: pointer;
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--olympic);
+}
+.source-card details > :not(summary) { margin-top: 0.6rem; }
 
 .applet-feedback-card__content {
   display: flex;
@@ -888,6 +1071,21 @@ h3 {
   background: #8f0a25;
 }
 a:focus-visible { outline: 3px solid #f9a825; outline-offset: 3px; }
+
+/* Skip link (first element in <body>) and the <main tabindex="-1"> it targets. */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 100;
+  padding: 12px 16px;
+  border: 1px solid var(--uga-red);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+}
+.skip-link:focus { top: 12px; }
+[tabindex="-1"]:focus { outline: 2px solid var(--uga-red); outline-offset: 2px; }
 @media (max-width: 720px) {
   .applet-feedback-card { margin: 24px 16px 72px; padding: 20px; }
   .applet-feedback-card__content { align-items: stretch; flex-direction: column; }

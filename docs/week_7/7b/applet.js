@@ -17,10 +17,13 @@ function controls(m){const t=state.chats[m],pending=t.at(-1)?.role==='user',busy
  $(m+'-limit').textContent=full?'Comparison limit reached. Download your work, then start a new comparison.':`${Math.floor(t.length/2)} of 10 replies received. Your next message can be up to 500 characters.`;
 }
 function render(m){const list=$(m+'-transcript');list.replaceChildren();const turns=state.chats[m];
- if(!turns.length){const li=document.createElement('li');li.className='chat-turn';li.textContent='Start both conversations using the opening message above.';list.append(li);}
- turns.forEach((t,i)=>{const li=document.createElement('li');li.className='chat-turn '+t.role;const who=document.createElement('strong');who.textContent=`${i+1}. ${t.role==='user'?'You':'Assistant '+labels[m]}`;const p=document.createElement('p');p.textContent=t.content;li.append(who,p);
- const label=document.createElement('label');label.className='turn-label';label.htmlFor=`${m}-tag-${i}`;label.textContent='Mark this turn (optional)';const sel=document.createElement('select');sel.id=label.htmlFor;
- for(const [v,txt] of [['','No mark'],['assumption','Unconfirmed assumption'],['clarification','Request for clarification'],['correction','Correction / repair'],['answer','Useful answer'],['other','Other / uncertain']]){const o=document.createElement('option');o.value=v;o.textContent=txt;sel.append(o);}sel.value=t.tag||'';sel.addEventListener('change',()=>{t.tag=sel.value;save();});li.append(label,sel);list.append(li);
+ if(!turns.length){const li=document.createElement('li');li.className='chat-empty';li.textContent='Start both conversations using the opening message above.';list.append(li);}
+ turns.forEach((t,i)=>{const isUser=t.role==='user';const li=document.createElement('li');li.className='chat-turn '+(isUser?'human':'ai');
+ const who=document.createElement('span');who.className='chat-turn__speaker';who.textContent=`${i+1}. ${isUser?'You':'Assistant '+labels[m]}`;
+ const p=document.createElement('p');p.className='chat-turn__text';p.textContent=t.content;
+ const extras=document.createElement('div');extras.className='chat-turn__extras field';
+ const label=document.createElement('label');label.htmlFor=`${m}-tag-${i}`;label.textContent='Mark this turn (optional)';const sel=document.createElement('select');sel.id=label.htmlFor;
+ for(const [v,txt] of [['','No mark'],['assumption','Unconfirmed assumption'],['clarification','Request for clarification'],['correction','Correction / repair'],['answer','Useful answer'],['other','Other / uncertain']]){const o=document.createElement('option');o.value=v;o.textContent=txt;sel.append(o);}sel.value=t.tag||'';sel.addEventListener('change',()=>{t.tag=sel.value;save();});extras.append(label,sel);li.append(who,p,extras);list.append(li);
  });list.scrollTop=list.scrollHeight;controls(m);
 }
 function paint(){for(const k of ['scenario','opening','intention','reflection'])$(k).value=state[k];$('scenario').disabled=state.started;$('opening').readOnly=state.started;$('start').disabled=state.started;
