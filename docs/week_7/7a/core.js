@@ -7,7 +7,8 @@ function validateRun(r,clip){
  if(!r.marks.every(t=>Number.isFinite(t)&&t>=0&&t<=clip.duration)) throw Error('A marker lies outside this recording.');
  const marks=[...r.marks].sort((a,b)=>a-b);
  if(marks.some((t,i)=>i&&t-marks[i-1]<0.12)) throw Error('Repeated markers are too close together.');
- return {id:r.id,clipId:clip.id,complete:true,exposed:r.exposed,marks};
+ if(r.participant!==undefined&&(!Number.isInteger(r.participant)||r.participant<1||r.participant>60))throw Error("Invalid participant number.");
+ return {id:r.id,clipId:clip.id,complete:true,exposed:r.exposed,marks,...(r.participant?{participant:r.participant}:{})};
 }
 function merge(existing,payload,clip){
  if(!payload||payload.format!=='ling2150-7a'||payload.version!==1||payload.clipId!==clip.id||payload.duration!==clip.duration||!Array.isArray(payload.runs)||payload.runs.length>MAX_RUNS) throw Error('Choose a 7A results file for this exact recording and version.');
