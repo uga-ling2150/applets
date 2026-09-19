@@ -1,0 +1,75 @@
+(function(){
+'use strict';
+const $=id=>document.getElementById(id), clips=window.BC_CLIPS, core=window.BC_CORE, audio=$('audio');
+let clip=clips[0], runs=[], active=null, revealed=false, ready=false, buffering=false, reviewUntil=null, lastSave=-1;
+const key=()=>`ling2150-7a:${clip.id}`;
+const time=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+const uid=()=>globalThis.crypto?.randomUUID?.()||`run_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+function say(s){if($('status').textContent!==s)$('status').textContent=s;}
+function error(s){$('error').textContent=s;}
+function persist(){try{localStorage.setItem(key(),JSON.stringify({runs,revealed,reflection:$('reflection').value,active:active&&!active.practice?{...active,position:audio.currentTime}:null}));if($('save-status').textContent!=='Saved on this browser. Download a copy before leaving or clearing browser data.')$('save-status').textContent='Saved on this browser. Download a copy before leaving or clearing browser data.';}catch{$('save-status').textContent='Browser saving is unavailable. Keep this page open and download completed results.';}}
+function controls(){
+ const busy=!!active;
+ $('clip').disabled=busy; $('start').disabled=busy||!ready||runs.length>=core.MAX_RUNS;
+ $('start').textContent=`Start participant ${runs.length+1}`;
+ $('practice').disabled=busy||!ready;
+ $('mark').disabled=!busy||audio.paused||buffering||!ready;
+ $('pause').disabled=!(busy||reviewUntil!==null)||!ready;
+ $('pause').textContent=audio.paused?'Resume':'Pause';
+ $('undo').disabled=!busy||!active.marks.length;
+ $('discard').disabled=!busy;
+ $('reveal').disabled=busy||!runs.length; $('download').disabled=busy||!runs.length; $('csv').disabled=busy||!runs.length; $('import').disabled=busy;
+ $('clear').disabled=busy;
+ $('saved-count').textContent=`${runs.length} completed participant${runs.length===1?'':'s'}.`;
+ $('count').textContent=`${active?active.marks.length:0} markers in this round.`;
+ document.querySelectorAll('[data-replay]').forEach(b=>b.disabled=busy||!ready);
+}
+function load(){
+ audio.pause();reviewUntil=null;ready=false;buffering=false;active=null;runs=[];revealed=false;error('');$('retry-audio').hidden=true;$('reflection').value='';$('import-status').textContent='';$('transcript-details').open=false;
+ try{const s=JSON.parse(localStorage.getItem(key())||'null');if(s){runs=core.merge([],{format:'ling2150-7a',version:1,clipId:clip.id,duration:clip.duration,runs:s.runs},clip);revealed=s.revealed===true;$('reflection').value=typeof s.reflection==='string'?s.reflection.slice(0,4000):'';if(s.active){const a=s.active;core.validateRun({...a,complete:true},clip);if(Number.isFinite(a.position)&&a.position>=0&&a.position<clip.duration)active={...a,practice:false};}}}catch{error('Saved work could not be read. You can import a previously downloaded results file.');}
+ $('context').textContent=clip.context;$('progress').max=clip.duration;$('progress').value=0;$('clock').textContent=`0:00 / ${time(clip.duration)}`;
+ $('source').textContent=`${clip.title}: meeting ${clip.meeting}, speaker ${clip.speaker}, original ${clip.sourceStart.toFixed(2)}–${clip.sourceEnd.toFixed(2)} seconds. ${clip.id.includes('ib4010')?'The original conversation contains a listener’s “mm-hmm” near 57.35 seconds in this clip; it may be audible through microphone bleed.':'No other speakers’ words are annotated in this interval; nonverbal sounds or microphone bleed may still occur.'}`;
+ renderTranscript();renderComparison();$('round-title').textContent=active?'Unfinished round — resume when ready':'Ready to listen';
+ audio.src=clip.src;audio.load();say('Loading recording…');controls();
+}
+function renderTranscript(){const list=$('transcript');list.replaceChildren();clip.transcript.forEach(s=>{const li=document.createElement('li'),b=document.createElement('button');b.className='btn-uga-outline';b.type='button';b.textContent=time(s.start);b.setAttribute('aria-label',`Replay from ${s.start.toFixed(1)} seconds`);b.dataset.replay='true';b.onclick=()=>replay(s.start,Math.min(clip.duration,s.end+1));li.append(b,document.createTextNode(s.text));list.append(li);});}
+function renderComparison(){
+ $('comparison').hidden=!revealed||!runs.length; $('comparison-note').textContent=`${runs.length} participant${runs.length===1?'':'s'}. Timing differences are expected; there is no score.`;
+ const svg=$('wave');svg.replaceChildren();const ns='http://www.w3.org/2000/svg';const path=document.createElementNS(ns,'path');path.setAttribute('d',clip.peaks.map((v,i)=>`M${i*2+1} ${45-v*42}v${v*84}`).join(' '));path.setAttribute('stroke','#555');svg.append(path);$('axis-end').textContent=`${clip.duration.toFixed(1)} seconds`;
+ $('rows').replaceChildren();runs.forEach((r,i)=>{const row=document.createElement('div');row.className='bc-row';const title=document.createElement('h4');title.textContent=`Participant ${i+1} · ${r.marks.length} markers`;row.append(title);if(r.exposed){const note=document.createElement('p');note.className='bc-hint';note.textContent='Transcript or comparison was visible during or before this round.';row.append(note);}const track=document.createElement('div');track.className='bc-track';track.setAttribute('aria-hidden','true');const list=document.createElement('div');list.className='bc-time-list';for(const t of r.marks){const marker=document.createElement('span');marker.className='bc-triangle';marker.style.left=`${t/clip.duration*100}%`;marker.textContent='▲';track.append(marker);const b=document.createElement('button');b.type='button';b.textContent=`${t.toFixed(2)} s`;b.setAttribute('aria-label',`Replay participant ${i+1} marker at ${t.toFixed(2)} seconds`);b.dataset.replay='true';b.onclick=()=>replay(Math.max(0,t-2),Math.min(clip.duration,t+4));list.append(b);}row.append(track,list);$('rows').append(row);});
+ $('bins').replaceChildren();core.bins(runs,clip.duration).forEach((n,i)=>{if(!n)return;const tr=document.createElement('tr');const a=document.createElement('td'),b=document.createElement('td');a.textContent=`${i}–${Math.min(i+1,clip.duration).toFixed(1)} s`;b.textContent=`${n} / ${runs.length}`;tr.append(a,b);$('bins').append(tr);});controls();
+}
+async function play(){try{await audio.play();error('');controls();}catch{say('Playback did not start. Press Resume to try again.');controls();}}
+async function start(practice){
+ if(active||!ready||(!practice&&runs.length>=core.MAX_RUNS))return;
+ audio.pause();reviewUntil=null;active={id:uid(),clipId:clip.id,marks:[],exposed:revealed||$('transcript-details').open,practice,position:0};audio.currentTime=0;lastSave=-1;$('comparison').hidden=true;$('round-title').textContent=practice?'Practice — first 15 seconds, not saved':`Participant ${runs.length+1}`;
+ say(practice?'Practice: mark when you would respond. These clicks will not enter the comparison.':'Listen and mark when you would respond.');persist();controls();await play();if(!$('mark').disabled)$('mark').focus();
+}
+function finish(){if(!active)return;audio.pause();const wasPractice=active.practice;const count=active.marks.length;if(!wasPractice)runs.push(core.validateRun({...active,complete:true},clip));active=null;reviewUntil=null;persist();renderComparison();$('round-title').textContent=wasPractice?'Practice complete':'Round complete';say(wasPractice?'Practice complete. Its markers were not saved. Pass headphones to the participant, then start a recorded round.':`Saved ${count} markers. Hand over to the next participant, or reveal the comparison when everyone is finished.`);controls();$('start').focus();}
+async function replay(from,to){if(active||!ready)return;audio.pause();reviewUntil=to;audio.currentTime=from;$('round-title').textContent='Review playback — markers are not recorded';say('Replaying nearby speech.');await play();}
+function download(name,text,type){const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);say('Download prepared. Check your browser’s downloads.');}
+$('start').onclick=()=>start(false);$('practice').onclick=()=>start(true);
+$('mark').onclick=()=>{if(!active||audio.paused||buffering||!ready)return;const t=+Math.min(audio.currentTime,clip.duration).toFixed(3);const prev=active.marks.at(-1);if(prev!==undefined&&t-prev<0.15)return;if(active.marks.length>=core.MAX_MARKS){say('This round has reached the 300-marker limit.');return;}active.marks.push(t);persist();controls();};
+$('mark').onkeydown=e=>{if(e.repeat&&(e.key===' '||e.key==='Enter'))e.preventDefault();};
+$('undo').onclick=()=>{if(active){active.marks.pop();persist();controls();say('Last marker removed.');}};
+$('pause').onclick=()=>{if(audio.paused){play();}else{audio.pause();say('Paused. No markers are recorded while paused.');persist();controls();}};
+$('discard').onclick=()=>{if(active&&confirm('Discard this unfinished round? Completed participants will be kept.')){audio.pause();active=null;reviewUntil=null;persist();renderComparison();$('round-title').textContent='Ready for a new round';say('Unfinished round discarded.');controls();}};
+$('reveal').onclick=()=>{if(active)return;revealed=true;persist();renderComparison();$('comparison-title').focus();};
+$('clip').onchange=()=>{clip=clips[Number($('clip').value)];load();};
+$('clear').onclick=()=>{if(!active&&confirm('Clear saved participants and reflection for this recording? Download your work first if you want to keep it.')){audio.pause();runs=[];active=null;revealed=false;$('reflection').value='';persist();renderComparison();say('Saved work for this recording cleared.');controls();}};
+$('reflection').oninput=persist;
+$('transcript-details').ontoggle=()=>{if(active&&!active.practice&&$('transcript-details').open){active.exposed=true;persist();}};
+$('download').onclick=()=>download(`7A-${clip.id}-results.json`,JSON.stringify({format:'ling2150-7a',version:1,clipId:clip.id,duration:clip.duration,runs,reflection:$('reflection').value,source:clip.source,license:'CC BY 4.0'},null,2),'application/json');
+$('csv').onclick=()=>{let s='participant,record_id,clip_id,marker_seconds,transcript_or_comparison_exposed\r\n';runs.forEach((r,i)=>{for(const t of r.marks.length?r.marks:[''])s+=`${i+1},${r.id},${clip.id},${t},${r.exposed}\r\n`;});download(`7A-${clip.id}-markers.csv`,s,'text/csv');};
+$('import').onchange=async()=>{if(active)return;const files=[...$('import').files];const original=runs;const importClip=clip;try{if(files.length>60)throw Error('Import up to 60 files at a time.');let merged=runs;for(const f of files){if(f.size>1000000)throw Error('Each file must be smaller than 1 MB.');const content=await f.text();if(clip!==importClip||active)throw Error('The recording or round changed during import. Please try again.');merged=core.merge(merged,JSON.parse(content),clip);}runs=merged;persist();renderComparison();$('import-status').textContent=`Imported ${runs.length-original.length} new participants. Duplicate records were skipped.`;error('');}catch(e){error(`Import failed: ${e.message} Your existing results are unchanged.`);}finally{$('import').value='';controls();}};
+$('retry-audio').onclick=()=>{if(active)active.position=audio.currentTime;ready=false;buffering=false;audio.load();say('Reloading recording…');controls();};
+audio.addEventListener('canplaythrough',()=>{ready=true;buffering=false;$('retry-audio').hidden=true;error('');if(active&&Number.isFinite(active.position)){audio.currentTime=active.position;delete active.position;say('Your unfinished round is paused. Press Resume to continue.');}else if(!active&&reviewUntil===null)say('Recording ready. Try the practice or start a participant.');controls();});
+audio.addEventListener('playing',()=>{buffering=false;ready=true;say(active?(active.practice?'Practice is playing.':'Playing. Mark when you would respond.'):'Review playback.');controls();});
+audio.addEventListener('waiting',()=>{buffering=true;say('Buffering — marker input is paused until the audio resumes.');controls();});
+audio.addEventListener('pause',controls);
+audio.addEventListener('error',()=>{ready=false;buffering=false;error('The recording could not be loaded. Check your connection and reload it. Existing markers are kept.');$('retry-audio').hidden=false;controls();});
+audio.addEventListener('timeupdate',()=>{const t=audio.currentTime;$('clock').textContent=`${time(t)} / ${time(clip.duration)}`;$('progress').value=t;if(active?.practice&&t>=15){finish();return;}if(reviewUntil!==null&&t>=reviewUntil){audio.pause();reviewUntil=null;say('Review paused. Choose another time to replay.');controls();}if(active&&!active.practice&&Math.floor(t)!==lastSave){lastSave=Math.floor(t);persist();}});
+audio.addEventListener('ended',()=>{if(active)finish();else{reviewUntil=null;controls();}});
+window.addEventListener('pagehide',persist);
+clips.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`${c.title} (${c.duration.toFixed(1)} seconds)`;$('clip').append(o);});load();
+})();

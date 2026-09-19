@@ -1,0 +1,31 @@
+7A audio candidates — AMI Meeting Corpus
+
+Source: AMI Meeting Corpus, https://groups.inf.ed.ac.uk/ami/corpus/
+Official media/annotations and license: https://groups.inf.ed.ac.uk/ami/download/
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Credit: AMI Project / AMI Meeting Corpus contributors.
+No endorsement by the original contributors is implied.
+
+01_Movie_Club.wav
+Meeting IB4010, speaker A, Headset-0, original interval 172.30–232.90 seconds.
+Duration: 60.60 seconds. Topic: choosing a mystery/thriller for a movie club.
+The original other-speaker transcript includes one “Mm-hmm” at 229.65 seconds
+(57.35 seconds within this clip). Its audibility in the selected headset channel
+has not been assessed. Do not present this as a listener-free stimulus.
+
+02_Remote_Control.wav
+Meeting IS1008b, speaker B, Headset-1, original interval 383.00–450.30 seconds.
+Duration: 67.30 seconds. Topic: preferred remote-control features.
+No words from other speakers are annotated within this interval. This does not
+prove absence of microphone bleed or nonverbal sounds.
+
+Changes: selected one headset channel and extracted one continuous interval;
+no internal cuts, silence removal, time stretching, denoising or speech synthesis.
+TXT: official transcript with spacing adjusted; disfluencies retained.
+JSON: official word times shifted to the clip start, source and signal checks.
+
+Selection status: provisional teaching candidates. Official transcript, license,
+file decoding and numerical signal checks completed. Auditory quality and
+cross-talk have not been confirmed by listening. These are classroom discussion
+stimuli, not validated experimental material or an answer key.
