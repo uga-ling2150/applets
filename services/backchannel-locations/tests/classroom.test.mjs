@@ -59,3 +59,14 @@ test('independent computers refresh only their own participant IDs and receipts 
  refreshed.forEach((d,i)=>{assert.equal(d.participant,joined[i].participant);assert.equal(d.receipts.length,1);assert.equal(d.receipts[0].id,submissions[i].id);assert.equal(d.receipts[0].submittedAt,submissions[i].receipt.submittedAt);});
  const comparison=await(await s.call(base+'/results','GET',null,{Authorization:'Bearer '+r.teacherKey})).json();assert.equal(comparison.runs.length,60);assert.equal(comparison.joined,60);assert.equal(comparison.submitted,60);
 });
+
+test('fixed course page provisions one collection without teacher setup and keeps student receipts isolated',async()=>{
+ const s=setup();const current=await Promise.all(Array.from({length:12},async()=>await(await s.call('/current')).json()));assert.equal(new Set(current.map(x=>x.code)).size,1);const code=current[0].code;assert.ok(current[0].shared);
+ const keys=[crypto.randomUUID(),crypto.randomUUID()];for(const key of keys){const joined=await s.call('/rooms/'+code+'/join','POST',{key});assert.equal(joined.status,200);await s.call('/rooms/'+code+'/submit','POST',{run:{...run,id:crypto.randomUUID()}},{'X-Participant-Key':key});}
+ const a=await(await s.call('/rooms/'+code+'/join','POST',{key:keys[0]})).json();const b=await(await s.call('/rooms/'+code+'/join','POST',{key:keys[1]})).json();assert.notEqual(a.participant,b.participant);assert.equal(a.receipts.length,1);assert.notEqual(a.receipts[0].id,b.receipts[0].id);
+ assert.equal((await s.call('/rooms/'+code+'/audit')).status,403);assert.equal((await s.call('/rooms/'+code+'/results')).status,403);
+ for(const id of [43101723,999]){const token=await login(s,id),h={Authorization:'Bearer '+token};assert.equal((await s.call('/rooms/'+code+'/audit','GET',null,h)).status,200);const list=await(await s.call('/teacher/rooms','GET',null,h)).json();assert.ok(list.rooms.some(x=>x.code===code));}
+});
+test('optional next class preserves previous collection and requires teacher login',async()=>{
+ const s=setup(),first=await(await s.call('/current')).json();assert.equal((await s.call('/teacher/next','POST',{})).status,401);const teacher=await login(s);const next=await(await s.call('/teacher/next','POST',{},{Authorization:'Bearer '+teacher})).json();assert.notEqual(first.code,next.code);assert.equal((await(await s.call('/current')).json()).code,next.code);assert.equal((await s.call('/rooms/'+first.code)).status,200);
+});

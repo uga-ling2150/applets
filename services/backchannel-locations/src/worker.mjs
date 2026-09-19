@@ -1,3 +1,4 @@
+import {sharedCollection} from './shared.mjs';
 import {recordEvents,submitAttempt,auditRecords} from './audit.mjs';
 import {authHandle,cleanAuth,oauth} from './auth.mjs';
 const CLIPS={'ami-is1008b-b-383000-450300-v1':67.3,'ami-ib4010-a-172300-232900-v1':60.6};
@@ -15,9 +16,11 @@ export default {async fetch(r,env){
  const auth=env.ROOMS.get(env.ROOMS.idFromName('teacher-account'));
  const teacherRoute=p.match(/^\/api\/teacher\/(exchange|logout|session|rooms)$/);
  let identity=null;const isTeacher=async()=>{const check=await auth.fetch(new Request('https://internal/auth/check',{headers:r.headers}));if(check.ok)identity=await check.json();return check.ok;};
- if(p==='/api/health')result=json({ok:true,version:'7a-classroom-4'});
+ if(p==='/api/health')result=json({ok:true,version:'7a-direct-5'});
  else if(['/api/teacher/start','/api/teacher/callback'].includes(p)&&r.method==='GET')return oauth(r,env,auth);
- else if(teacherRoute){const action=teacherRoute[1]==='session'?'check':teacherRoute[1];result=await auth.fetch(new Request('https://internal/auth/'+action,r));}
+ else if(p==='/api/current'&&r.method==='GET')result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/current');
+ else if(p==='/api/teacher/next'&&r.method==='POST'){if(!await isTeacher())result=json({error:'Teacher sign-in is required.'},401);else result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/next',{method:'POST'});}
+ else if(teacherRoute){const action=teacherRoute[1]==='session'?'check':teacherRoute[1];result=await auth.fetch(new Request('https://internal/auth/'+action,r));if(action==='rooms'&&result.ok){const own=await result.json();const shared=await(await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/list')).json();result=json({...own,rooms:[...shared.rooms,...own.rooms]});}}
  else if(p==='/api/rooms'&&r.method==='POST'){
   if(!await isTeacher())return new Response(JSON.stringify({error:'Teacher sign-in is required to create an activity.'}),{status:401,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store'}});
   const b=await body(r);if(!CLIPS[b.clipId])throw Error('Choose an available recording.');
@@ -36,6 +39,7 @@ export class BackchannelRoom{
  async alarm(){if(await this.ctx.storage.get('auth-store'))await cleanAuth(this.ctx);else await this.ctx.storage.deleteAll();}
  async handle(r){
  const store=this.ctx.storage,path=new URL(r.url).pathname,now=Date.now();
+ if(path.startsWith('/shared/'))return sharedCollection(this.ctx,this.env,path,r);
  if(path.startsWith('/auth/'))return authHandle(this.ctx,this.env,r,body);
  if(path==='/quota') {const day=Math.floor(now/86400000);let q=await store.get('quota')||{day,n:0};if(q.day!==day)q={day,n:0};if(q.n>=100)return json({error:'Daily activity-creation limit reached. Try again tomorrow.'},429);q.n++;await store.put('quota',q);return json({ok:true});}
  if(path==='/init'&&r.method==='POST'){if(await store.get('meta'))return json({error:'Please create the activity again.'},409);const b=await body(r);const m={...b,createdAt:now,expiresAt:now+TTL,open:true,released:false,joined:0,submitted:0};await store.put('meta',m);await store.setAlarm(m.expiresAt);return json({code:m.code,clipId:m.clipId,expiresAt:m.expiresAt});}
