@@ -7,7 +7,7 @@ const runs={assume:null,clarify:null}, cooldown={assume:0,clarify:0};
 try{const s=JSON.parse(sessionStorage.getItem(STORE));
  if(s&&Object.hasOwn(examples,s.scenario)&&typeof s.opening==='string'&&s.opening.length<=500&&typeof s.intention==='string'&&s.intention.length<=500&&typeof s.reflection==='string'&&s.reflection.length<=4000&&modes.every(m=>Array.isArray(s.chats?.[m])&&s.chats[m].length<=20&&s.chats[m].every((t,i)=>t.role===(i%2?'assistant':'user')&&typeof t.content==='string'&&t.content.length<=1200)&&typeof s.drafts?.[m]==='string'&&s.drafts[m].length<=500))state=s;
 }catch{}
-function save(){try{sessionStorage.setItem(STORE,JSON.stringify(state));$('save-status').textContent='Work saved in this browser tab. Download it before closing.';}catch{$('save-status').textContent='Browser saving is unavailable. Download your work before leaving.';}}
+function save(){let notice;try{sessionStorage.setItem(STORE,JSON.stringify(state));notice='Work saved in this browser tab. Download it before closing.';}catch{notice='Browser saving is unavailable. Download your work before leaving.';}if($('save-status').textContent!==notice)$('save-status').textContent=notice;}
 function status(m,t){$(m+'-status').textContent=t;}
 function error(m,t){$(m+'-error').textContent=t;}
 function controls(m){const t=state.chats[m],pending=t.at(-1)?.role==='user',busy=!!runs[m],full=t.length>=20;
