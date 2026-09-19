@@ -1,3 +1,13 @@
+Audio and transcripts: AMI Meeting Corpus, AMI Project and contributors.
+Source: https://groups.inf.ed.ac.uk/ami/download/
+License: CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
+Changes: continuous excerpts cut from original headset recordings; no internal cuts or removed responses.
+01: ES2003b, speaker A, Headset-0, 599.50–765.65 seconds (166.15 seconds).
+02: IS1005c, speaker C, Headset-2, 461.49–609.60 seconds (148.11 seconds).
+Other speakers have no overlapping words or vocal events in the official timed annotations for either excerpt. This is annotation verification, not auditory certification; faint unannotated microphone bleed remains unverified.
+Original download URLs and timed transcripts are in the matching JSON files.
+
+Legacy audio retained for existing records:
 7A audio candidates — AMI Meeting Corpus
 
 Source: AMI Meeting Corpus, https://groups.inf.ed.ac.uk/ami/corpus/

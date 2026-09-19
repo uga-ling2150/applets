@@ -43,14 +43,23 @@
 .bc-import { max-width: 100%; }
 
 /* Classroom / teacher panels */
-#teacher-panel { margin-top: 20px; }
+.bc-classroom { max-width: 1000px; margin: 24px auto 2rem; }
+#teacher-panel { margin-top: 0; }
 #teacher-rooms { padding: 0; list-style: none; }
 #teacher-rooms li { margin: 8px 0; }
 #class-summary { font-weight: bold; }
-#class-home form { margin-bottom: 20px; }
 #class-message:empty, #class-retention:empty { display: none; }
-.class-mode #recording-choice, .class-mode #clear, .class-mode #import { display: none; }
+.bc-classroom #class-summary, .bc-classroom #class-retention { display: none; }
+.class-mode #clear, .class-mode #import { display: none; }
+.bc-loading #comparison { display: none !important; }
+
+/* Teacher view: results only, with the sign-in panel moved up beside the recording choice */
 .teacher-mode #practice, .teacher-mode #start, .teacher-mode .bc-offline-tools { display: none; }
+.teacher-mode .bc-player, .teacher-mode #context, .teacher-mode #class-home,
+.teacher-mode #class-active, .teacher-mode .bc-classroom { display: none; }
+.teacher-mode #teacher-panel { margin: 20px 0; }
+.teacher-mode #class-summary, .teacher-mode #class-retention { display: block; }
+.teacher-mode #teacher-summary-slot { margin-bottom: 16px; }
 
 @media (max-width: 480px) {
   .bc-player { padding: 12px; }

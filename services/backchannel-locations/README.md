@@ -54,3 +54,21 @@ Latest UI accessibility check after the identity/code changes: axe-core reported
 
 
 Direct-entry revision (2026-09-19): 27 automated tests passed, including simultaneous first visits provisioning one collection, independent participant/receipt isolation, teacher-only history, and preservation of earlier collections. Live Chrome confirmed the literal fixed URL automatically assigns P1 and enables Start my round; refresh retains P1. A previously authenticated teacher opening that same fixed URL immediately saw the shared collection and its participant count, without creating anything. No new axe scan was run for this entry-flow revision; the version-specific scans above remain the accessibility evidence.
+
+
+## Teaching-focused revision
+
+Rechecked the September 16 meeting notes (section 3.2), September 18 formatting addendum and Freedcamp task 73183390. The teacher’s core is shared-recording listening, timestamped clicks and an end-of-recording waveform with markers (optional transcript), followed by comparison. Authentication, detailed history and receipts are later user requirements, not requirements attributed to Ryan. Both recordings remain selectable per user confirmation; each resolves to its own automatic collection, and the class is instructed to choose the same recording. Earlier data is retained.
+
+The activity now follows choose/listen/click/review. Own waveforms appear at completion without waiting for class release. Teacher controls follow the reflection card in a collapsed section; receipts and personal downloads are collapsed. Offline group/import tools are hidden from the online workflow. Standard shared CSS, objectives/background/instructions/reflection, feedback and audio attribution are preserved. 29 automated cases pass, including separate recordings and immediate personal feedback. Browser checks for this revision are recorded separately when complete.
+
+Live revision check: selecting Choosing a movie played the full 60.6-second clip; one click at 8.31 seconds submitted automatically and appeared immediately in the personal waveform. Its receipt belongs to a different collection from the remote-control recording. Signed-in axe DevTools Pro, WCAG 2.1 AA/best practices, reported 0 core and 0 advanced issues in the completed student state (simple-6). The following simple-7 patch preserves the latest click count and puts playback above record controls; frontend regression tests passed again.
+
+
+## Role and regression audit (roles-10)
+
+36 tests pass. Verified authorization now determines teacher mode even for an old student URL; an unauthenticated teacher URL enters the student workflow. A failed/expired teacher session clears rendered teacher data and controls; logout broadcasts a non-secret notification to other tabs. Teacher comparison results are no longer written to or restored from localStorage. Signing in preserves the selected recording. Failed sign-in messages remain visible after student initialization. Historical collection switches reload to avoid cross-collection asynchronous UI responses.
+
+Real Chrome: an authenticated teacher opened an old student link and remained in the teacher view. An independent unsigned-in tab opened a teacher hash and stayed a student, with no teacher controls. Sign-out removed teacher controls; signing back in from Choosing a movie returned to that recording in teacher mode. Teacher all-attempts CSV contained 49 marker rows for 2 participants, matching the displayed 40 and 9 clicks. Simulated independent clients cover multiple-computer isolation; no claim of a physical multi-computer classroom test is made.
+
+Latest roles-10 teacher view: signed-in axe DevTools Pro reported 0 axe-core and 0 advanced automatic issues (WCAG 2.1 AA, best practices). No browser console errors were captured. This is automated accessibility evidence, not a full manual certification.
