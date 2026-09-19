@@ -72,3 +72,17 @@ test('optional next class preserves previous collection and requires teacher log
 });
 
 test('two recordings have separate automatic collections and results',async()=>{const s=setup(),other='ami-ib4010-a-172300-232900-v1';const a=await(await s.call('/current')).json(),b=await(await s.call('/current?clipId='+other)).json();assert.notEqual(a.code,b.code);assert.equal(b.clipId,other);assert.equal((await(await s.call('/current')).json()).code,a.code);const key=crypto.randomUUID();await s.call('/rooms/'+b.code+'/join','POST',{key});assert.equal((await s.call('/rooms/'+b.code+'/submit','POST',{run},{'X-Participant-Key':key})).status,400);assert.equal((await s.call('/rooms/'+b.code+'/submit','POST',{run:{...run,clipId:other}},{'X-Participant-Key':key})).status,200);assert.equal((await(await s.call('/rooms/'+a.code)).json()).submitted,0);assert.equal((await(await s.call('/rooms/'+b.code)).json()).submitted,1);assert.equal((await s.call('/current?clipId=bad')).status,400);});
+
+test('long recordings accept late markers and keep separate collections from legacy recordings',async()=>{
+ const s=setup();const old=await(await s.call('/current?clipId='+clipId)).json();const codes=[old.code];
+ for(const [id,duration] of [['ami-es2003b-a-599500-765650-v1',166.15],['ami-is1005c-c-461490-609600-v1',148.11]]){
+  const response=await s.call('/current?clipId='+id);assert.equal(response.status,200);const room=await response.json();codes.push(room.code);
+  const key=crypto.randomUUID(),headers={'X-Participant-Key':key},base='/rooms/'+room.code;await s.call(base+'/join','POST',{key});
+  const longRun={...run,id:crypto.randomUUID(),clipId:id,marks:[90,duration]};
+  assert.equal((await s.call(base+'/submit','POST',{run:{...longRun,marks:[duration+.1]}},headers)).status,400);
+  assert.equal((await s.call(base+'/submit','POST',{run:longRun},headers)).status,200);
+  assert.equal((await s.call(base+'/submit','POST',{run:{...run,id:crypto.randomUUID()}},headers)).status,400);
+  assert.equal((await(await s.call(base)).json()).duration,duration);
+ }
+ assert.equal(new Set(codes).size,3);assert.equal((await(await s.call('/rooms/'+old.code)).json()).submitted,0);
+});

@@ -1,7 +1,7 @@
 import {sharedCollection} from './shared.mjs';
 import {recordEvents,submitAttempt,auditRecords} from './audit.mjs';
 import {authHandle,cleanAuth,oauth} from './auth.mjs';
-const CLIPS={'ami-is1008b-b-383000-450300-v1':67.3,'ami-ib4010-a-172300-232900-v1':60.6};
+const CLIPS={'ami-es2003b-a-599500-765650-v1':166.15,'ami-is1005c-c-461490-609600-v1':148.11,'ami-is1008b-b-383000-450300-v1':67.3,'ami-ib4010-a-172300-232900-v1':60.6};
 const TTL=30*86400000,MAX=60;
 const token=()=>crypto.randomUUID()+crypto.randomUUID();
 const hash=async s=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s))),x=>x.toString(16).padStart(2,'0')).join('');

@@ -4,7 +4,7 @@ export async function sharedCollection(ctx,env,path,request){
  const store=ctx.storage,now=Date.now();
  if(path==='/shared/list'){const rows=[...(await store.list({prefix:'collection:'})).values()].filter(x=>x.expiresAt>now);return Response.json({rooms:rows.sort((a,b)=>b.createdAt-a.createdAt)});}
  const clipId=new URL(request.url).searchParams.get('clipId')||'ami-is1008b-b-383000-450300-v1';
- if(!['ami-is1008b-b-383000-450300-v1','ami-ib4010-a-172300-232900-v1'].includes(clipId))return Response.json({error:'Choose an available recording.'},{status:400});
+ if(!['ami-es2003b-a-599500-765650-v1','ami-is1005c-c-461490-609600-v1','ami-is1008b-b-383000-450300-v1','ami-ib4010-a-172300-232900-v1'].includes(clipId))return Response.json({error:'Choose an available recording.'},{status:400});
  const currentKey=clipId==='ami-is1008b-b-383000-450300-v1'?'current':'current:'+clipId;
  let current=await store.get(currentKey);
  if(path==='/shared/next'||!current||current.expiresAt<=now){
