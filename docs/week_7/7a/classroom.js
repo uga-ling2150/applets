@@ -3,6 +3,7 @@
 const $=id=>document.getElementById(id),app=window.BC_APP;
 const API='https://ling2150-7a-classroom.ling2150-query-rewrite.workers.dev';
 const c=window.BC_CLASSROOM={mode:'offline',room:null,initializing:false};
+let teacherRooms=[];
 let session='',participantKey='',pending=null,poll=null,requestBusy=false,sent=new Set(),outbox=[],syncing=false,submitting=false,logBlocked=false,releaseLock=null;
 try{session=sessionStorage.getItem('7a-teacher-session')||'';}catch{}
 const base=location.protocol==='file:'?'https://uga-ling2150.github.io/applets/week_7/7A_backchannel_locations.html':location.origin+location.pathname;
@@ -32,8 +33,8 @@ async function historyData(kind){const d=await api(path('/audit'),'GET',null,tru
 }
 $('class-log-retry').onclick=()=>{logBlocked=false;flushEvents();};$('teacher-all-csv').onclick=()=>historyData('attempts').catch(e=>fail(e.message));$('teacher-events-csv').onclick=()=>historyData('events').catch(e=>fail(e.message));$('teacher-history-refresh').onclick=()=>historyData().catch(e=>fail(e.message));
 const path=s=>`/api/rooms/${c.room}${s||''}`;
-function summary(d){c.closed=!d.open;c.released=d.released;$('class-summary').textContent=`${d.submitted} / ${d.joined} browser participants · ${d.totalSubmissions??d.submitted} submitted attempts${d.released?' · Comparison shared':!d.open?' · Closed':''}`;$('class-retention').textContent=c.mode==='teacher'?`Download by ${new Date(d.expiresAt).toLocaleDateString()}.`:'';$('class-view').disabled=!d.released||app.snapshot().active;$('class-results').disabled=!d.submitted;$('class-release').disabled=!d.submitted||d.released;$('class-close').disabled=!d.open;$('class-reopen').disabled=d.open;app.controls();}
-async function results(){if(app.snapshot().active){fail('Finish or discard your round first.');return;}if(requestBusy)return;requestBusy=true;try{const d=await api(path('/results'),'GET',null,c.mode==='teacher');summary(d);panel();app.compare(d.runs);if(c.mode==='teacher')await historyData();message(`${d.runs.length} participants loaded. Download the CSV below.`);fail('');}catch(e){fail(e.message);}finally{requestBusy=false;}}
+function summary(d){c.closed=!d.open;c.released=d.released;$('class-summary').textContent=`${d.joined} browsers joined · ${d.submitted} have submitted · ${d.totalSubmissions??d.submitted} total attempts${d.released?' · Comparison shared':!d.open?' · Closed':''}`;$('class-retention').textContent=c.mode==='teacher'?`Download by ${new Date(d.expiresAt).toLocaleDateString()}.`:'';$('class-view').disabled=!d.released||app.snapshot().active;$('class-results').disabled=!d.submitted;$('class-release').disabled=!d.submitted||d.released;$('class-close').disabled=!d.open;$('class-reopen').disabled=d.open;app.controls();}
+async function results(){if(app.snapshot().active){fail('Finish or discard your round first.');return;}if(requestBusy)return;requestBusy=true;try{const d=await api(path('/results'),'GET',null,c.mode==='teacher');summary(d);panel();app.compare(d.runs);if(c.mode==='teacher')await historyData();message(c.mode==='teacher'?'Class results updated.':'Class results loaded.');fail('');}catch(e){fail(e.message);}finally{requestBusy=false;}}
 async function submit(run){if(c.readOnly||c.mode!=='student'||sent.has(run.id))return;pending=run;c.submitting=true;app.controls();$('class-retry').hidden=true;$('class-submission').textContent='Submitting this attempt…';
  try{const d=await api(path('/submit'),'POST',{run});sent.add(run.id);c.submitted=true;pending=null;app.status('Attempt submitted successfully.');$('class-submission').textContent='Submitted. Your clicks are saved. See My records for your receipt.';$('class-receipts').value+=('\n'+c.room+' · P'+d.participant+' · A'+d.attempt+' · '+(d.submittedAt?new Date(d.submittedAt).toLocaleString():'time unavailable'));fail('');await refresh();}catch(e){$('class-submission').textContent='This attempt has not submitted yet. Your local work is kept.';$('class-retry').hidden=false;fail(e.message);throw e;}finally{c.submitting=false;app.controls();}}
 async function flushSubmissions(){if(c.readOnly||submitting||c.mode!=='student')return;submitting=true;try{for(const run of app.snapshot().runs){if(!sent.has(run.id))await submit(run);}}catch{}finally{submitting=false;}}
@@ -53,7 +54,7 @@ async function enter(room,teacher=false,initial=false){
   if(navigator.locks){const acquired=await new Promise(resolve=>{navigator.locks.request('7a-room:'+room,{ifAvailable:true},lock=>{resolve(!!lock);return lock?new Promise(done=>{releaseLock=done;}):undefined;}).catch(()=>resolve(false));});c.readOnly=!acquired;}else c.readOnly=true;
  }
  app.select(d.clipId);
- if(teacher){$('class-teacher').hidden=false;summary(d);if(d.runs.length){panel();app.compare(d.runs);}await historyData();message('Students use the fixed Activity 7A page. No code or advance setup is required.');}
+ if(teacher){$('class-teacher').hidden=false;$('teacher-panel').open=true;$('recording-choice').after($('teacher-panel'));$('teacher-summary-slot').append($('class-summary'),$('class-retention'));$('applet-title').textContent='Class results';renderTeacherRooms();summary(d);if(d.runs.length){panel();app.compare(d.runs);}await historyData();message(d.runs.length?'':'No submissions yet for this recording. Use View / refresh results after students finish.');}
  else{
   panel();$('class-student').hidden=false;
   try{d=await api(path('/join'),'POST',{key:participantKey});c.participant=d.participant;c.submitted=d.submittedByYou;}catch(e){if(!d.released)throw e;}
@@ -67,7 +68,14 @@ async function enter(room,teacher=false,initial=false){
  c.initializing=false;app.controls();clearInterval(poll);poll=setInterval(refresh,10000);
  }catch(e){c.initializing=false;c.closed=true;app.controls();message('Use Return to start to try again.');throw e;}
 }
-async function dashboard(){const d=await api('/api/teacher/rooms','GET',null,true);$('teacher-login').hidden=true;$('teacher-dashboard').hidden=false;$('teacher-identity').textContent='Signed in as '+d.username;$('teacher-rooms').replaceChildren();for(const room of d.rooms){const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.className='btn-uga-outline';b.textContent=`${window.BC_CLIPS.find(x=>x.id===room.clipId)?.title||'Earlier activity'} · ${new Date(room.createdAt).toLocaleString()}`;b.onclick=()=>{address(room.code,true);enter(room.code,true).catch(e=>fail(e.message));};li.append(b);$('teacher-rooms').append(li);}if(!d.rooms.length)$('teacher-rooms').textContent='No activities yet.';}
+function renderTeacherRooms(){
+ const current=teacherRooms.find(r=>r.code===c.room),clipId=app.snapshot().clip.id;
+ $('teacher-current').textContent=current?`Viewing: ${window.BC_CLIPS.find(x=>x.id===current.clipId)?.title||'Recording'} · ${new Date(current.createdAt).toLocaleString()}`:'Viewing the selected collection';
+ $('teacher-rooms').replaceChildren();const older=teacherRooms.filter(r=>r.code!==c.room&&r.clipId===clipId);
+ for(const room of older){const li=document.createElement('li'),b=document.createElement('button');b.type='button';b.className='btn-uga-outline';b.textContent=new Date(room.createdAt).toLocaleString();b.onclick=()=>{address(room.code,true);enter(room.code,true).catch(e=>fail(e.message));};li.append(b);$('teacher-rooms').append(li);}
+ $('teacher-history-collections').hidden=!older.length;
+}
+async function dashboard(){const d=await api('/api/teacher/rooms','GET',null,true);teacherRooms=d.rooms;$('teacher-login').hidden=true;$('teacher-dashboard').hidden=false;$('teacher-identity').textContent='Signed in as '+d.username;renderTeacherRooms();}
 async function copyField(id,success){const field=$(id);if(!field.value){message('No submitted receipts yet.');return;}try{await navigator.clipboard.writeText(field.value);message(success);}catch{field.focus();field.select();message('Selected. Copy with your keyboard.');}}
 $('class-copy-receipts').onclick=()=>copyField('class-receipts','Submission receipts copied.');
 $('clip').onchange=()=>{if(app.snapshot().active||c.submitting){$('clip').value=window.BC_CLIPS.findIndex(x=>x.id===app.snapshot().clip.id);return;}location.href=base+'?recording='+$('clip').value;};
