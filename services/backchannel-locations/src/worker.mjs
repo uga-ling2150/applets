@@ -16,10 +16,10 @@ export default {async fetch(r,env){
  const auth=env.ROOMS.get(env.ROOMS.idFromName('teacher-account'));
  const teacherRoute=p.match(/^\/api\/teacher\/(exchange|logout|session|rooms)$/);
  let identity=null;const isTeacher=async()=>{const check=await auth.fetch(new Request('https://internal/auth/check',{headers:r.headers}));if(check.ok)identity=await check.json();return check.ok;};
- if(p==='/api/health')result=json({ok:true,version:'7a-direct-5'});
+ if(p==='/api/health')result=json({ok:true,version:'7a-simple-6'});
  else if(['/api/teacher/start','/api/teacher/callback'].includes(p)&&r.method==='GET')return oauth(r,env,auth);
- else if(p==='/api/current'&&r.method==='GET')result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/current');
- else if(p==='/api/teacher/next'&&r.method==='POST'){if(!await isTeacher())result=json({error:'Teacher sign-in is required.'},401);else result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/next',{method:'POST'});}
+ else if(p==='/api/current'&&r.method==='GET')result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/current'+new URL(r.url).search);
+ else if(p==='/api/teacher/next'&&r.method==='POST'){if(!await isTeacher())result=json({error:'Teacher sign-in is required.'},401);else result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/next'+new URL(r.url).search,{method:'POST'});}
  else if(teacherRoute){const action=teacherRoute[1]==='session'?'check':teacherRoute[1];result=await auth.fetch(new Request('https://internal/auth/'+action,r));if(action==='rooms'&&result.ok){const own=await result.json();const shared=await(await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/list')).json();result=json({...own,rooms:[...shared.rooms,...own.rooms]});}}
  else if(p==='/api/rooms'&&r.method==='POST'){
   if(!await isTeacher())return new Response(JSON.stringify({error:'Teacher sign-in is required to create an activity.'}),{status:401,headers:{...cors,'Content-Type':'application/json','Cache-Control':'no-store'}});
