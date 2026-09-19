@@ -12,6 +12,7 @@ function error(s){$('error').textContent=s;}
 function persist(){try{localStorage.setItem(key(),JSON.stringify({runs:personalRuns||runs,revealed,reflection:$('reflection').value,active:active&&!active.practice?{...active,position:audio.currentTime}:null}));if($('save-status').textContent!=='Saved on this browser. Download a copy before leaving or clearing browser data.')$('save-status').textContent='Saved on this browser. Download a copy before leaving or clearing browser data.';}catch{$('save-status').textContent='Browser saving is unavailable. Keep this page open and download completed results.';}}
 function controls(){
  const cloud=window.BC_CLASSROOM||{},busy=!!active;const locked=cloud.mode==='teacher'||cloud.initializing||(cloud.mode==='student'&&(cloud.submitted||cloud.completed||cloud.closed));
+ $('class-view').disabled=busy||!cloud.released;
  $('clip').disabled=busy||!!cloud.room; $('start').disabled=busy||locked||!ready||runs.length>=core.MAX_RUNS;
  $('start').textContent=cloud.mode==='student'?'Start my round':`Start participant ${runs.length+1}`;
  $('practice').disabled=busy||locked||!ready;
