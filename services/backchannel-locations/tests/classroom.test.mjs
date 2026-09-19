@@ -50,3 +50,12 @@ test('event caps do not prevent completed attempt submission; retries do not con
  assert.equal((await s.call(base+'/events','POST',{attemptId:id,events:[{...event,id:crypto.randomUUID()}]},h)).status,429);
  assert.equal((await s.call(base+'/submit','POST',{run:{...run,id}},h)).status,200);
 });
+
+test('independent computers refresh only their own participant IDs and receipts after concurrent submissions',async()=>{
+ const s=setup(),r=await room(s),base='/rooms/'+r.code,keys=Array.from({length:60},()=>crypto.randomUUID());
+ const joined=await Promise.all(keys.map(async key=>(await(await s.call(base+'/join','POST',{key})).json())));assert.equal(new Set(joined.map(x=>x.participant)).size,60);
+ const submissions=await Promise.all(keys.map(async(key,i)=>{const rr={...run,id:crypto.randomUUID(),marks:[i+0.5]};const receipt=await(await s.call(base+'/submit','POST',{run:rr},{'X-Participant-Key':key})).json();return {id:rr.id,receipt};}));
+ const refreshed=await Promise.all(keys.map(async key=>(await(await s.call(base+'/join','POST',{key})).json())));
+ refreshed.forEach((d,i)=>{assert.equal(d.participant,joined[i].participant);assert.equal(d.receipts.length,1);assert.equal(d.receipts[0].id,submissions[i].id);assert.equal(d.receipts[0].submittedAt,submissions[i].receipt.submittedAt);});
+ const comparison=await(await s.call(base+'/results','GET',null,{Authorization:'Bearer '+r.teacherKey})).json();assert.equal(comparison.runs.length,60);assert.equal(comparison.joined,60);assert.equal(comparison.submitted,60);
+});

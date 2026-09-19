@@ -72,12 +72,6 @@ $('solo-start').onclick=()=>{panel();$('activity-panel').scrollIntoView({behavio
 async function copyField(id,success){const field=$(id);if(!field.value){message('No submitted receipts yet.');return;}try{await navigator.clipboard.writeText(field.value);message(success);}catch{field.focus();field.select();message('Selected. Copy with your keyboard.');}}
 $('student-copy-code').onclick=()=>copyField('student-activity-code','Activity code copied.');
 $('class-copy-receipts').onclick=()=>copyField('class-receipts','Submission receipts copied.');
-$('class-new-person').onclick=()=>{
- if(c.readOnly||app.snapshot().active||syncing||submitting||outbox.length||pending){fail('Finish or discard the current attempt and sync pending work before changing participant.');return;}
- if(c.closed){fail('The teacher must reopen the activity before a new participant can join.');return;}
- if(!confirm('A different person is using this browser? This creates a new anonymous participant. To redo your own work, use Record another attempt instead. Previous records are kept.'))return;
- const next=crypto.randomUUID()+crypto.randomUUID();store('7a-participant:'+c.room,next);if(stored('7a-participant:'+c.room)!==next){fail('Browser storage is unavailable; cannot safely switch participant.');return;}if(releaseLock)releaseLock();location.reload();
-};
 $('class-join-form').onsubmit=e=>{e.preventDefault();const room=$('class-code').value.trim().toUpperCase();address(room);enter(room).catch(e=>fail(e.message));};
 $('class-create').onclick=async()=>{if(app.snapshot().active){fail('Finish or discard the current round first.');return;}$('class-create').disabled=true;fail('');try{const d=await api('/api/rooms','POST',{clipId:$('class-clip').value},true);address(d.code,true);await dashboard();await enter(d.code,true);}catch(e){fail(e.message);}finally{$('class-create').disabled=false;}};
 $('teacher-logout').onclick=async()=>{try{await api('/api/teacher/logout','POST',null,true);}catch(e){fail(e.message);return;}saveSession('');location.href=location.protocol==='file:'?location.pathname:base;};
