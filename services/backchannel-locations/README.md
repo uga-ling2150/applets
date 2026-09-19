@@ -54,3 +54,10 @@ Latest UI accessibility check after the identity/code changes: axe-core reported
 
 
 Direct-entry revision (2026-09-19): 27 automated tests passed, including simultaneous first visits provisioning one collection, independent participant/receipt isolation, teacher-only history, and preservation of earlier collections. Live Chrome confirmed the literal fixed URL automatically assigns P1 and enables Start my round; refresh retains P1. A previously authenticated teacher opening that same fixed URL immediately saw the shared collection and its participant count, without creating anything. No new axe scan was run for this entry-flow revision; the version-specific scans above remain the accessibility evidence.
+
+
+## Teaching-focused revision
+
+Rechecked the September 16 meeting notes (section 3.2), September 18 formatting addendum and Freedcamp task 73183390. The teacher’s core is shared-recording listening, timestamped clicks and an end-of-recording waveform with markers (optional transcript), followed by comparison. Authentication, detailed history and receipts are later user requirements, not requirements attributed to Ryan. Both recordings remain selectable per user confirmation; each resolves to its own automatic collection, and the class is instructed to choose the same recording. Earlier data is retained.
+
+The activity now follows choose/listen/click/review. Own waveforms appear at completion without waiting for class release. Teacher controls follow the reflection card in a collapsed section; receipts and personal downloads are collapsed. Offline group/import tools are hidden from the online workflow. Standard shared CSS, objectives/background/instructions/reflection, feedback and audio attribution are preserved. 29 automated cases pass, including separate recordings and immediate personal feedback. Browser checks for this revision are recorded separately when complete.
