@@ -669,6 +669,7 @@ h3 {
   margin: 14px 0;
   font-size: 13px;
 }
+.glossary-box a { color: #0055a4; text-underline-offset: 3px; }
 .glossary-box summary {
   font-family: "Merriweather Sans", sans-serif;
   font-weight: 700;
