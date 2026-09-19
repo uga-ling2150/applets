@@ -4,7 +4,7 @@ import base64,json,re,sys
 root=Path(__file__).resolve().parents[3];docs=root/'docs';page=docs/'week_7/7A_backchannel_locations.html';assets=docs/'week_7/7a'
 s=page.read_text()
 s=s.replace('<link rel="stylesheet" href="../style.css">','<style>'+ (docs/'style.css').read_text()+'</style>')
-s=s.replace('<link rel="stylesheet" href="7a/applet.css">','<style>'+(assets/'applet.css').read_text()+'</style>')
+s=re.sub(r'<link rel="stylesheet" href="7a/applet.css(?:\?[^"]*)?">',lambda m:'<style>'+(assets/'applet.css').read_text()+'</style>',s)
 bootstrap=root/'services/presumptive-grounding/vendor/bootstrap.min.css'
 s=s.replace('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">','<style>'+bootstrap.read_text()+'</style>')
 s=re.sub(r'<link[^>]+href="https://fonts\.[^>]+>','',s)

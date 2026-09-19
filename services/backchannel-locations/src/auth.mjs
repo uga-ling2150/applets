@@ -6,7 +6,7 @@ export async function authHandle(ctx,env,r,readBody){
  const bearer=r.headers.get('Authorization')?.match(/^Bearer ([a-zA-Z0-9-]{72})$/)?.[1];
  const sessionKey=bearer?'session:'+await digest(bearer):'';
  const session=sessionKey?await store.get(sessionKey):null;
- const loggedIn=session&&session.expiresAt>now;
+ const loggedIn=session&&session.expiresAt>now&&(env.GITHUB_TEACHER_IDS||'').split(',').map(x=>x.trim()).includes(session.teacherId);
  if(path==='/auth/check')return loggedIn?json({username:session.username,teacherId:session.teacherId}):json({error:'Please sign in with your authorized GitHub account.'},401);
  if(path==='/auth/logout'){if(sessionKey)await store.delete(sessionKey);return json({ok:true});}
  if(path==='/auth/add-room'){const room=await readBody(r);await store.put('room:'+room.code,room);return json({ok:true});}

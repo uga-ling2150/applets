@@ -33,3 +33,20 @@ test('task events deduplicate, retain incomplete attempts and strip unsolicited 
  assert.equal((await s.call(base+'/submit','POST',{run:{...run,id}},h)).status,409);
  assert.equal((await s.call(base+'/events','POST',{attemptId:null,events:[{...events[0],type:'keystroke'}]},h)).status,400);
 });
+
+test('server generates an eight-character activity code; one browser key retains P number and receipts',async()=>{
+ const s=setup(),r=await room(s),key=crypto.randomUUID(),base='/rooms/'+r.code;assert.match(r.code,/^[A-Z2-9]{8}$/);
+ const first=await(await s.call(base+'/join','POST',{key})).json();assert.equal(first.participant,1);
+ const attempt={...run,id:crypto.randomUUID()};const receipt=await(await s.call(base+'/submit','POST',{run:attempt},{'X-Participant-Key':key})).json();
+ const again=await(await s.call(base+'/join','POST',{key})).json();assert.equal(again.participant,1);assert.equal(again.joined,1);assert.equal(again.receipts[0].submittedAt,receipt.submittedAt);assert.equal(again.receipts[0].attempt,1);
+ const other=await(await s.call(base+'/join','POST',{key:crypto.randomUUID()})).json();assert.equal(other.participant,2);assert.deepEqual(other.receipts,[]);
+});
+test('removing a teacher from allowlist immediately invalidates an existing session',async()=>{const s=setup(),r=await room(s);s.env.GITHUB_TEACHER_IDS='999';assert.equal((await s.call('/rooms/'+r.code+'/audit','GET',null,{Authorization:'Bearer '+r.teacherKey})).status,401);});
+test('event caps do not prevent completed attempt submission; retries do not consume more capacity',async()=>{
+ const s=setup(),r=await room(s),key=crypto.randomUUID(),base='/rooms/'+r.code,h={'X-Participant-Key':key};await s.call(base+'/join','POST',{key});
+ const id=crypto.randomUUID(),event={id:crypto.randomUUID(),type:'start',at:new Date().toISOString(),position:0};assert.equal((await s.call(base+'/events','POST',{attemptId:id,events:[event]},h)).status,200);
+ const storage=s.objects.get(r.code).ctx.storage,m=await storage.get('meta');m.eventCount=20000;await storage.put('meta',m);
+ assert.equal((await s.call(base+'/events','POST',{attemptId:id,events:[event]},h)).status,200);
+ assert.equal((await s.call(base+'/events','POST',{attemptId:id,events:[{...event,id:crypto.randomUUID()}]},h)).status,429);
+ assert.equal((await s.call(base+'/submit','POST',{run:{...run,id}},h)).status,200);
+});

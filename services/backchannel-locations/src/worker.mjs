@@ -15,7 +15,7 @@ export default {async fetch(r,env){
  const auth=env.ROOMS.get(env.ROOMS.idFromName('teacher-account'));
  const teacherRoute=p.match(/^\/api\/teacher\/(exchange|logout|session|rooms)$/);
  let identity=null;const isTeacher=async()=>{const check=await auth.fetch(new Request('https://internal/auth/check',{headers:r.headers}));if(check.ok)identity=await check.json();return check.ok;};
- if(p==='/api/health')result=json({ok:true,version:'7a-classroom-3'});
+ if(p==='/api/health')result=json({ok:true,version:'7a-classroom-4'});
  else if(['/api/teacher/start','/api/teacher/callback'].includes(p)&&r.method==='GET')return oauth(r,env,auth);
  else if(teacherRoute){const action=teacherRoute[1]==='session'?'check':teacherRoute[1];result=await auth.fetch(new Request('https://internal/auth/'+action,r));}
  else if(p==='/api/rooms'&&r.method==='POST'){
@@ -47,7 +47,8 @@ export class BackchannelRoom{
   const b=await body(r);if(typeof b.key!=='string'||!/^[a-zA-Z0-9-]{36,100}$/.test(b.key))return json({error:'Invalid browser participant key.'},400);
   const k=await hash(b.key);let s=await store.get('participant:'+k);
   if(!s){if(!m.open||m.released)return json({error:'The teacher has closed this activity.'},409);if(m.joined>=MAX)return json({error:'This activity is full (60 participants).'},409);s={id:crypto.randomUUID(),number:++m.joined,submitted:false};await store.put({['participant:'+k]:s,meta:m});}
-  return json({...info(),participant:s.number,submittedByYou:s.submitted,attemptCount:s.attemptCount||0,completedAttemptIds:[...(await store.list({prefix:'attempt:'+s.id+':'})).values()].filter(a=>a.status==='complete').map(a=>a.clientAttemptId)});
+  const attempts=[...(await store.list({prefix:'attempt:'+s.id+':'})).values()];const first=await store.get('run:'+s.id);
+  return json({...info(),participant:s.number,submittedByYou:s.submitted,attemptCount:s.attemptCount||0,legacyFirst:!!(first&&!attempts.some(a=>a.id===first.id)),receipts:attempts.filter(a=>a.status==='complete').map(a=>({id:a.clientAttemptId,attempt:a.attempt,submittedAt:a.submittedAt})),completedAttemptIds:attempts.filter(a=>a.status==='complete').map(a=>a.clientAttemptId)});
  }
  if((path==='/submit'||path==='/events')&&r.method==='POST'){
   const k=await hash(r.headers.get('X-Participant-Key')||'');const s=await store.get('participant:'+k);if(!s)return json({error:'Join the activity before submitting.'},401);
