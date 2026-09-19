@@ -1,3 +1,4 @@
+import {recordEvents,submitAttempt,auditRecords} from './audit.mjs';
 import {authHandle,cleanAuth,oauth} from './auth.mjs';
 const CLIPS={'ami-is1008b-b-383000-450300-v1':67.3,'ami-ib4010-a-172300-232900-v1':60.6};
 const TTL=30*86400000,MAX=60;
@@ -14,7 +15,7 @@ export default {async fetch(r,env){
  const auth=env.ROOMS.get(env.ROOMS.idFromName('teacher-account'));
  const teacherRoute=p.match(/^\/api\/teacher\/(exchange|logout|session|rooms)$/);
  let identity=null;const isTeacher=async()=>{const check=await auth.fetch(new Request('https://internal/auth/check',{headers:r.headers}));if(check.ok)identity=await check.json();return check.ok;};
- if(p==='/api/health')result=json({ok:true,version:'7a-classroom-2'});
+ if(p==='/api/health')result=json({ok:true,version:'7a-classroom-3'});
  else if(['/api/teacher/start','/api/teacher/callback'].includes(p)&&r.method==='GET')return oauth(r,env,auth);
  else if(teacherRoute){const action=teacherRoute[1]==='session'?'check':teacherRoute[1];result=await auth.fetch(new Request('https://internal/auth/'+action,r));}
  else if(p==='/api/rooms'&&r.method==='POST'){
@@ -24,7 +25,7 @@ export default {async fetch(r,env){
   const admitted=await gate.fetch('https://internal/quota',{method:'POST'});if(!admitted.ok)result=admitted;
   else {const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),v=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[v%32]).join('');const room=env.ROOMS.get(env.ROOMS.idFromName(code));result=await room.fetch('https://internal/init',{method:'POST',body:JSON.stringify({code,clipId:b.clipId,createdAt:Date.now(),teacherId:identity.teacherId})});if(result.ok){const created=await result.json();await auth.fetch('https://internal/auth/add-room',{method:'POST',body:JSON.stringify({...created,createdAt:Date.now(),teacherId:identity.teacherId})});result=json(created);}}
  }else{
-  const m=p.match(/^\/api\/rooms\/([A-Z2-9]{8})(?:\/(join|submit|results|manage))?$/);if(!m)result=json({error:'Activity not found.'},404);else {const forwarded=new Request('https://internal/'+(m[2]||'info'),r);forwarded.headers.delete('X-Verified-Teacher');forwarded.headers.delete('X-Teacher-Key');if(r.headers.has('Authorization')){if(!await isTeacher())result=json({error:'Your teacher session has expired. Please sign in again.'},401);else forwarded.headers.set('X-Verified-Teacher',identity.teacherId);}if(!result)result=await env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(forwarded);}
+  const m=p.match(/^\/api\/rooms\/([A-Z2-9]{8})(?:\/(join|submit|results|manage|events|audit))?$/);if(!m)result=json({error:'Activity not found.'},404);else {const forwarded=new Request('https://internal/'+(m[2]||'info'),r);forwarded.headers.delete('X-Verified-Teacher');forwarded.headers.delete('X-Teacher-Key');if(r.headers.has('Authorization')){if(!await isTeacher())result=json({error:'Your teacher session has expired. Please sign in again.'},401);else forwarded.headers.set('X-Verified-Teacher',identity.teacherId);}if(!result)result=await env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(forwarded);}
  }
  }catch(e){result=json({error:e instanceof SyntaxError?'Invalid JSON.':e.message||'Service unavailable.'},400);}
  const h=new Headers(result.headers);for(const [k,v] of Object.entries(cors))h.set(k,v);return new Response(result.body,{status:result.status,headers:h});
@@ -40,22 +41,19 @@ export class BackchannelRoom{
  if(path==='/init'&&r.method==='POST'){if(await store.get('meta'))return json({error:'Please create the activity again.'},409);const b=await body(r);const m={...b,createdAt:now,expiresAt:now+TTL,open:true,released:false,joined:0,submitted:0};await store.put('meta',m);await store.setAlarm(m.expiresAt);return json({code:m.code,clipId:m.clipId,expiresAt:m.expiresAt});}
  const m=await store.get('meta');if(!m||m.expiresAt<=now)return json({error:'This activity does not exist or has expired.'},404);
  const verifiedTeacher=r.headers.get('X-Verified-Teacher');const teacher=!!verifiedTeacher&&(!m.teacherId||verifiedTeacher===m.teacherId);
- const info=()=>({code:m.code,clipId:m.clipId,duration:CLIPS[m.clipId],open:m.open,released:m.released,joined:m.joined,submitted:m.submitted,expiresAt:m.expiresAt});
+ const info=()=>({code:m.code,clipId:m.clipId,duration:CLIPS[m.clipId],open:m.open,released:m.released,joined:m.joined,submitted:m.submitted,totalSubmissions:m.totalSubmissions??m.submitted,expiresAt:m.expiresAt});
  if(path==='/info'&&r.method==='GET')return json(info());
  if(path==='/join'&&r.method==='POST'){
   const b=await body(r);if(typeof b.key!=='string'||!/^[a-zA-Z0-9-]{36,100}$/.test(b.key))return json({error:'Invalid browser participant key.'},400);
   const k=await hash(b.key);let s=await store.get('participant:'+k);
   if(!s){if(!m.open||m.released)return json({error:'The teacher has closed this activity.'},409);if(m.joined>=MAX)return json({error:'This activity is full (60 participants).'},409);s={id:crypto.randomUUID(),number:++m.joined,submitted:false};await store.put({['participant:'+k]:s,meta:m});}
-  return json({...info(),participant:s.number,submittedByYou:s.submitted});
+  return json({...info(),participant:s.number,submittedByYou:s.submitted,attemptCount:s.attemptCount||0,completedAttemptIds:[...(await store.list({prefix:'attempt:'+s.id+':'})).values()].filter(a=>a.status==='complete').map(a=>a.clientAttemptId)});
  }
- if(path==='/submit'&&r.method==='POST'){
+ if((path==='/submit'||path==='/events')&&r.method==='POST'){
   const k=await hash(r.headers.get('X-Participant-Key')||'');const s=await store.get('participant:'+k);if(!s)return json({error:'Join the activity before submitting.'},401);
-  const b=await body(r);let run;try{run=validRun(b.run,m.clipId);}catch(e){return json({error:e.message},400);}
-  const record={...run,id:s.id,participant:s.number};const previous=await store.get('run:'+s.id);
-  if(previous){if(JSON.stringify(previous)!==JSON.stringify(record))return json({error:'Your first completed round has already been submitted.'},409);return json({ok:true,participant:s.number,duplicate:true});}
-  if(!m.open||m.released)return json({error:'The teacher has closed submissions. Download your local result and contact your teacher.'},409);
-  s.submitted=true;m.submitted++;await store.put({['run:'+s.id]:record,['participant:'+k]:s,meta:m});return json({ok:true,participant:s.number});
+  const b=await body(r);return path==='/events'?recordEvents(store,m,s,k,b):submitAttempt(store,m,s,k,b,validRun);
  }
+ if(path==='/audit'&&r.method==='GET'){if(!teacher)return json({error:'Activity history is visible only to the authorized teacher.'},403);return auditRecords(store,m);}
  if(path==='/results'&&r.method==='GET'){
   if(!teacher&&!m.released)return json({error:'The teacher has not released the comparison yet.'},403);
   const rows=await store.list({prefix:'run:'});const runs=[...rows.values()].sort((a,b)=>a.participant-b.participant);return json({...info(),format:'ling2150-7a',version:1,runs});
