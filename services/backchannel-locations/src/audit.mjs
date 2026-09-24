@@ -12,7 +12,7 @@ async function attemptFor(store,m,s,participantKey,id){
 export async function recordEvents(store,m,s,participantKey,b){
  if(!Array.isArray(b.events)||!b.events.length||b.events.length>40||b.attemptId!==null&&!ID.test(b.attemptId||''))return json({error:'Invalid activity event batch.'},400);
  const clean=[];
- for(const e of b.events){if(!e||!ID.test(e.id||'')||!TYPES.has(e.type)||typeof e.at!=='string'||!Number.isFinite(Date.parse(e.at))||e.position!==null&&(!Number.isFinite(e.position)||e.position<0||e.position>120))return json({error:'Invalid activity event.'},400);clean.push({id:e.id,type:e.type,clientAt:new Date(e.at).toISOString(),position:e.position,receivedAt:new Date().toISOString()});}
+ for(const e of b.events){if(!e||!ID.test(e.id||'')||!TYPES.has(e.type)||typeof e.at!=='string'||!Number.isFinite(Date.parse(e.at))||e.position!==null&&(!Number.isFinite(e.position)||e.position<0||e.position>180))return json({error:'Invalid activity event.'},400);clean.push({id:e.id,type:e.type,clientAt:new Date(e.at).toISOString(),position:e.position,receivedAt:new Date().toISOString()});}
  let key,a;if(b.attemptId===null){key='activity:'+s.id;a=await store.get(key)||{participant:s.number,attempt:null,events:[]};}else {const found=await attemptFor(store,m,s,participantKey,b.attemptId);if(found.error)return found.error;({key,a}=found);}
  const ids=new Set(a.events.map(e=>e.id));const fresh=clean.filter(e=>!ids.has(e.id)&&ids.add(e.id));
  if(a.events.length+fresh.length>1000||(m.eventCount||0)+fresh.length>20000)return json({error:'Activity log limit reached. Your local event log is kept.'},429);

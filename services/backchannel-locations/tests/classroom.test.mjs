@@ -86,3 +86,39 @@ test('long recordings accept late markers and keep separate collections from leg
  }
  assert.equal(new Set(codes).size,3);assert.equal((await(await s.call('/rooms/'+old.code)).json()).submitted,0);
 });
+
+// Synchronized classroom regression cases use the same Worker entry point as production.
+test('live classroom is teacher-controlled, independent, idempotent and retains 60 students',async()=>{
+ const s=setup(),r=await room(s),base='/rooms/'+r.code,teacher={Authorization:'Bearer '+r.teacherKey};
+ assert.equal((await s.call(base+'/live-control','POST',{action:'prepare'})).status,403);
+ const prepared=await(await s.call(base+'/live-control','POST',{action:'prepare'},teacher)).json();const id=prepared.session.id;
+ const keys=Array.from({length:60},()=>crypto.randomUUID());const records=await Promise.all(keys.map(async key=>await(await s.call(base+'/live-join?session='+id,'POST',{}, {'X-Participant-Key':key})).json()));
+ assert.equal(new Set(records.map(x=>x.record.participant)).size,60);assert.equal((await s.call(base+'/live-join','POST',{}, {'X-Participant-Key':crypto.randomUUID()})).status,409);
+ assert.equal((await s.call(base+'/live-results')).status,403);
+ const controller=crypto.randomUUID();const started=await(await s.call(base+'/live-control','POST',{action:'start',controller,sessionId:id},teacher)).json();assert.equal(started.session.status,'countdown');
+ const anchor={action:'anchor',controller,sessionId:id,revision:started.session.revision,position:10,sampleAt:Date.now(),status:'running'};
+ assert.equal((await s.call(base+'/live-control','POST',anchor,teacher)).status,200);
+ assert.equal((await s.call(base+'/live-control','POST',{...anchor,controller:crypto.randomUUID()},teacher)).status,409);
+ assert.equal((await s.call(base+'/live-control','POST',{...anchor,revision:0},teacher)).status,409);
+ assert.equal((await s.call(base+'/live-control','POST',{...anchor,position:2},teacher)).status,409);
+ const payload={marks:[1,3],sequence:1,complete:false,exposed:false};const h={'X-Participant-Key':keys[0]};
+ assert.equal((await s.call(base+'/live-save','POST',{...payload,complete:true},h)).status,409);
+ assert.equal((await s.call(base+'/live-save','POST',payload,h)).status,200);
+ await s.call(base+'/live-control','POST',{...anchor,position:67.3,status:'ended',sampleAt:Date.now()},teacher);
+ for(const [i,key]of keys.entries()){const data={...payload,marks:i?[]:[1,3],sequence:2,complete:true};assert.equal((await s.call(base+'/live-save','POST',data,{'X-Participant-Key':key})).status,200);assert.equal((await s.call(base+'/live-save','POST',data,{'X-Participant-Key':key})).status,200);}
+ const old=await(await s.call(base)).json();assert.equal(old.submitted,0);
+ assert.equal((await s.call(base+'/live-save','POST',{...payload,sequence:3,complete:true},h)).status,409);
+ await s.call(base+'/live-control','POST',{action:'release',sessionId:id},teacher);
+ const result=await(await s.call(base+'/live-results')).json();assert.equal(result.records.length,60);assert.equal(result.session.submitted,60);assert.equal(result.records.filter(x=>!x.marks.length).length,59);assert.ok(!JSON.stringify(result.records).includes('submittedAt'));
+ const next=await(await s.call(base+'/live-control','POST',{action:'prepare'},teacher)).json();assert.notEqual(next.session.id,id);assert.equal(next.session.joined,0);assert.equal((await(await s.call(base+'/live-results?session='+id)).json()).records.length,60);
+});
+test('live sessions reject invalid marks, preserve ordered retries and do not expose another browser record',async()=>{
+ const s=setup(),r=await room(s),base='/rooms/'+r.code,t={Authorization:'Bearer '+r.teacherKey};await s.call(base+'/live-control','POST',{action:'prepare'},t);
+ const k=crypto.randomUUID(),h={'X-Participant-Key':k};await s.call(base+'/live-join','POST',{},h);
+ const b={marks:[4],exposed:false,complete:false,sequence:2};assert.equal((await s.call(base+'/live-save','POST',b,h)).status,200);
+ await s.call(base+'/live-save','POST',{...b,marks:[2],sequence:1},h);const joined=await(await s.call(base+'/live-join','POST',{},h)).json();assert.deepEqual(joined.record.marks,[4]);
+ const other=await(await s.call(base+'/live-join','POST',{}, {'X-Participant-Key':crypto.randomUUID()})).json();assert.deepEqual(other.record.marks,[]);
+ for(const marks of [[-1],[999],[4,2],[1,1.01]])assert.equal((await s.call(base+'/live-save','POST',{...b,sequence:3,marks},h)).status,400);
+ const id=joined.session.id;await s.call(base+'/live-control','POST',{action:'cancel',sessionId:id},t);assert.equal((await s.call(base+'/live-save','POST',{...b,sequence:3},h)).status,409);
+});
+test('late events in the full-length recordings are accepted',async()=>{const s=setup();const token=await login(s);const r=await(await s.call('/rooms','POST',{clipId:'ami-es2003b-a-599500-765650-v1'},{Authorization:'Bearer '+token})).json();const key=crypto.randomUUID();await s.call('/rooms/'+r.code+'/join','POST',{key});assert.equal((await s.call('/rooms/'+r.code+'/events','POST',{attemptId:crypto.randomUUID(),events:[{id:crypto.randomUUID(),type:'mark',position:165,at:new Date().toISOString()}]},{'X-Participant-Key':key})).status,200);});

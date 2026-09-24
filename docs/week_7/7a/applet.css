@@ -9,3 +9,5 @@
 .teacher-mode .bc-player,.teacher-mode #context,.teacher-mode #class-home,.teacher-mode #class-active,.teacher-mode #saved-count,.teacher-mode #save-status,.teacher-mode .bc-classroom{display:none}.teacher-mode #teacher-panel{margin:20px 0}.teacher-mode #class-summary,.teacher-mode #class-retention{display:block}.teacher-mode #teacher-summary-slot{margin-bottom:16px}
 
 .bc-loading #comparison{display:none!important}
+
+.live-mode #activity-panel,.live-mode .bc-classroom,.live-mode #reflection-panel details{display:none!important}.live-mode #live-panel{display:block}#live-link{width:100%;padding:10px;border:1px solid #777;border-radius:5px;background:#fff;color:#222}#live-error:empty{display:none}#live-rows{overflow-wrap:anywhere}
