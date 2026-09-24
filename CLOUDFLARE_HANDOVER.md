@@ -48,9 +48,11 @@ The model's version is not an answer key. It may leave out useful context or add
 
 [Open Activity 7A](https://uga-ling2150.github.io/applets/week_7/7A_backchannel_locations.html)
 
+For the new teacher-led classroom workflow, use [Classroom listening](https://uga-ling2150.github.io/applets/week_7/7A_backchannel_locations.html?mode=live). The original individual-listening workflow remains available from the same page.
+
 A **backchannel** is a short response, such as “mm-hmm” or “yeah,” that shows you are listening without taking over the conversation.
 
-For students:
+For students in individual mode:
 
 1. Choose the recording you specify. Both recordings are available: **A user-friendly remote control** (about 2:46) and **Remote-control design preferences** (about 2:28).
 2. Use headphones and select **Start listening**.
@@ -58,7 +60,17 @@ For students:
 4. Listen to the end. The completed attempt is submitted automatically. The student's clicks also appear on a timeline.
 5. Open **My records & downloads** to check the receipt or download personal results. A receipt is a reference that helps locate an attempt.
 
-For you:
+For a teacher-led classroom listening session:
+
+1. Open the classroom link above and select **Sign in with GitHub**. Use the authorized `kayaulai` account.
+2. Choose the recording and select **Prepare new classroom**. Copy the generated student link and send it to the class. Students do not need accounts or headphones.
+3. Use this teacher computer for the classroom speakers. Wait for the expected browser count, then select **Start class listening**. The three-second countdown and the teacher's actual audio position provide the shared timing reference.
+4. Students select **I would respond here** when they would produce a backchannel. Their clicks are saved separately for this classroom. Space and Enter work when the response button is focused.
+5. Use **Pause class** to pause the recording for everyone. If the teacher tab is hidden, audio buffers, or the connection becomes stale, playback and student marking pause until the connection is healthy again. Resume from the pause position; do not rewind within the same classroom.
+6. When the recording ends, student records submit automatically, including zero-click records. Select **Share classroom comparison** when you want students to see the anonymous comparison. Use **Download classroom CSV** for this session.
+7. Use the **Classroom sessions for this collection** selector to revisit an earlier session. Select **Prepare new classroom** before a later class so its records remain separate.
+
+For the original individual mode:
 
 1. Open **For teachers: view and download results**.
 2. Select **Sign in with GitHub** and use `kayaulai`.
@@ -66,13 +78,13 @@ For you:
 4. Use **Download all attempts (CSV)** and **Download activity log (CSV)** to save records. A CSV file is a table that can be opened in Excel.
 5. Select **Share comparison with class** when you want students to compare their click patterns. The comparison uses each participant's first completed attempt. The teacher download includes all attempts.
 
-The page creates a shared **collection**, meaning one set of classroom records, automatically. You do not need to create a room or give students a code. Each recording has its own collection. Ask the class to choose the same recording.
+The page creates a shared **collection**, meaning one set of records for a recording, automatically. Individual mode does not require a room or code. Classroom mode creates a separate session inside the selected collection and gives the teacher a student link. Each recording has its own collection. Ask the class to choose the same recording.
 
-Use **Start next collection** only when you want a fresh set of records for a later class. Earlier collections remain available until they expire. Download records within 30 days. Each collection supports up to 60 browser participants.
+Use **Prepare new classroom** for a later synchronized listening session. Use **Start next collection** only when you want a fresh collection for a later class or recording. Earlier collections and classroom sessions remain available until they expire. Download records within 30 days. Each collection supports up to 60 browser participants; one collection supports up to 20 classroom sessions.
 
 Participant numbers identify browser records, not verified students. Clearing browser storage or switching devices can create a new participant. No student names or emails are collected. If a student gives you a receipt, you can use it to find that attempt. Written reflections and students' voices are not uploaded as classroom records.
 
-To test the student view while you are signed in as a teacher, use a separate browser or private window.
+To test the student view while you are signed in as a teacher, copy the classroom link into a separate browser or private window. A classroom test can use a few browsers, but do not leave a test session running during class. Classroom timing includes speaker, device and reaction delays; it is intended for classroom comparison, not laboratory-grade synchronization.
 
 ### 7B: Compare an assumption with a clarification question
 
@@ -342,8 +354,9 @@ The three existing service health checks passed during the September 23, 2026 re
 | Activity | Check | Success means |
 | --- | --- | --- |
 | 5C | Open the published page, write a rewrite, and select **Show model rewrite**. Download your work. | An actual model rewrite appears, and the download contains your work. |
-| 7A student | Choose a recording, mark a few points, listen to the end, and refresh. | The completed attempt has a receipt and remains visible after refresh. |
-| 7A teacher | Sign in as `kayaulai`, find the test attempt, and download the CSV. Share the comparison. | The record appears in the teacher view and download. A separate unsigned-in browser can see the released comparison. |
+| 7A individual | Choose a recording, mark a few points, listen to the end, and refresh. | The completed attempt has a receipt and remains visible after refresh. |
+| 7A classroom | Sign in as `kayaulai`, prepare a classroom, open the student link in a separate browser, start, pause, resume and finish playback. | Student marking is disabled while the class is paused or disconnected; the completed record appears in the classroom comparison and CSV. |
+| 7A teacher | Share a completed classroom comparison. | A separate unsigned-in browser can see the released anonymous comparison, without submission timestamps. |
 | 7A recordings | Check each recording separately. | Records stay with the selected recording. |
 | 7B | Send an opening message to both assistants and continue each conversation. Download the result. | Both assistants return replies, and the download contains the conversations and reflection. |
 
@@ -361,6 +374,8 @@ Use fictional test content. AI checks use some of the account's allowance. Befor
 | 7A teacher sign-in fails. | Check the OAuth callback address, Client ID and Client Secret. Confirm that `43101723` is in the teacher list. Sign in again if the session has expired. |
 | A 7A attempt is missing. | Check the recording, selected collection, completion and submission status, and the 30-day expiry. Check whether the student changed browsers or cleared storage. |
 | Students cannot see the class comparison. | Select **Share comparison with class** for the same recording and collection. Then refresh the student view. |
+| A classroom student cannot mark. | Check that the teacher has started or resumed playback, that the student page has a fresh connection, and that the classroom link includes the correct room. Marking is intentionally disabled while the shared clock is stale or the class is paused. |
+| A classroom session is in the wrong state. | Use the classroom session selector to reopen the intended session. Do not rewind a running session; prepare a new classroom for another pass. |
 | A downloaded HTML copy fails while the course link works. | Use the official course link. A local file is a different browser origin, and each backend has its own rules about which origins it accepts. |
 | Code changed in GitHub, but backend behavior did not change. | Deploy the corresponding Worker. A GitHub Pages update alone does not publish backend code. |
 
