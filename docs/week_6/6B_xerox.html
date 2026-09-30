@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Uncooperative Copier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+
+<style>
+/* ---------- Rack cards with lock/unlock gating (same pattern as the RLHF applet) ---------- */
+.card {
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px 24px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.stage.active .card, .stage.done .card { background: #fff; }
+.stage.active .card { border-color: var(--uga-red); }
+.stage.done .card { border-color: var(--olympic); }
+.card-locked { background: var(--panel-alt); border: 2px dashed var(--border-strong); padding: 16px 20px; }
+.card-locked .card-body { display: none; }
+.card-body { display: block; }
+.locked-banner {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  color: var(--muted); font-family: "Merriweather Sans", sans-serif; font-weight: 700;
+  font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.02em;
+}
+
+/* ---------- Shared explanatory components (glossary / explanation / discussion) ---------- */
+.glossary-box {
+  background: var(--panel-alt); border: 1px solid var(--line); border-radius: 6px;
+  padding: 12px 16px; margin: 14px 0; font-size: 13px;
+}
+.glossary-box summary {
+  font-family: "Merriweather Sans", sans-serif; font-weight: 700; font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; color: var(--olympic);
+}
+.glossary-box ul { margin: 10px 0 0; padding-left: 20px; }
+.glossary-box li { margin-bottom: 6px; }
+.glossary-box p { margin: 10px 0 0; }
+.glossary-box .ref-code { font-family: "IBM Plex Mono", monospace; font-size: 12px; background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; margin-top: 8px; line-height:1.6; }
+
+.explanation {
+  background: rgba(0, 78, 96, 0.06); border-left: 4px solid var(--olympic);
+  padding: 12px 16px; margin: 14px 0; font-size: 14px; border-radius: 0 6px 6px 0; color: var(--text);
+}
+.explanation strong { color: var(--olympic); }
+
+.discussion-box {
+  background: rgba(180, 189, 0, 0.12); border-left: 4px solid var(--hedges);
+  padding: 12px 16px; margin: 16px 0; font-size: 14px; border-radius: 0 6px 6px 0;
+}
+.discussion-box h4 {
+  margin: 0 0 6px; color: var(--sanford); font-family: "Merriweather Sans", sans-serif;
+  font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+/* ---------- Tables ---------- */
+.table-scroll { overflow-x: auto; margin-top: 10px; margin-bottom: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: left; }
+th {
+  background: transparent; color: var(--muted); font-family: "Merriweather Sans", sans-serif;
+  font-weight: 700; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+}
+td { color: var(--muted); }
+tr.tag-success td { color: var(--uga-black); background: rgba(0, 78, 96, 0.07); }
+tr.tag-success td:first-child { color: var(--olympic); font-weight: 600; }
+
+/* chips for stats */
+.chip { border: 1px solid var(--line); background: white; border-radius: 20px; padding: 6px 14px; font-size: 12px; display: inline-flex; gap: 8px; align-items: center; margin: 0 8px 8px 0; }
+.chip .k { color: var(--muted); }
+.chip .v { color: var(--uga-red); font-weight: 700; font-family: "IBM Plex Mono", monospace; }
+
+/* ---------- Job ticket ---------- */
+.job-ticket {
+  border: 1px dashed var(--border-strong); background: var(--panel-alt); border-radius: 6px;
+  padding: 14px 18px; margin: 14px 0 20px; font-family: "IBM Plex Mono", monospace;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.job-ticket .jt-left .jt-label { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.job-ticket .jt-left .jt-spec { font-size: 15.5px; color: var(--uga-black); font-weight: 700; margin-top: 4px; }
+.job-ticket .jt-left .jt-original { font-size: 12.5px; color: var(--muted); font-style: italic; margin-top: 4px; }
+.job-ticket .jt-num { font-size: 12px; color: var(--muted); }
+
+/* ---------- The copier itself ---------- */
+.copier-panel {
+  background: var(--sanford); border-radius: 12px; padding: 20px; max-width: 460px;
+  margin: 0 auto; box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+}
+.copier-screen {
+  background: #10140f; border: 2px solid #333; border-radius: 6px; padding: 14px 16px;
+  font-family: "IBM Plex Mono", monospace; color: #8AFFB0; margin-bottom: 14px; min-height: 78px;
+}
+.screen-line { font-size: 15px; letter-spacing: 0.03em; line-height: 1.5; word-break: break-word; }
+.screen-line.line1 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; opacity: 0.85; }
+.screen-flash { margin-top: 6px; font-size: 12.5px; color: #ffb37a; min-height: 18px; font-family: "IBM Plex Mono", monospace; }
+
+.copier-soft-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; min-height: 44px; align-items: center; }
+.soft-empty { color: rgba(255,255,255,0.35); font-family: "IBM Plex Mono", monospace; font-size: 12px; padding: 0 4px; }
+.copier-hard-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.15); }
+.copier-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; max-width: 230px; }
+
+.copier-btn {
+  min-height: 44px; min-width: 44px; background: #e8e6e1; border: 1px solid #3a3a3a; border-radius: 6px;
+  font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 13px; color: #1a1a1a;
+  cursor: pointer; padding: 8px 12px; transition: background 0.15s;
+}
+.copier-btn:hover { background: #ffffff; }
+.copier-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.copier-btn--back { background: transparent; border: 1px solid rgba(255,255,255,0.5); color: #f2f2f2; }
+.copier-btn--back:hover { background: rgba(255,255,255,0.1); }
+.copier-btn--danger { background: var(--uga-red); color: #fff; border-color: var(--uga-red); }
+.copier-btn--start {
+  background: #1b6e3c; color: #fff; font-size: 15px; font-weight: 800; width: 100%;
+  padding: 15px; border-radius: 8px; border: none; letter-spacing: 0.05em; margin-top: 4px;
+}
+.copier-btn--start:hover:not(:disabled) { opacity: 0.9; }
+
+.attempt-badge {
+  display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 700;
+  color: var(--uga-red); border: 1px solid var(--uga-red); border-radius: 20px; padding: 3px 12px; margin-bottom: 10px;
+}
+
+/* ---------- Paper tray: a physically distinct part of the machine, not a
+   button on the control panel — you have to notice it's there and pull it
+   open before anything inside it becomes visible. ---------- */
+.paper-tray { max-width: 460px; margin: 0 auto; }
+.bda-station { max-width: 460px; margin: 0 auto 14px; }
+.tray-front {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: #4a453d; border: 1px solid #2a2a2a; border-top: 3px solid #232323;
+  border-radius: 0 0 10px 10px; padding: 10px 16px; cursor: pointer;
+  font-family: "IBM Plex Mono", monospace; color: #f2f2f2; font-size: 11.5px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.tray-front:hover { background: #5c564b; }
+.tray-front[aria-expanded="true"] { border-radius: 0; }
+.tray-handle { opacity: 0.55; letter-spacing: 3px; }
+.tray-interior {
+  background: #e8e6e1; border: 1px solid #2a2a2a; border-top: none; border-radius: 0 0 10px 10px;
+  padding: 16px;
+}
+.tray-visual {
+  height: 42px; border: 1px dashed #9a9689; border-radius: 4px; margin-bottom: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: "IBM Plex Mono", monospace; font-size: 12px; color: #8a8578; background: #fff;
+}
+.tray-visual.loaded {
+  border-style: solid; color: #4a453d;
+  background: repeating-linear-gradient(0deg, #fff, #fff 3px, #ddd9cf 3px, #ddd9cf 4px);
+}
+.tray-visual.jammed { border-style: solid; border-color: var(--uga-red); color: var(--uga-red); }
+.tray-status { font-size: 13px; color: #1a1a1a; margin-bottom: 12px; }
+.tray-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tray-actions .copier-btn { background: #e8e6e1; color: #1a1a1a; }
+
+@media (max-width: 640px) {
+  .lesson-container, .app-wrapper { padding: 1.5rem; }
+  .job-ticket { flex-direction: column; align-items: flex-start; }
+  .copier-keypad { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<header class="text-center mb-4 page-header">
+    <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
+</header>
+
+<section class="lesson-container">
+    <h3 class="h3 mb-4">Activity: The Uncooperative Copier</h3>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="uga-accent">Learning Objectives</h4>
+            <ul>
+                <li><strong>Experience</strong> firsthand the gap between having a clear goal and knowing how to make an unfamiliar system do it</li>
+                <li><strong>Connect</strong> your own moment-to-moment improvising to Lucy Suchman's distinction between <em>plans</em> (what you intended to do) and <em>situated actions</em> (what you actually did, worked out step by step as the interface responded to you)</li>
+            </ul>
+        </div>
+        <div class="col-md-12">
+            <h4 class="uga-accent">Background</h4>
+            <p>In the early 1980s, researchers at Xerox PARC — including anthropologist Lucy Suchman — set up video cameras next to a brand-new photocopier and simply watched people try to use it. Customers had been complaining that the machine was too complicated, even though Xerox's own advertising claimed "all you have to do is push the green button."</p>
+            <p>The footage told a different story. The green button really was easy to find. The trouble started as soon as someone needed the machine to do anything more specific — collate, staple, print on both sides — and had to guess their way through menus that didn't explain themselves. Suchman's conclusion wasn't that the button should have been a different color. It was that people don't operate machines by executing a plan from start to finish; they feel their way through, moment by moment, revising their idea of what's going on as the machine talks back to them (or doesn't).</p>
+            <p>Below is a small, deliberately unhelpful copier simulator built to let you feel a version of that same confusion. It is not a realistic model of how modern copiers work under the hood — it's a simplified stand-in, built to be opaque on purpose rather than to be technically accurate.</p>
+            <p>One more thing: pay attention to what you're copying <em>from</em>, not just what settings you're copying <em>to</em>. The job ticket describes both.</p>
+        </div>
+        <div class="col-md-12">
+            <h4 class="uga-accent">Instructions</h4>
+            <p>You'll be given a job ticket with a task on it. Your job is to get the machine to complete that task — nothing more. The interface will not explain itself to you, and that's the point. Wrong turns, dead ends, and moments of "wait, what did that just do?" are exactly the data this activity is trying to produce.</p>
+            <p>When you finish (or decide you've had enough), a debrief will unlock showing everything you clicked, in order. Bring that log to your group discussion.</p>
+        </div>
+    </div>
+</section>
+
+<main class="app-wrapper">
+
+  <div class="hero">
+    <div class="hero-text">
+      <h2>Operate the <span>machine</span></h2>
+      <p>You have one job ticket and one machine. The machine will not walk you through anything. Good luck.</p>
+    </div>
+  </div>
+
+  <div class="rack">
+
+    <!-- STAGE 1: ATTEMPT THE JOB -->
+    <div class="stage active" id="stage-0">
+      <div class="stage-num">1</div>
+      <div class="card" id="section-0">
+        <div class="card-body">
+          <h3>Attempt the job</h3>
+          <div class="attempt-badge" id="attempt-badge">Attempt 1</div>
+
+          <div class="job-ticket">
+            <div class="jt-left">
+              <div class="jt-label">Job Ticket</div>
+              <div class="jt-spec">5 copies · double-sided · stapled · collated</div>
+              <div class="jt-original" id="jt-original">Original: a bound course packet — handle with care</div>
+            </div>
+            <div class="jt-num" id="job-num">#4471</div>
+          </div>
+
+          <div class="bda-station" id="bda-station">
+            <button type="button" class="tray-front" id="bda-toggle" aria-expanded="false" aria-controls="bda-interior">
+              <span class="tray-handle" aria-hidden="true">▭▭▭</span>
+              <span class="tray-label">DOCUMENT GLASS</span>
+            </button>
+            <div class="tray-interior" id="bda-interior" hidden aria-live="polite">
+              <div class="tray-status" id="bda-status"></div>
+              <div class="tray-actions" id="bda-actions"></div>
+            </div>
+          </div>
+
+          <div class="copier-panel" role="group" aria-label="Photocopier control panel">
+            <div class="copier-screen" id="copier-screen" tabindex="-1" aria-live="polite">
+              <div class="screen-line line1" id="screen-line1">RDY</div>
+              <div class="screen-line" id="screen-line2">1→1 STK QTY:01</div>
+              <div class="screen-flash" id="screen-flash"></div>
+            </div>
+
+            <div class="copier-soft-row" id="copier-soft-row"></div>
+
+            <div class="copier-hard-row">
+              <button type="button" class="copier-btn" id="hard-jobset">▤ SETTINGS</button>
+              <button type="button" class="copier-btn" id="hard-aux">AUX ACCESS</button>
+              <button type="button" class="copier-btn" id="hard-intrlv">✱ INTERRUPT</button>
+            </div>
+
+            <div class="copier-keypad" role="group" aria-label="Number pad">
+              <button type="button" class="copier-btn" data-digit="1">1</button>
+              <button type="button" class="copier-btn" data-digit="2">2</button>
+              <button type="button" class="copier-btn" data-digit="3">3</button>
+              <button type="button" class="copier-btn" data-digit="4">4</button>
+              <button type="button" class="copier-btn" data-digit="5">5</button>
+              <button type="button" class="copier-btn" data-digit="6">6</button>
+              <button type="button" class="copier-btn" data-digit="7">7</button>
+              <button type="button" class="copier-btn" data-digit="8">8</button>
+              <button type="button" class="copier-btn" data-digit="9">9</button>
+              <button type="button" class="copier-btn copier-btn--back" id="btn-cce">C/CE</button>
+              <button type="button" class="copier-btn" data-digit="0">0</button>
+              <button type="button" class="copier-btn copier-btn--danger" id="btn-ac">AC</button>
+            </div>
+
+            <button type="button" class="copier-btn copier-btn--start" id="start-btn">▶ START</button>
+          </div>
+
+          <div class="paper-tray" id="paper-tray">
+            <button type="button" class="tray-front" id="tray-toggle" aria-expanded="false" aria-controls="tray-interior">
+              <span class="tray-handle" aria-hidden="true">▭▭▭</span>
+              <span class="tray-label">TRAY 2</span>
+            </button>
+            <div class="tray-interior" id="tray-interior" hidden aria-live="polite">
+              <div class="tray-visual" id="tray-visual"></div>
+              <div class="tray-status" id="tray-status"></div>
+              <div class="tray-actions" id="tray-actions"></div>
+            </div>
+          </div>
+
+          <details class="glossary-box" id="hint-details">
+            <summary>🆘 Stuck? Peek at the field service reference</summary>
+            <p>Some real technical manuals are written for the people who repair the machine, not the people using it. This one is no different — read closely.</p>
+            <div class="ref-code">
+              Finishing: only "Staple + Collate" produces bound, ordered sets. Stack and Collate on their own won't satisfy a job that needs both.<br>
+              Sides: found under Settings. Pick the option that turns single-sided originals into double-sided output.<br>
+              Aux Access needs a facility login and isn't part of a normal copy job.<br>
+              Interrupt only matters if a job is already running — it does nothing when the queue is empty.<br>
+              Tray 2 feeds the job. An empty or jammed tray blocks Start no matter how complete the spec is — the release is built into the housing below the control panel, not on it.<br>
+              Document Glass: a bound original needs the corner guide extended, or the gutter shows up as a shadow on the copy. A flat original doesn't need it — and a guide left extended from a previous job will misalign a flat original's copy just as badly.
+            </div>
+          </details>
+
+          <div>
+            <button type="button" class="btn-reset" id="giveup-btn">🏳 End attempt &amp; see debrief</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAGE 2: DEBRIEF -->
+    <div class="stage" id="stage-1">
+      <div class="stage-num">2</div>
+      <div class="card card-locked" id="section-1">
+        <div class="locked-banner">
+          <span>🔒 Debrief unlocks once you finish (or give up on) the job</span>
+        </div>
+        <div class="card-body">
+          <h3>Debrief: your struggle data</h3>
+          <p>This mirrors what Suchman actually did — not asking people to describe how they used the machine afterward, but recording what they did, in order, while it was still fresh.</p>
+
+          <div id="debrief-summary"></div>
+
+          <h4>Your full log</h4>
+          <div class="table-scroll">
+            <table id="log-table">
+              <thead><tr><th>#</th><th>Time</th><th>You pressed</th><th>What that was</th></tr></thead>
+              <tbody id="log-tbody"></tbody>
+            </table>
+          </div>
+
+          <div id="compare-wrap" style="display:none;">
+            <h4>Comparing your attempts</h4>
+            <div class="table-scroll">
+              <table id="compare-table">
+                <thead><tr><th>Attempt</th><th>Result</th><th>Time</th><th>Total presses</th><th>Wrong picks</th><th>Dead-end menus</th><th>Reset</th><th>Early starts</th><th>Jams</th></tr></thead>
+                <tbody id="compare-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="discussion-box">
+            <h4>💬 Discussion Question (Group Activity)</h4>
+            <p>Look at your own log line by line. At the moment you pressed each button, did you have a plan for what would happen — or were you reacting to whatever the screen had just shown you? Where in the log does your account of "what I was doing" stop matching what you were actually clicking?</p>
+          </div>
+
+          <div class="discussion-box">
+            <h4>💬 Discussion Question (Group Activity)</h4>
+            <p>If you used the field service reference, what made it useful (or not)? Real manuals for expert users often work the same way — technically correct, but written for someone who already knows most of the answer.</p>
+          </div>
+
+          <div>
+            <button type="button" class="btn-reset" id="tryagain-btn">🔁 Try again (new attempt)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<div class="reflection-container">
+    <h3 class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <div class="row small text-dark">
+    <div class="col-md-12">
+        Once your group has compared logs, discuss:
+        <ul>
+            <li>The "big green button" story is often told as if Suchman's study was about making the <em>start</em> button easier to find. Based on what you just experienced, what was the study actually about?</li>
+            <li>If you tried the task more than once, did having a rough mental model from your first attempt change how you behaved the second time — even though the machine hadn't changed at all?</li>
+            <li>Suchman's original footage wasn't only about menus — people also fumbled with covers, trays, and levers whose purpose wasn't obvious just from looking at them. When did you first realize a physical part of this machine (not a button on the panel) needed opening? What made that moment feel different from working through a menu?</li>
+            <li>If your second attempt's original wasn't bound, did you remember to check the document glass anyway — or did you carry your first attempt's solution forward without re-checking whether it still applied? What does that say about the difference between "a plan that worked once" and "a machine that remembers what you last did to it"?</li>
+            <li>Chatbots and voice assistants don't have a "screen with menus" in the way a copier does. Where does the equivalent confusion show up when the system you're talking to is a language model instead of a physical machine?</li>
+        </ul>
+    </div>
+    </div>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// A DELIBERATELY SIMPLIFIED "copier": four settings (duplex, finishing,
+// quantity, and a handful of dead-end menus) reached through cryptic,
+// icon/abbreviation-only controls. Nothing here models a real machine —
+// it exists to produce confusion and a clickstream log, on purpose.
+//
+// Screens and their parent (for the BACK button):
+const PARENT = {
+    jobset_menu: 'home',
+    jobset_sides: 'jobset_menu',
+    jobset_finishing: 'jobset_menu',
+    imgq: 'jobset_menu',
+    reduce: 'jobset_menu',
+    aux_code: 'home',
+    interrupt: 'home'
+};
+
+// Every logged press gets one of these tags, purely for the debrief:
+// onpath   = moved a setting toward what the job ticket asked for
+// offpath  = picked a real option, but not the one the ticket needed
+// detour   = wandered into a menu (or a check) that was never going to help
+// backtrack= BACK / C-CE / closing the tray
+// reset    = AC (wipes every setting back to default)
+// premature = pressed START before the job was actually ready
+// jam      = the printer jammed on its own — not a wrong press, just the
+//            machine doing something outside your control, once per attempt
+// success  = the START press that actually sent the job
+const TAG_NOTE = {
+    onpath: '✅ moved toward the job ticket',
+    offpath: "↪ a real setting, just not what the ticket asked for",
+    detour: "🧭 a menu (or a check) that was never going to help right then",
+    backtrack: '◀ backed out or cleared an entry',
+    reset: '⚠ wiped every setting back to default',
+    premature: '❌ tried to start before the job was actually ready',
+    jam: '🧻 the machine jammed on its own — not a wrong press, just bad luck',
+    success: '🎉 sent the job'
+};
+
+let job, currentScreen, log, auxDigits, jobDoneFlag, attemptStart, attemptNum, attempts, hintsOpened;
+let paperState, trayOpen, hasJammedOnce;
+// bdaEngaged is deliberately NOT reset per attempt — a physical guide left
+// extended on a real machine doesn't spring back just because a new job
+// started. originalType (what THIS attempt's job ticket actually needs)
+// does change per attempt, which is exactly what creates the trap.
+let bdaEngaged = false;
+let bdaOpen = false;
+let originalType;
+
+function pad(n){ return String(n).padStart(2, '0'); }
+function sidesCode(){ return job.duplex ? '1→2' : '1→1'; }
+function finishCode(){ return job.finishing === 'staple-collate' ? 'S+C' : (job.finishing === 'collate' ? 'COL' : 'STK'); }
+function fmtTime(ms){
+    const s = Math.round(ms / 1000);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    return m > 0 ? `${m}m ${r}s` : `${r}s`;
+}
+
+function originalTypeForAttempt(n){
+    // Attempt 1 always needs the Bound Document Aid. Every attempt after
+    // that switches to a flat original — on purpose, so a guide left
+    // extended out of habit becomes the wrong move instead of the right one.
+    return n === 1 ? 'bound' : 'flat';
+}
+
+function updateJobTicketOriginal(){
+    const el = document.getElementById('jt-original');
+    el.textContent = originalType === 'bound'
+        ? 'Original: a bound course packet — handle with care'
+        : 'Original: 5 loose pages';
+}
+
+function resetAttemptState(){
+    job = { duplex: false, finishing: 'stack', qty: 1, qtyEntered: false };
+    currentScreen = 'home';
+    log = [];
+    auxDigits = 0;
+    jobDoneFlag = false;
+    attemptStart = Date.now();
+    paperState = 'empty';
+    trayOpen = false;
+    hasJammedOnce = false;
+    originalType = originalTypeForAttempt(attemptNum);
+    updateJobTicketOriginal();
+    // bdaEngaged is NOT touched here — see its declaration above.
+}
+
+function logPress(label, tag){
+    log.push({ n: log.length + 1, t: Date.now() - attemptStart, label, tag });
+}
+
+function flash(msg){ document.getElementById('screen-flash').textContent = msg; }
+
+function focusFirstSoft(){
+    const b = document.querySelector('#copier-soft-row button');
+    if(b) b.focus(); else document.getElementById('copier-screen').focus();
+}
+
+function disableCopier(disabled){
+    document.querySelectorAll('.copier-panel button, .paper-tray button, .bda-station button').forEach(b => b.disabled = disabled);
+}
+
+// --- paper tray: a separate physical part of the machine, not a menu ---
+function renderTray(){
+    const toggle = document.getElementById('tray-toggle');
+    const interior = document.getElementById('tray-interior');
+    toggle.setAttribute('aria-expanded', trayOpen ? 'true' : 'false');
+    interior.hidden = !trayOpen;
+    if(!trayOpen) return;
+
+    const visual = document.getElementById('tray-visual');
+    const status = document.getElementById('tray-status');
+    const actions = document.getElementById('tray-actions');
+    actions.innerHTML = '';
+
+    function addAction(label, fn){
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'copier-btn';
+        b.textContent = label;
+        b.addEventListener('click', fn);
+        actions.appendChild(b);
+    }
+
+    visual.className = 'tray-visual' + (paperState === 'loaded' ? ' loaded' : paperState === 'jammed' ? ' jammed' : '');
+
+    if(paperState === 'empty'){
+        visual.textContent = '— empty —';
+        status.textContent = 'Tray 2 is empty.';
+        addAction('📥 Load paper', loadPaper);
+    } else if(paperState === 'jammed'){
+        visual.textContent = '⚠ jam';
+        status.textContent = 'A sheet is caught partway through the feed path.';
+        addAction('🛠 Remove jammed sheet', clearJam);
+    } else {
+        visual.textContent = '▤▤▤▤▤';
+        status.textContent = 'Paper loaded, feeding fine.';
+    }
+    addAction('▭ Close tray', toggleTray);
+}
+
+function toggleTray(){
+    const wasOpen = trayOpen;
+    trayOpen = !trayOpen;
+    logPress(trayOpen ? '▭ Open Tray 2' : '▭ Close Tray 2',
+        trayOpen ? (paperState === 'loaded' ? 'detour' : 'onpath') : 'backtrack');
+    renderTray();
+    if(!wasOpen){
+        const first = document.querySelector('#tray-actions button');
+        if(first) first.focus();
+    } else {
+        document.getElementById('tray-toggle').focus();
+    }
+}
+
+function loadPaper(){
+    paperState = 'loaded';
+    logPress('📥 Load paper (Tray 2)', 'onpath');
+    renderTray();
+}
+
+function clearJam(){
+    paperState = 'loaded';
+    logPress('🛠 Remove jammed sheet (Tray 2)', 'onpath');
+    renderTray();
+}
+
+// --- document glass / Bound Document Aid: a second physical part of the
+// machine, whose correct position depends on what THIS attempt's original
+// actually is — and which doesn't reset itself just because a new attempt
+// started. ---
+function renderBda(){
+    const toggle = document.getElementById('bda-toggle');
+    const interior = document.getElementById('bda-interior');
+    toggle.setAttribute('aria-expanded', bdaOpen ? 'true' : 'false');
+    interior.hidden = !bdaOpen;
+    if(!bdaOpen) return;
+
+    const status = document.getElementById('bda-status');
+    const actions = document.getElementById('bda-actions');
+    actions.innerHTML = '';
+
+    function addAction(label, fn){
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'copier-btn';
+        b.textContent = label;
+        b.addEventListener('click', fn);
+        actions.appendChild(b);
+    }
+
+    if(bdaEngaged){
+        status.textContent = 'The bound document guide is extended.';
+        addAction('↩ Retract guide', retractGuide);
+    } else {
+        status.textContent = 'The bound document guide is retracted, flat against the glass.';
+        addAction('📖 Extend guide (for bound originals)', extendGuide);
+    }
+    addAction('▭ Close', toggleBda);
+}
+
+function toggleBda(){
+    const wasOpen = bdaOpen;
+    bdaOpen = !bdaOpen;
+    // Opening/closing the glass is logged like any other physical check —
+    // whether it "helped" depends on whether the guide's current position
+    // already matches what this attempt's original actually needs.
+    const guideAlreadyRight = (originalType === 'bound') === bdaEngaged;
+    logPress(bdaOpen ? '▭ Open Document Glass' : '▭ Close Document Glass',
+        bdaOpen ? (guideAlreadyRight ? 'detour' : 'onpath') : 'backtrack');
+    renderBda();
+    if(bdaOpen){
+        const first = document.querySelector('#bda-actions button');
+        if(first) first.focus();
+    } else {
+        document.getElementById('bda-toggle').focus();
+    }
+}
+
+function extendGuide(){
+    bdaEngaged = true;
+    logPress('📖 Extend bound-document guide', originalType === 'bound' ? 'onpath' : 'offpath');
+    renderBda();
+}
+
+function retractGuide(){
+    bdaEngaged = false;
+    logPress('↩ Retract bound-document guide', originalType === 'flat' ? 'onpath' : 'offpath');
+    renderBda();
+}
+
+// --- rendering the current screen (deliberately terse, jargon-only text) ---
+function render(){
+    document.getElementById('screen-flash').textContent = '';
+    const l1 = document.getElementById('screen-line1');
+    const l2 = document.getElementById('screen-line2');
+    const soft = document.getElementById('copier-soft-row');
+    soft.innerHTML = '';
+
+    function addSoft(label, fn, extraClass){
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'copier-btn' + (extraClass ? ' ' + extraClass : '');
+        b.textContent = label;
+        b.addEventListener('click', fn);
+        soft.appendChild(b);
+    }
+
+    switch(currentScreen){
+        case 'home':
+            l1.textContent = 'RDY';
+            l2.textContent = `${sidesCode()} ${finishCode()} QTY:${pad(job.qty)}`;
+            soft.innerHTML = '<span class="soft-empty">—</span>';
+            break;
+        case 'jobset_menu':
+            l1.textContent = 'SETTINGS';
+            l2.textContent = 'CHOOSE ONE';
+            addSoft('SIDES', () => nav('jobset_sides', 'SIDES', 'onpath'));
+            addSoft('FINISHING', () => nav('jobset_finishing', 'FINISHING', 'onpath'));
+            addSoft('IMAGE QUALITY', () => nav('imgq', 'IMAGE QUALITY', 'detour'));
+            addSoft('REDUCE/ENLARGE', () => nav('reduce', 'REDUCE/ENLARGE', 'detour'));
+            addSoft('◀ BACK', () => back(), 'copier-btn--back');
+            break;
+        case 'jobset_sides':
+            l1.textContent = 'ORIGINAL ➜ OUTPUT';
+            l2.textContent = sidesCode();
+            addSoft('1→1', () => setSides(false, '1→1'));
+            addSoft('1→2', () => setSides(true, '1→2'));
+            addSoft('2→2', () => setSides(false, '2→2'));
+            addSoft('2→1', () => setSides(false, '2→1'));
+            addSoft('◀ BACK', () => back(), 'copier-btn--back');
+            break;
+        case 'jobset_finishing':
+            l1.textContent = 'FINISHING';
+            l2.textContent = finishCode();
+            addSoft('STACK', () => setFinish('stack', 'STACK'));
+            addSoft('COLLATE', () => setFinish('collate', 'COLLATE'));
+            addSoft('STAPLE + COLLATE', () => setFinish('staple-collate', 'STAPLE + COLLATE'));
+            addSoft('◀ BACK', () => back(), 'copier-btn--back');
+            break;
+        case 'aux_code':
+            l1.textContent = 'AUX ACCESS';
+            l2.textContent = 'CODE: ' + '▮'.repeat(auxDigits) + '▯'.repeat(4 - auxDigits);
+            addSoft('◀ BACK', () => back(), 'copier-btn--back');
+            break;
+        case 'interrupt':
+            l1.textContent = 'INTERRUPT';
+            l2.textContent = 'CURRENT JOB: NONE';
+            addSoft('RESUME', () => back());
+            addSoft('◀ BACK', () => back(), 'copier-btn--back');
+            break;
+        case 'imgq':
+            l1.textContent = 'IMAGE QUALITY';
+            l2.textContent = 'LIGHTEN ◀ ▶ DARKEN';
+            addSoft('◀', () => { logPress('◀ (img)', 'detour'); render(); });
+            addSoft('▶', () => { logPress('▶ (img)', 'detour'); render(); });
+            addSoft('◀ BACK', () => back(), 'copier-btn--back');
+            break;
+        case 'reduce':
+            l1.textContent = 'REDUCE/ENLARGE';
+            l2.textContent = '100%';
+            addSoft('−', () => { logPress('− (r/e)', 'detour'); render(); });
+            addSoft('+', () => { logPress('+ (r/e)', 'detour'); render(); });
+            addSoft('◀ BACK', () => back(), 'copier-btn--back');
+            break;
+    }
+}
+
+function nav(target, label, tag){
+    logPress(label, tag);
+    currentScreen = target;
+    render();
+    focusFirstSoft();
+}
+
+function back(){
+    logPress('◀ BACK', 'backtrack');
+    currentScreen = PARENT[currentScreen] || 'home';
+    if(currentScreen !== 'aux_code') auxDigits = 0;
+    render();
+    focusFirstSoft();
+}
+
+function setSides(val, label){
+    job.duplex = val;
+    logPress(label, val ? 'onpath' : 'offpath');
+    render();
+}
+function setFinish(val, label){
+    job.finishing = val;
+    logPress(label, val === 'staple-collate' ? 'onpath' : 'offpath');
+    render();
+}
+
+function pressDigit(d){
+    if(currentScreen === 'home'){
+        if(!job.qtyEntered){ job.qty = d; job.qtyEntered = true; }
+        else { job.qty = Math.min(99, job.qty * 10 + d); }
+        logPress(String(d), (d === 5 && job.qty === 5) ? 'onpath' : 'offpath');
+        render();
+    } else if(currentScreen === 'aux_code'){
+        auxDigits = Math.min(4, auxDigits + 1);
+        logPress(String(d) + ' (code)', 'detour');
+        if(auxDigits >= 4){ auxDigits = 0; render(); flash('✕ INVALID CODE'); }
+        else render();
+    } else {
+        logPress(String(d) + ' (off-screen)', 'detour');
+        render();
+    }
+}
+
+function pressCCE(){
+    if(currentScreen === 'home'){ job.qty = 1; job.qtyEntered = false; logPress('C/CE', 'backtrack'); }
+    else if(currentScreen === 'aux_code'){ auxDigits = 0; logPress('C/CE', 'backtrack'); }
+    else { logPress('C/CE (off-screen)', 'detour'); }
+    render();
+}
+
+function pressAC(){
+    job = { duplex: false, finishing: 'stack', qty: 1, qtyEntered: false };
+    logPress('AC', 'reset');
+    render();
+    flash('⚠ ALL SETTINGS CLEARED');
+}
+
+function pressStart(){
+    const specOk = job.duplex && job.finishing === 'staple-collate' && job.qty === 5;
+    if(!specOk){
+        logPress('▶ START', 'premature');
+        render();
+        flash('‼ E-07 SETTINGS INCOMPLETE');
+        return;
+    }
+    if(originalType === 'bound' && !bdaEngaged){
+        logPress('▶ START', 'premature');
+        render();
+        flash('‼ E-33 GUTTER SHADOW — CHECK DOCUMENT GLASS');
+        return;
+    }
+    if(originalType === 'flat' && bdaEngaged){
+        logPress('▶ START', 'premature');
+        render();
+        flash('‼ E-34 IMAGE OFFSET — CHECK DOCUMENT GLASS');
+        return;
+    }
+    if(paperState === 'empty'){
+        logPress('▶ START', 'premature');
+        render();
+        flash('‼ E-14 TRAY 2 EMPTY');
+        return;
+    }
+    if(paperState === 'jammed'){
+        logPress('▶ START', 'premature');
+        render();
+        flash('‼ E-21 PAPER JAM — CLEAR TRAY 2');
+        return;
+    }
+    if(!hasJammedOnce){
+        // Guaranteed once per attempt: spec is right, paper's loaded, and it
+        // still jams. Not a wrong press — the machine doing its own thing.
+        hasJammedOnce = true;
+        paperState = 'jammed';
+        logPress('▶ START', 'jam');
+        render();
+        renderTray();
+        flash('‼ E-21 PAPER JAM — CLEAR TRAY 2');
+        return;
+    }
+    logPress('▶ START', 'success');
+    jobDoneFlag = true;
+    render();
+    flash('✓ JOB SENT — 5 SETS, DUPLEX, STAPLED, COLLATED');
+    document.getElementById('giveup-btn').textContent = '🎉 Job sent — see debrief →';
+    disableCopier(true);
+}
+
+// --- wiring up the static (always-present) buttons ---
+function wireStaticButtons(){
+    document.querySelectorAll('[data-digit]').forEach(b => {
+        b.addEventListener('click', () => pressDigit(parseInt(b.dataset.digit, 10)));
+    });
+    document.getElementById('btn-cce').addEventListener('click', pressCCE);
+    document.getElementById('btn-ac').addEventListener('click', pressAC);
+    document.getElementById('start-btn').addEventListener('click', pressStart);
+    document.getElementById('hard-jobset').addEventListener('click', () => nav('jobset_menu', '▤ SETTINGS', 'onpath'));
+    document.getElementById('hard-aux').addEventListener('click', () => nav('aux_code', 'AUX ACCESS', 'detour'));
+    document.getElementById('hard-intrlv').addEventListener('click', () => nav('interrupt', '✱ INTERRUPT', 'detour'));
+    document.getElementById('tray-toggle').addEventListener('click', toggleTray);
+    document.getElementById('bda-toggle').addEventListener('click', toggleBda);
+    document.getElementById('hint-details').addEventListener('toggle', function(){ if(this.open) hintsOpened++; });
+    document.getElementById('giveup-btn').addEventListener('click', () => endAttempt(jobDoneFlag ? 'success' : 'gaveup'));
+    document.getElementById('tryagain-btn').addEventListener('click', newAttempt);
+}
+
+// --- debrief ---
+function computeStats(l){
+    return {
+        total: l.length,
+        onpath: l.filter(e => e.tag === 'onpath' || e.tag === 'success').length,
+        offpath: l.filter(e => e.tag === 'offpath').length,
+        detour: l.filter(e => e.tag === 'detour').length,
+        backtrack: l.filter(e => e.tag === 'backtrack').length,
+        reset: l.filter(e => e.tag === 'reset').length,
+        premature: l.filter(e => e.tag === 'premature').length,
+        jam: l.filter(e => e.tag === 'jam').length
+    };
+}
+
+function endAttempt(result){
+    const elapsed = Date.now() - attemptStart;
+    const stats = computeStats(log);
+    attempts.push({ num: attemptNum, result, elapsedMs: elapsed, log: log.slice(), stats });
+    renderDebrief();
+    unlockStage2();
+}
+
+function renderDebrief(){
+    const a = attempts[attempts.length - 1];
+    const resultLabel = a.result === 'success' ? '🎉 Job completed' : '🏳 Ended without completing';
+
+    document.getElementById('debrief-summary').innerHTML = `
+        <p><strong>${resultLabel}</strong> on Attempt ${a.num}.</p>
+        <span class="chip"><span class="k">Time</span><span class="v">${fmtTime(a.elapsedMs)}</span></span>
+        <span class="chip"><span class="k">Total presses</span><span class="v">${a.stats.total}</span></span>
+        <span class="chip"><span class="k">Wrong picks</span><span class="v">${a.stats.offpath}</span></span>
+        <span class="chip"><span class="k">Dead-end menu clicks</span><span class="v">${a.stats.detour}</span></span>
+        <span class="chip"><span class="k">Reset presses</span><span class="v">${a.stats.reset}</span></span>
+        <span class="chip"><span class="k">Early start attempts</span><span class="v">${a.stats.premature}</span></span>
+        <span class="chip"><span class="k">Jams</span><span class="v">${a.stats.jam}</span></span>
+        <span class="chip"><span class="k">Hints opened (all attempts)</span><span class="v">${hintsOpened}</span></span>
+    `;
+
+    document.getElementById('log-tbody').innerHTML = a.log.map(e => `
+        <tr class="${e.tag === 'success' ? 'tag-success' : ''}">
+            <td>${e.n}</td>
+            <td>${fmtTime(e.t)}</td>
+            <td><span style="font-family:'IBM Plex Mono',monospace;">${e.label}</span></td>
+            <td>${TAG_NOTE[e.tag] || ''}</td>
+        </tr>
+    `).join('') || '<tr><td colspan="4">No presses logged.</td></tr>';
+
+    if(attempts.length > 1){
+        document.getElementById('compare-wrap').style.display = 'block';
+        document.getElementById('compare-tbody').innerHTML = attempts.map(x => `
+            <tr class="${x.result === 'success' ? 'tag-success' : ''}">
+                <td>${x.num}</td>
+                <td>${x.result === 'success' ? '🎉 Completed' : '🏳 Gave up'}</td>
+                <td>${fmtTime(x.elapsedMs)}</td>
+                <td>${x.stats.total}</td>
+                <td>${x.stats.offpath}</td>
+                <td>${x.stats.detour}</td>
+                <td>${x.stats.reset}</td>
+                <td>${x.stats.premature}</td>
+                <td>${x.stats.jam}</td>
+            </tr>
+        `).join('');
+    }
+}
+
+function unlockStage2(){
+    const card = document.getElementById('section-1');
+    card.classList.remove('card-locked');
+    card.querySelector('.locked-banner').style.display = 'none';
+    card.querySelector('.card-body').style.display = 'block';
+    document.getElementById('stage-0').classList.remove('active');
+    document.getElementById('stage-0').classList.add('done');
+    document.getElementById('stage-1').classList.add('active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function newAttempt(){
+    attemptNum++;
+    resetAttemptState();
+
+    const sec1 = document.getElementById('section-1');
+    sec1.classList.add('card-locked');
+    sec1.querySelector('.locked-banner').style.display = 'flex';
+    sec1.querySelector('.card-body').style.display = 'none';
+    document.getElementById('stage-1').classList.remove('active', 'done');
+    document.getElementById('stage-0').classList.remove('done');
+    document.getElementById('stage-0').classList.add('active');
+
+    document.getElementById('attempt-badge').textContent = `Attempt ${attemptNum}`;
+    document.getElementById('job-num').textContent = '#' + (4000 + Math.floor(Math.random() * 900));
+    document.getElementById('giveup-btn').textContent = '🏳 End attempt & see debrief';
+    disableCopier(false);
+    render();
+    renderTray();
+    renderBda();
+
+    document.getElementById('stage-0').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initUI(){
+    attempts = [];
+    attemptNum = 1;
+    hintsOpened = 0;
+    resetAttemptState();
+    wireStaticButtons();
+    document.getElementById('job-num').textContent = '#' + (4000 + Math.floor(Math.random() * 900));
+    render();
+    renderTray();
+    renderBda();
+}
+
+window.onload = initUI;
+</script>
+
+</body>
+</html>

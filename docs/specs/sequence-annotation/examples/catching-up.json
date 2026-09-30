@@ -1,0 +1,46 @@
+{
+  "$schema": "https://uga-ling2150.github.io/applets/specs/sequence-annotation/v1.schema.json",
+  "format": "sequence-annotation",
+  "version": "1.0",
+  "transcript": {
+    "id": "greetings",
+    "title": "Catching up",
+    "language": "en",
+    "source": { "citation": "Written for LING2150 Activity 7C: Sequence Expansion.", "constructed": true },
+    "turns": [
+      { "id": "t1", "speaker": "Ana", "text": "Hi, Chris!" },
+      { "id": "t2", "speaker": "Chris", "text": "Hey, Ana!" },
+      { "id": "t3", "speaker": "Ana", "text": "How are you?" },
+      { "id": "t4", "speaker": "Chris", "text": "Good, thanks." },
+      { "id": "t5", "speaker": "Chris", "text": "How about you?" },
+      { "id": "t6", "speaker": "Ana", "text": "Not bad." }
+    ]
+  },
+  "analyses": [
+    {
+      "id": "suggested",
+      "label": "Suggested analysis",
+      "pairs": [
+        { "id": "greet", "type": "adjacency", "parts": ["t1", "t2"] },
+        { "id": "hay1", "type": "adjacency", "parts": ["t3", "t4"] },
+        { "id": "hay2", "type": "adjacency", "parts": ["t5", "t6"] },
+        { "id": "hays", "type": "sequence", "parts": ["hay1", "hay2"], "note": "Reciprocal how-are-you exchange." },
+        { "id": "opening", "type": "sequence", "parts": ["greet", "hays"] }
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "alt",
+      "label": "Alternative: second how-are-you as a post-expansion",
+      "annotator": "Example student",
+      "pairs": [
+        { "id": "greet", "type": "adjacency", "parts": ["t1", "t2"] },
+        { "id": "hay1", "type": "adjacency", "parts": ["t3", "t4"] },
+        { "id": "hay2", "type": "adjacency", "parts": ["t5", "t6"] }
+      ],
+      "dependencies": [
+        { "dependent": "hay2", "head": "t4", "type": "post" }
+      ]
+    }
+  ]
+}

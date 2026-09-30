@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://uga-ling2150.github.io/applets/specs/sequence-annotation/v1.schema.json",
+  "title": "Sequence Annotation Format, version 1",
+  "description": "A transcript plus one or more conversation-analytic analyses of its sequence organization: adjacency pairs, sequences of sequences, and dependencies (expansions). Structural rules that JSON Schema cannot express (ordering, uniqueness of membership, acyclicity) are listed in sequence-annotation.md, section 5, and must also be checked.",
+  "type": "object",
+  "required": ["format", "version", "transcript", "analyses"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "sequence-annotation" },
+    "version": {
+      "description": "Semantic version of this format. Consumers accept any 1.x document and ignore fields they do not know.",
+      "type": "string",
+      "pattern": "^1\\.[0-9]+(\\.[0-9]+)?$"
+    },
+    "transcript": { "$ref": "#/$defs/transcript" },
+    "analyses": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/analysis" }
+    }
+  },
+  "patternProperties": { "^x-": true },
+  "additionalProperties": false,
+
+  "$defs": {
+    "id": {
+      "description": "Identifier, unique within its scope (see sequence-annotation.md, section 3).",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,63}$"
+    },
+    "note": {
+      "description": "Free-text comment by the analyst.",
+      "type": "string",
+      "maxLength": 4000
+    },
+
+    "transcript": {
+      "type": "object",
+      "required": ["turns"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string" },
+        "language": { "description": "BCP 47 language tag, e.g. \"en\" or \"en-US\".", "type": "string" },
+        "source": { "$ref": "#/$defs/source" },
+        "speakers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/speaker" }
+        },
+        "turns": {
+          "description": "Turns in the order they occur. Array order is the sequential order that all positional rules use.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/turn" }
+        }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "citation": { "type": "string" },
+        "url": { "type": "string", "format": "uri" },
+        "license": { "description": "SPDX identifier or licence URL.", "type": "string" },
+        "constructed": { "description": "True if the talk was written for teaching rather than recorded.", "type": "boolean" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "speaker": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "description": "Name shown in the transcript. Defaults to the id.", "type": "string" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "turn": {
+      "type": "object",
+      "required": ["id", "speaker", "text"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "speaker": {
+          "description": "A speaker id if transcript.speakers is present, otherwise the speaker's label.",
+          "type": "string",
+          "minLength": 1
+        },
+        "text": { "type": "string" },
+        "start": { "description": "Start time in seconds from the start of the recording.", "type": "number", "minimum": 0 },
+        "end": { "description": "End time in seconds from the start of the recording.", "type": "number", "minimum": 0 }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+
+    "analysis": {
+      "type": "object",
+      "required": ["id", "pairs", "dependencies"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "description": "Human-readable name, e.g. \"Suggested analysis\" or a student's name.", "type": "string" },
+        "annotator": { "type": "string" },
+        "created": { "type": "string", "format": "date-time" },
+        "modified": { "type": "string", "format": "date-time" },
+        "tool": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" },
+            "url": { "type": "string", "format": "uri" }
+          },
+          "additionalProperties": false
+        },
+        "note": { "$ref": "#/$defs/note" },
+        "pairs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pair" }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/dependency" }
+        }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "pair": {
+      "description": "A bracket joining two units. \"adjacency\" joins two turns (FPP, SPP). \"sequence\" joins two pairs.",
+      "type": "object",
+      "required": ["id", "type", "parts"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "enum": ["adjacency", "sequence"] },
+        "parts": {
+          "description": "Exactly two unit ids, in transcript order. For an adjacency pair, parts[0] is the FPP and parts[1] the SPP.",
+          "type": "array",
+          "prefixItems": [{ "$ref": "#/$defs/id" }, { "$ref": "#/$defs/id" }],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "note": { "$ref": "#/$defs/note" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "dependency": {
+      "description": "An expansion: the dependent unit (a turn or pair) belongs to the head turn of a base pair.",
+      "type": "object",
+      "required": ["dependent", "head"],
+      "properties": {
+        "dependent": { "description": "Id of a turn or of a pair.", "$ref": "#/$defs/id" },
+        "head": { "description": "Id of a turn: the base FPP or SPP that the dependent expands.", "$ref": "#/$defs/id" },
+        "type": {
+          "description": "Optional, redundant: the expansion type derived by the rules in sequence-annotation.md, section 6. If present, it must equal the derived value.",
+          "enum": ["pre", "insert-post-first", "insert-pre-second", "post", "minimal-post", "unclassified"]
+        },
+        "note": { "$ref": "#/$defs/note" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    }
+  }
+}

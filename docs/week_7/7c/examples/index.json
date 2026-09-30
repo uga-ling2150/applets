@@ -1,0 +1,8 @@
+{
+  "examples": [
+    { "file": "borrowing-notes.json" },
+    { "file": "whats-shakin.json", "label": "What's Shakin'" },
+    { "file": "thats-great.json", "label": "That's Great'" },
+    { "file": "movie-theater.json", "label": "Movie Theater'" }
+  ]
+}

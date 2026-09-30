@@ -1,0 +1,204 @@
+/* 7C-specific widgets only: the transcript board (turn rows, bracket and dependency
+   drawing), the side panels and the expansion-type colours. Fields, buttons, callouts,
+   feedback and source cards all come from the shared style.css. */
+
+/* Expansion-type colours, shared by tags, brackets, bracket dots and arrows. */
+.sx-t-none { --c: var(--sanford); }
+.sx-t-base { --c: var(--uga-red); }
+.sx-t-pre  { --c: var(--olympic); }
+.sx-t-insF,
+.sx-t-insS { --c: var(--uni-blue); }
+.sx-t-post { --c: #7a4a00; }
+.sx-t-dep  { --c: var(--muted); }
+
+.sx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem 1.25rem;
+}
+.sx-toolbar .field { flex: 0 1 18rem; min-width: 0; margin-bottom: 0; }
+.sx-toolbar .btn-row { margin-bottom: 0; }
+.sx-custom { margin-top: 0.75rem; }
+.sx-key-note { margin: 0.75rem 0 0; }
+.sx-howto { margin: 0.9rem 0 0.4rem; }
+.sx-howto strong { color: var(--text); }
+
+/* ---------- Board ---------- */
+.sx-scroll { overflow-x: auto; padding: 6px 0; }
+.sx-board {
+  --gl: 8px;
+  --gr: 8px;
+  position: relative;
+  min-width: 18rem;
+}
+.sx-turns {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sx-turn {
+  display: grid;
+  grid-template-columns: var(--gl) 30px minmax(6.5rem, 9rem) minmax(0, 1fr) var(--gr);
+  align-items: stretch;
+}
+.sx-empty { font: 14px "Merriweather Sans", sans-serif; color: var(--muted); padding: 1rem 0; }
+
+.sx-dot,
+.sx-pdot {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: crosshair;
+  touch-action: none;
+}
+.sx-dot { grid-column: 2; align-self: center; justify-self: center; }
+.sx-dot::before,
+.sx-pdot::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+}
+.sx-dot::before { background: var(--panel); border: 2px solid var(--sanford); }
+.sx-dot:hover::before { border-color: var(--uni-blue); }
+.sx-dot[aria-pressed="true"]::before { background: var(--uga-red); border-color: var(--uga-red); }
+.sx-pdots { position: absolute; inset: 0; pointer-events: none; }
+.sx-pdot { position: absolute; margin: -12px 0 0 -12px; pointer-events: auto; }
+.sx-pdot::before { background: var(--c); border: 2px solid var(--panel); }
+.sx-pdot[aria-pressed="true"]::before,
+.sx-pdot.is-selected::before { box-shadow: 0 0 0 2px var(--uga-red); }
+.sx-dot:focus-visible,
+.sx-pdot:focus-visible,
+.sx-who:focus-visible { outline: 3px solid var(--uni-blue); outline-offset: 1px; }
+.sx-pdot.is-drop::before { box-shadow: 0 0 0 3px var(--uni-blue); }
+
+.sx-who,
+.sx-say {
+  border: 1px solid var(--line);
+  font-family: "Merriweather Sans", sans-serif;
+  color: var(--text);
+  cursor: grab;
+}
+.sx-who {
+  grid-column: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  gap: 2px 6px;
+  padding: 6px 8px;
+  border-right: 0;
+  border-radius: 6px 0 0 6px;
+  background: var(--panel-alt);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  touch-action: none;
+  user-select: none;
+}
+.sx-num { font: 500 11px "IBM Plex Mono", monospace; color: var(--muted); }
+.sx-name { min-width: 0; overflow-wrap: anywhere; }
+.sx-say {
+  grid-column: 4;
+  padding: 7px 10px;
+  border-radius: 0 6px 6px 0;
+  background: var(--panel);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.sx-tag {
+  --c: var(--muted);
+  padding: 0 4px;
+  border: 1px solid var(--c);
+  border-radius: 4px;
+  color: var(--c);
+  font: 600 11px "IBM Plex Mono", monospace;
+  white-space: nowrap;
+}
+.sx-tag:empty { display: none; }
+.sx-tag sub { font-size: 9px; margin-left: 1px; }
+.sx-turn.is-member .sx-who,
+.sx-turn.is-member .sx-say { background: #fbf3f4; }
+.sx-turn.is-selected .sx-who,
+.sx-turn.is-selected .sx-say { border-color: var(--uga-red); box-shadow: inset 0 0 0 1px var(--uga-red); }
+.sx-turn.is-drop .sx-who,
+.sx-turn.is-drop .sx-say { border-color: var(--uni-blue); background: #eef4fb; }
+
+.sx-svg,
+.sx-drag {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.sx-line { fill: none; stroke: var(--c); stroke-width: 2; }
+.sx-line.is-seq { stroke-dasharray: 6 3; }
+.sx-line.is-selected,
+.is-selected > .sx-line { stroke-width: 3.5; }
+.sx-arrow { fill: var(--c); }
+.sx-lbl {
+  fill: var(--c);
+  font: 600 10px "IBM Plex Mono", monospace;
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 3px;
+}
+.sx-hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; cursor: pointer; }
+.sx-rubber { fill: none; stroke: var(--uni-blue); stroke-width: 2; stroke-dasharray: 5 4; }
+.sx-board.is-readonly .sx-who,
+.sx-board.is-readonly .sx-say,
+.sx-board.is-readonly .sx-dot,
+.sx-board.is-readonly .sx-pdot { cursor: pointer; }
+body.sx-dragging,
+body.sx-dragging * { cursor: grabbing !important; user-select: none; }
+
+/* ---------- Panels under the board ---------- */
+.sx-lower {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+  margin: 0.5rem 0 1rem;
+}
+.sx-panel {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-alt);
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 15px;
+}
+.sx-panel h3 { margin-bottom: 0.5rem; font-size: 1.1rem; }
+.sx-sel-title { margin: 0 0 4px; font-weight: 700; }
+.sx-sel-desc { margin: 0 0 12px; }
+.sx-summary { margin: 0; padding-left: 1.1rem; }
+.sx-summary li { margin-bottom: 6px; }
+.sx-warn { color: var(--rust); font-size: 13px; }
+
+.confirm-box {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 2px solid var(--uga-red);
+  border-radius: 8px;
+  font-size: 15px;
+}
+.confirm-box p { margin: 0 0 0.5rem; }
+
+.sx-legend { margin: 10px 0 0; padding-left: 0; list-style: none; }
+.sx-legend li { margin-bottom: 4px; }
+
+@media (max-width: 760px) {
+  .sx-lower { grid-template-columns: 1fr; }
+  .sx-turn { grid-template-columns: var(--gl) 28px minmax(4.5rem, 6rem) minmax(0, 1fr) var(--gr); }
+  .sx-say { font-size: 14px; padding: 6px 8px; }
+}

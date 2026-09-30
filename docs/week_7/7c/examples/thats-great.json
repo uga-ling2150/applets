@@ -1,0 +1,78 @@
+{
+  "$schema": "https://uga-ling2150.github.io/applets/specs/sequence-annotation/v1.schema.json",
+  "format": "sequence-annotation",
+  "version": "1.0",
+  "transcript": {
+    "id": "thats-great",
+    "title": "That's great!",
+    "turns": [
+      {
+        "id": "t1",
+        "speaker": "A",
+        "text": "Hello. How are you?"
+      },
+      {
+        "id": "t2",
+        "speaker": "U",
+        "text": "b*tchin’!"
+      },
+      {
+        "id": "t3",
+        "speaker": "A",
+        "text": "What do you mean?"
+      },
+      {
+        "id": "t4",
+        "speaker": "U",
+        "text": "I’m great!"
+      },
+      {
+        "id": "t5",
+        "speaker": "A",
+        "text": "That’s great!"
+      }
+    ]
+  },
+  "analyses": [
+    {
+      "id": "mine",
+      "label": "My analysis",
+      "modified": "2026-09-30T05:06:25.110Z",
+      "tool": {
+        "name": "LING2150 Sequence builder",
+        "version": "1",
+        "url": "https://uga-ling2150.github.io/applets/week_7/7C_sequence_expansion.html"
+      },
+      "pairs": [
+        {
+          "id": "p1",
+          "type": "adjacency",
+          "parts": [
+            "t1",
+            "t2"
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "adjacency",
+          "parts": [
+            "t3",
+            "t4"
+          ]
+        }
+      ],
+      "dependencies": [
+        {
+          "dependent": "p2",
+          "head": "t2",
+          "type": "post"
+        },
+        {
+          "dependent": "t5",
+          "head": "t4",
+          "type": "minimal-post"
+        }
+      ]
+    }
+  ]
+}

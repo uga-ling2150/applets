@@ -1,0 +1,35 @@
+{
+  "$schema": "https://uga-ling2150.github.io/applets/specs/sequence-annotation/v1.schema.json",
+  "format": "sequence-annotation",
+  "version": "1.0",
+  "transcript": {
+    "id": "borrowing-notes",
+    "title": "Borrowing notes",
+    "source": { "citation": "Written for LING2150 Activity 7C: Sequence Expansion.", "constructed": true },
+    "turns": [
+      { "id": "t1", "speaker": "Sam", "text": "Were you in Dr. Lee’s lecture on Tuesday?" },
+      { "id": "t2", "speaker": "Kim", "text": "Yeah." },
+      { "id": "t3", "speaker": "Sam", "text": "Could I borrow your notes?" },
+      { "id": "t4", "speaker": "Kim", "text": "Which part?" },
+      { "id": "t5", "speaker": "Sam", "text": "Just the second half." },
+      { "id": "t6", "speaker": "Kim", "text": "Sure, I’ll send them tonight." },
+      { "id": "t7", "speaker": "Sam", "text": "Thanks so much." }
+    ]
+  },
+  "analyses": [
+    {
+      "id": "suggested",
+      "label": "Suggested analysis",
+      "pairs": [
+        { "id": "pre", "type": "adjacency", "parts": ["t1", "t2"] },
+        { "id": "request", "type": "adjacency", "parts": ["t3", "t6"] },
+        { "id": "which", "type": "adjacency", "parts": ["t4", "t5"] }
+      ],
+      "dependencies": [
+        { "dependent": "pre", "head": "t3", "type": "pre" },
+        { "dependent": "which", "head": "t3", "type": "insert-post-first", "note": "Clarifies what the request is for. It could also be argued to be pre-second: Kim needs to know before granting." },
+        { "dependent": "t7", "head": "t6", "type": "minimal-post" }
+      ]
+    }
+  ]
+}

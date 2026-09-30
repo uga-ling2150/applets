@@ -1,0 +1,78 @@
+{
+  "$schema": "https://uga-ling2150.github.io/applets/specs/sequence-annotation/v1.schema.json",
+  "format": "sequence-annotation",
+  "version": "1.0",
+  "transcript": {
+    "id": "whats-shakin",
+    "title": "What's shakin'?",
+    "turns": [
+      {
+        "id": "t1",
+        "speaker": "U",
+        "text": "whats shakin bruh"
+      },
+      {
+        "id": "t2",
+        "speaker": "A",
+        "text": "You mean, what’s new?"
+      },
+      {
+        "id": "t3",
+        "speaker": "U",
+        "text": "yeah"
+      },
+      {
+        "id": "t4",
+        "speaker": "A",
+        "text": "Nothing really. I don’t get out much."
+      },
+      {
+        "id": "t5",
+        "speaker": "U",
+        "text": "ha!"
+      }
+    ]
+  },
+  "analyses": [
+    {
+      "id": "mine",
+      "label": "My analysis",
+      "modified": "2026-09-30T05:01:39.982Z",
+      "tool": {
+        "name": "LING2150 Sequence builder",
+        "version": "1",
+        "url": "https://uga-ling2150.github.io/applets/week_7/7C_sequence_expansion.html"
+      },
+      "pairs": [
+        {
+          "id": "p2",
+          "type": "adjacency",
+          "parts": [
+            "t1",
+            "t4"
+          ]
+        },
+        {
+          "id": "p3",
+          "type": "adjacency",
+          "parts": [
+            "t2",
+            "t3"
+          ]
+        }
+      ],
+      "dependencies": [
+        {
+          "dependent": "p3",
+          "head": "t1",
+          "type": "insert-post-first"
+        },
+        {
+          "dependent": "t5",
+          "head": "t4",
+          "type": "minimal-post"
+        }
+      ]
+    }
+  ]
+}

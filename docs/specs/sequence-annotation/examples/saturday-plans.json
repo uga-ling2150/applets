@@ -1,0 +1,48 @@
+{
+  "$schema": "https://uga-ling2150.github.io/applets/specs/sequence-annotation/v1.schema.json",
+  "format": "sequence-annotation",
+  "version": "1.0",
+  "transcript": {
+    "id": "saturday",
+    "title": "Saturday plans",
+    "language": "en",
+    "source": {
+      "citation": "Written for LING2150 Activity 7C: Sequence Expansion.",
+      "constructed": true
+    },
+    "speakers": [
+      { "id": "maya", "label": "Maya" },
+      { "id": "leo", "label": "Leo" }
+    ],
+    "turns": [
+      { "id": "t1", "speaker": "maya", "text": "Are you doing anything on Saturday?" },
+      { "id": "t2", "speaker": "leo", "text": "Why?" },
+      { "id": "t3", "speaker": "maya", "text": "I’ve got two tickets for a concert." },
+      { "id": "t4", "speaker": "leo", "text": "No, I’m free." },
+      { "id": "t5", "speaker": "maya", "text": "Do you want to come?" },
+      { "id": "t6", "speaker": "leo", "text": "Who’s playing?" },
+      { "id": "t7", "speaker": "maya", "text": "A jazz trio from Atlanta." },
+      { "id": "t8", "speaker": "leo", "text": "Yeah, I’d love to." },
+      { "id": "t9", "speaker": "maya", "text": "Great." }
+    ]
+  },
+  "analyses": [
+    {
+      "id": "suggested",
+      "label": "Suggested analysis",
+      "tool": { "name": "LING2150 Sequence builder", "version": "1", "url": "https://uga-ling2150.github.io/applets/week_7/7C_sequence_expansion.html" },
+      "pairs": [
+        { "id": "pre", "type": "adjacency", "parts": ["t1", "t4"], "note": "Pre-invitation: checks availability before inviting." },
+        { "id": "why", "type": "adjacency", "parts": ["t2", "t3"] },
+        { "id": "invite", "type": "adjacency", "parts": ["t5", "t8"] },
+        { "id": "who", "type": "adjacency", "parts": ["t6", "t7"] }
+      ],
+      "dependencies": [
+        { "dependent": "pre", "head": "t5", "type": "pre" },
+        { "dependent": "why", "head": "t1", "type": "insert-post-first", "note": "An expansion can itself be expanded: this insert belongs to the pre-sequence." },
+        { "dependent": "who", "head": "t8", "type": "insert-pre-second", "note": "Leo needs this information before accepting or declining." },
+        { "dependent": "t9", "head": "t8", "type": "minimal-post" }
+      ]
+    }
+  ]
+}

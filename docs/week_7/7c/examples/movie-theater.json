@@ -1,0 +1,101 @@
+{
+  "$schema": "https://uga-ling2150.github.io/applets/specs/sequence-annotation/v1.schema.json",
+  "format": "sequence-annotation",
+  "version": "1.0",
+  "transcript": {
+    "id": "movie-theater",
+    "title": "Movie theater",
+    "turns": [
+      {
+        "id": "t1",
+        "speaker": "U",
+        "text": "what’s your favorite movie theater?"
+      },
+      {
+        "id": "t2",
+        "speaker": "A",
+        "text": "I guess I like movies with a strong AI lead."
+      },
+      {
+        "id": "t3",
+        "speaker": "U",
+        "text": "that’s not what I mean"
+      },
+      {
+        "id": "t4",
+        "speaker": "A",
+        "text": "I’m sorry, please try again."
+      },
+      {
+        "id": "t5",
+        "speaker": "U",
+        "text": "can you recommend a movie theater?"
+      },
+      {
+        "id": "t6",
+        "speaker": "A",
+        "text": "I’m afraid I don’t have information on movie theaters."
+      },
+      {
+        "id": "t7",
+        "speaker": "U",
+        "text": "ok"
+      }
+    ]
+  },
+  "analyses": [
+    {
+      "id": "mine",
+      "label": "My analysis",
+      "modified": "2026-09-30T05:09:19.120Z",
+      "tool": {
+        "name": "LING2150 Sequence builder",
+        "version": "1",
+        "url": "https://uga-ling2150.github.io/applets/week_7/7C_sequence_expansion.html"
+      },
+      "pairs": [
+        {
+          "id": "p1",
+          "type": "adjacency",
+          "parts": [
+            "t1",
+            "t2"
+          ]
+        },
+        {
+          "id": "p2",
+          "type": "adjacency",
+          "parts": [
+            "t3",
+            "t4"
+          ]
+        },
+        {
+          "id": "p3",
+          "type": "adjacency",
+          "parts": [
+            "t5",
+            "t6"
+          ]
+        }
+      ],
+      "dependencies": [
+        {
+          "dependent": "p2",
+          "head": "t2",
+          "type": "post"
+        },
+        {
+          "dependent": "t7",
+          "head": "t6",
+          "type": "minimal-post"
+        },
+        {
+          "dependent": "p3",
+          "head": "t4",
+          "type": "post"
+        }
+      ]
+    }
+  ]
+}

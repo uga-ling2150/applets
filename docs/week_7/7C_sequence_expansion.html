@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity 7C: Sequence Expansion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="7c/applet.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 7C: Sequence Expansion</h3>
+
+    <h4 class="uga-accent">Learning Objectives</h4>
+    <ul>
+      <li><strong>Identify</strong> adjacency pairs and their first and second pair parts.</li>
+      <li><strong>Distinguish</strong> pre-expansions, insert expansions and post-expansions by where they occur in relation to a base pair.</li>
+      <li><strong>Represent</strong> how sequences are built from other sequences and depend on them.</li>
+    </ul>
+
+    <h4 class="uga-accent">Background</h4>
+    <p>An <strong>adjacency pair</strong> is two turns by different speakers. The <strong>first pair part</strong> (FPP), such as a question, request or invitation, makes a particular kind of <strong>second pair part</strong> (SPP) relevant next: an answer, a granting or refusal, an acceptance or declination. Conversation is rarely a string of separate pairs. Instead, a <strong>base pair</strong> can be <em>expanded</em> by other sequences in three positions:</p>
+    <ul>
+      <li><strong>Pre-expansion</strong>, before the base FPP. <em>“Are you doing anything on Saturday?”</em> checks whether an invitation is worth making.</li>
+      <li><strong>Insert expansion</strong>, between the base FPP and SPP. A <em>post-first</em> insert deals with the FPP itself, often a repair (<em>“Sorry, a large what?”</em>). A <em>pre-second</em> insert sets up what the SPP needs (<em>“For here or to go?”</em>).</li>
+      <li><strong>Post-expansion</strong>, after the base SPP. It is <em>minimal</em> when it is a single turn that closes the sequence, a <strong>sequence-closing third</strong> (SCT) such as <em>“Oh”</em>, <em>“Okay”</em> or <em>“Great”</em>. It is <em>non-minimal</em> when it opens a further pair (<em>“Really?”</em> – <em>“Yeah”</em>).</li>
+    </ul>
+    <p>Expansions are sequences too, so they can be expanded in turn. In this applet you draw the structure: a bracket joins two turns into a pair, and a dependency arrow says which base turn an expansion belongs to. The applet names the expansion from where it sits.</p>
+
+    <h4 class="uga-accent">Instructions</h4>
+    <ol>
+      <li>Choose a transcript, or paste your own. Read it through before you mark anything.</li>
+      <li><strong>Pair turns:</strong> drag from one turn’s dot to another turn’s dot. The earlier turn is tagged FPP and the later one SPP. You can also click one dot, then the other.</li>
+      <li><strong>Attach expansions:</strong> press on a turn and release it on the turn it depends on. Use the base FPP for pre-expansions and post-first inserts, and the base SPP for pre-second inserts and post-expansions. Dragging a turn that is already in a pair moves the whole pair. To attach a longer sequence, start from its bracket.</li>
+      <li><strong>Join sequences:</strong> drag from one bracket’s dot to another bracket’s dot.</li>
+      <li>Click any turn, bracket dot or arrow to check or change it in the panel below the transcript. Press Delete or Backspace to remove its annotation: the dependency first, then the bracket. Then compare your analysis with a partner’s and with the suggested one.</li>
+    </ol>
+  </section>
+
+  <section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero">
+      <div class="hero-text">
+        <h2 id="applet-title">Sequence <span>builder</span></h2>
+        <p>Bracket the pairs, then attach each expansion to its base.</p>
+      </div>
+    </div>
+
+    <div class="sx-toolbar">
+      <div class="field">
+        <label for="sx-example">Transcript</label>
+        <select id="sx-example">
+          <option value="essay">The essay (post-expansion)</option>
+          <option value="counter">At the counter (insert expansions)</option>
+          <option value="saturday">Saturday plans (all three positions)</option>
+          <option value="greetings">Catching up (sequences of sequences)</option>
+          <option value="custom">My own transcript</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button id="sx-key" class="btn-uga-outline" type="button">Show a suggested analysis</button>
+        <button id="sx-clear" class="btn-reset" type="button">Clear my analysis</button>
+      </div>
+    </div>
+
+    <div id="sx-custom" class="sx-custom field" hidden>
+      <label for="sx-title">Title <span class="field-optional">(optional)</span></label>
+      <input id="sx-title" type="text" maxlength="80">
+      <label for="sx-paste">Paste a transcript, one turn per line</label>
+      <textarea id="sx-paste" rows="6" maxlength="12000" aria-describedby="sx-paste-help" placeholder="A: Are you free tonight?&#10;B: Why?"></textarea>
+      <p id="sx-paste-help" class="field-hint">Write each turn as “Speaker: what they said”. A line without a colon is added to the turn above it. Up to 40 turns.</p>
+      <p id="sx-paste-error" class="error-text" role="alert"></p>
+      <div class="btn-row"><button id="sx-load" class="btn-uga" type="button">Load transcript</button></div>
+    </div>
+
+    <div id="sx-confirm" class="confirm-box" hidden>
+      <p>Clear every bracket and dependency for this transcript? Download your work first if you want to keep it.</p>
+      <div class="btn-row">
+        <button id="sx-clear-yes" class="btn-uga" type="button">Clear my analysis</button>
+        <button id="sx-clear-no" class="btn-uga-outline" type="button">Keep it</button>
+      </div>
+    </div>
+
+    <p id="sx-key-note" class="discussion-box sx-key-note" hidden>This is one defensible analysis, shown read-only. Where yours differs, look for the evidence in the talk before deciding which is better.</p>
+
+    <p class="field-hint sx-howto"><strong>Dot to dot:</strong> pair two turns. <strong>Turn to turn:</strong> attach an expansion. <strong>Bracket dot to bracket dot:</strong> join sequences. <strong>Delete:</strong> remove the selected annotation.</p>
+
+    <div class="sx-scroll">
+      <div id="sx-board" class="sx-board">
+        <ol id="sx-turns" class="sx-turns" aria-label="Transcript turns"></ol>
+        <svg id="sx-svg" class="sx-svg" aria-hidden="true" focusable="false"></svg>
+        <div id="sx-pdots" class="sx-pdots"></div>
+        <svg class="sx-drag" aria-hidden="true" focusable="false"><path id="sx-rubber" class="sx-rubber" d=""/></svg>
+      </div>
+    </div>
+    <p id="sx-status" class="chat-status" role="status" aria-live="polite"></p>
+
+    <div class="sx-lower">
+      <section class="sx-panel" aria-labelledby="sx-inspector-title">
+        <h3 id="sx-inspector-title">Selected</h3>
+        <div id="sx-inspector"></div>
+      </section>
+      <section class="sx-panel" aria-labelledby="sx-summary-title">
+        <h3 id="sx-summary-title">Your analysis</h3>
+        <ul id="sx-summary" class="sx-summary"></ul>
+      </section>
+    </div>
+
+    <p id="sx-save" class="field-hint" role="status"></p>
+    <div class="btn-row">
+      <button id="sx-download" class="btn-uga-outline" type="button">Download my work</button>
+      <button id="sx-json" class="btn-uga-outline" type="button">Download as JSON</button>
+      <button id="sx-open" class="btn-uga-outline" type="button">Open a JSON file</button>
+      <input id="sx-file" type="file" accept=".json,application/json" hidden>
+      <span id="sx-download-status" class="field-hint" role="status"></span>
+    </div>
+    <p class="field-hint">“Download my work” saves a readable summary. The JSON file can be opened here again to carry on, or shared with a partner to compare.</p>
+
+    <details class="glossary-box">
+      <summary>Tags and colours</summary>
+      <ul class="sx-legend">
+        <li><strong>FPP / SPP</strong>: first and second pair part of an adjacency pair.</li>
+        <li><strong>base</strong> (red): a pair that other sequences expand.</li>
+        <li><strong>pre</strong> (teal): pre-expansion, placed before and attached to the base FPP.</li>
+        <li><strong>ins</strong> (blue): insert expansion, between the base FPP and SPP. It is attached to the FPP (post-first) or the SPP (pre-second).</li>
+        <li><strong>post</strong> (brown): non-minimal post-expansion, a pair after and attached to the base SPP.</li>
+        <li><strong>SCT</strong> (brown): sequence-closing third, a single-turn (minimal) post-expansion.</li>
+        <li>A dashed bracket joins two pairs or sequences into a larger sequence. An arrow on the right points from an expansion to the turn it depends on.</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <ol>
+      <li>In “At the counter”, why is “Sorry, a large what?” a post-first insert, but “For here or to go?” a pre-second insert? What does each one need from the other speaker?</li>
+      <li>In “Saturday plans”, the pre-expansion contains its own insert expansion. What does this tell you about how far sequences can be built inside one another?</li>
+      <li>Where did you and a partner (or the suggested analysis) disagree about which turn an expansion depends on? What in the talk supports each view?</li>
+      <li>What would each conversation lose without its sequence-closing third (“Oh wow.”, “Great.”)? Is a minimal post-expansion ever required?</li>
+      <li>When a chatbot asks a clarifying question before answering, or when a user types “thanks” after an answer, which kinds of expansion are these? How might a system designer use this?</li>
+    </ol>
+    <div class="reflection-notes field">
+      <label for="reflection">Write down your thoughts</label>
+      <textarea id="reflection" rows="5" maxlength="4000"></textarea>
+      <div class="btn-row">
+        <button class="btn-uga" type="button" data-download-notes>Download my notes</button>
+        <span class="field-hint" role="status" data-download-status></span>
+      </div>
+      <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
+  </section>
+
+</main>
+
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading">
+  <div class="applet-feedback-card__content">
+    <div>
+      <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+      <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a>
+    </div>
+    <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%207C%3A%20Sequence%20Expansion&amp;applet=Activity%207C%3A%20Sequence%20Expansion&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_7%2F7C_sequence_expansion.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a>
+  </div>
+</section>
+
+<footer class="source-card" aria-labelledby="sources-title">
+  <h3 id="sources-title">Sources</h3>
+  <p>Terminology and the three expansion positions follow <a href="https://doi.org/10.1017/CBO9780511791208" target="_blank" rel="noopener noreferrer">Schegloff (2007), <em>Sequence Organization in Interaction: A Primer in Conversation Analysis</em><span class="visually-hidden"> (opens in a new tab)</span></a>. The transcripts are short examples written for this activity, not recorded talk, and leave out the timing, overlap and intonation that a conversation-analytic transcript would show.</p>
+</footer>
+
+<noscript><p>Please enable JavaScript to use the sequence builder.</p></noscript>
+<script src="../reflection-notes.js" defer></script>
+<script src="7c/applet.js" defer></script>
+</body>
+</html>

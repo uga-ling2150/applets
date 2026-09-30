@@ -12,27 +12,31 @@
 #count, #saved-count { font-size: 15px; }
 
 /* Comparison view */
+.bc-wave-wrap { position: relative; cursor: pointer; }
 .bc-wave { display: block; width: 100%; height: 90px; background: #f5f5f5; }
 .bc-axis { display: flex; justify-content: space-between; font-size: 0.9em; color: #444; }
 .bc-row { padding: 12px 0; border-bottom: 1px solid #ccc; }
 .bc-track {
   position: relative;
   height: 36px;
-  margin: 6px 16px;
+  margin: 6px 0;
+  cursor: pointer;
   background: linear-gradient(transparent 17px, #888 17px, #888 19px, transparent 19px);
 }
-.bc-triangle { position: absolute; top: 0; transform: translateX(-50%); color: #9b0028; font-size: 18px; font-weight: bold; }
-.bc-time-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
-.bc-time-list button {
-  min-height: 40px;
-  padding: 6px 10px;
-  border: 1px solid #777;
-  border-radius: 4px;
-  background: #fff;
-  color: #7e0820;
-  font: 600 14px "Merriweather Sans", sans-serif;
+/* Moving playhead: one per waveform and per participant track, all at the same x-position */
+.bc-playhead {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: 0;
+  width: 3px;
+  margin-left: -1.5px;
+  background: #000;
+  pointer-events: none;
+  z-index: 1;
 }
-.bc-time-list button:hover { background: #f9e8ed; }
+.bc-triangle { position: absolute; top: 0; transform: translateX(-50%); color: #9b0028; font-size: 18px; font-weight: bold; transition: color .1s, transform .1s; }
+.bc-triangle.bc-hit { color: var(--lake-herrick, #00A3AD); transform: translateX(-50%) scale(1.35); z-index: 2; }
 .bc-table-wrap { overflow: auto; }
 .bc-table { width: 100%; border-collapse: collapse; font-size: 15px; }
 .bc-table th, .bc-table td { padding: 8px; border-bottom: 1px solid #bbb; text-align: left; }
