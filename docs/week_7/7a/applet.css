@@ -65,9 +65,6 @@
 .teacher-mode #class-summary, .teacher-mode #class-retention { display: block; }
 .teacher-mode #teacher-summary-slot { margin-bottom: 16px; }
 
-@media (max-width: 480px) {
-  .bc-player { padding: 12px; }
-  .btn-row > * { max-width: 100%; }
-  .bc-table th, .bc-table td { padding: 6px; }
-  .bc-mark { font-size: 1.05rem; }
-}
+.bc-loading #comparison{display:none!important}
+
+.live-mode #activity-panel,.live-mode .bc-classroom,.live-mode #reflection-panel details{display:none!important}.live-mode #live-panel{display:block}#live-link{width:100%;padding:10px;border:1px solid #777;border-radius:5px;background:#fff;color:#222}#live-error:empty{display:none}#live-rows{overflow-wrap:anywhere}

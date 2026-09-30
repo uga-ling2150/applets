@@ -1,5 +1,6 @@
 (function(){
 'use strict';
+if(new URLSearchParams(location.search).get('mode')==='live')return;
 const $=id=>document.getElementById(id), clips=window.BC_CLIPS, core=window.BC_CORE, audio=$('audio');
 let personalRuns=null, priorExposure=false;
 let clip=clips[0], runs=[], active=null, revealed=false, ready=false, buffering=false, reviewUntil=null, lastSave=-1;

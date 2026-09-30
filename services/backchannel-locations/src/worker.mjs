@@ -1,3 +1,4 @@
+import {liveRequest} from './live.mjs';
 import {sharedCollection} from './shared.mjs';
 import {recordEvents,submitAttempt,auditRecords} from './audit.mjs';
 import {authHandle,cleanAuth,oauth} from './auth.mjs';
@@ -16,7 +17,7 @@ export default {async fetch(r,env){
  const auth=env.ROOMS.get(env.ROOMS.idFromName('teacher-account'));
  const teacherRoute=p.match(/^\/api\/teacher\/(exchange|logout|session|rooms)$/);
  let identity=null;const isTeacher=async()=>{const check=await auth.fetch(new Request('https://internal/auth/check',{headers:r.headers}));if(check.ok)identity=await check.json();return check.ok;};
- if(p==='/api/health')result=json({ok:true,version:'7a-simple-6'});
+ if(p==='/api/health')result=json({ok:true,version:'7a-live-1'});
  else if(['/api/teacher/start','/api/teacher/callback'].includes(p)&&r.method==='GET')return oauth(r,env,auth);
  else if(p==='/api/current'&&r.method==='GET')result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/current'+new URL(r.url).search);
  else if(p==='/api/teacher/next'&&r.method==='POST'){if(!await isTeacher())result=json({error:'Teacher sign-in is required.'},401);else result=await env.ROOMS.get(env.ROOMS.idFromName('shared-directory')).fetch('https://internal/shared/next'+new URL(r.url).search,{method:'POST'});}
@@ -28,7 +29,7 @@ export default {async fetch(r,env){
   const admitted=await gate.fetch('https://internal/quota',{method:'POST'});if(!admitted.ok)result=admitted;
   else {const code=Array.from(crypto.getRandomValues(new Uint8Array(8)),v=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[v%32]).join('');const room=env.ROOMS.get(env.ROOMS.idFromName(code));result=await room.fetch('https://internal/init',{method:'POST',body:JSON.stringify({code,clipId:b.clipId,createdAt:Date.now(),teacherId:identity.teacherId})});if(result.ok){const created=await result.json();await auth.fetch('https://internal/auth/add-room',{method:'POST',body:JSON.stringify({...created,createdAt:Date.now(),teacherId:identity.teacherId})});result=json(created);}}
  }else{
-  const m=p.match(/^\/api\/rooms\/([A-Z2-9]{8})(?:\/(join|submit|results|manage|events|audit))?$/);if(!m)result=json({error:'Activity not found.'},404);else {const forwarded=new Request('https://internal/'+(m[2]||'info'),r);forwarded.headers.delete('X-Verified-Teacher');forwarded.headers.delete('X-Teacher-Key');if(r.headers.has('Authorization')){if(!await isTeacher())result=json({error:'Your teacher session has expired. Please sign in again.'},401);else forwarded.headers.set('X-Verified-Teacher',identity.teacherId);}if(!result)result=await env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(forwarded);}
+  const m=p.match(/^\/api\/rooms\/([A-Z2-9]{8})(?:\/(join|submit|results|manage|events|audit|live|live-control|live-join|live-save|live-results))?$/);if(!m)result=json({error:'Activity not found.'},404);else {const forwarded=new Request('https://internal/'+(m[2]||'info')+new URL(r.url).search,r);forwarded.headers.delete('X-Verified-Teacher');forwarded.headers.delete('X-Teacher-Key');if(r.headers.has('Authorization')){if(!await isTeacher())result=json({error:'Your teacher session has expired. Please sign in again.'},401);else forwarded.headers.set('X-Verified-Teacher',identity.teacherId);}if(!result)result=await env.ROOMS.get(env.ROOMS.idFromName(m[1])).fetch(forwarded);}
  }
  }catch(e){result=json({error:e instanceof SyntaxError?'Invalid JSON.':e.message||'Service unavailable.'},400);}
  const h=new Headers(result.headers);for(const [k,v] of Object.entries(cors))h.set(k,v);return new Response(result.body,{status:result.status,headers:h});
@@ -45,6 +46,7 @@ export class BackchannelRoom{
  if(path==='/init'&&r.method==='POST'){if(await store.get('meta'))return json({error:'Please create the activity again.'},409);const b=await body(r);const m={...b,createdAt:now,expiresAt:now+TTL,open:true,released:false,joined:0,submitted:0};await store.put('meta',m);await store.setAlarm(m.expiresAt);return json({code:m.code,clipId:m.clipId,expiresAt:m.expiresAt});}
  const m=await store.get('meta');if(!m||m.expiresAt<=now)return json({error:'This activity does not exist or has expired.'},404);
  const verifiedTeacher=r.headers.get('X-Verified-Teacher');const teacher=!!verifiedTeacher&&(!m.teacherId||verifiedTeacher===m.teacherId);
+ if(path.startsWith('/live'))return liveRequest({store,m,path,r,teacher,body,hash,duration:CLIPS[m.clipId],now});
  const info=()=>({code:m.code,clipId:m.clipId,duration:CLIPS[m.clipId],open:m.open,released:m.released,joined:m.joined,submitted:m.submitted,totalSubmissions:m.totalSubmissions??m.submitted,expiresAt:m.expiresAt});
  if(path==='/info'&&r.method==='GET')return json(info());
  if(path==='/join'&&r.method==='POST'){
