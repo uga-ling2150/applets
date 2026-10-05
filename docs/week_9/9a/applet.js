@@ -184,7 +184,7 @@
     const note = document.createElement('p');
     note.textContent = `${submissions.length} participant${submissions.length === 1 ? '' : 's'}, ${summary.missing} unmarked excerpt${summary.missing === 1 ? '' : 's'}. Counts include five excerpts per participant.`;
     target.append(note);
-    target.setAttribute('aria-label', `${submissions.length} participants. ` + core.BINS.map((b, i) => `${b.label}: ${summary.counts[i]}`).join('. ') + `. Unmarked: ${summary.missing}.`);
+    target.setAttribute('aria-label', `${submissions.length} participant${submissions.length === 1 ? '' : 's'}. ` + core.BINS.map((b, i) => `${b.label}: ${summary.counts[i]}`).join('. ') + `. Unmarked: ${summary.missing}.`);
   }
   function renderResults() {
     audio.pause();

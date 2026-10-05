@@ -22,6 +22,7 @@
 .trp-bar-fill { display: block; height: 100%; background: var(--olympic); }
 .trp-research { border-left: 4px solid var(--olympic); background: #f2f7f8; padding: 1rem; margin: 1.5rem 0; }
 .trp-research h4 { margin-top: 0; }
+.trp-research a { color: var(--uga-red); }
 .trp-teacher { max-width: 1000px; margin: 0 auto 2rem; }
 .trp-teacher .glossary-box { margin-top: 0; }
 #import { max-width: 100%; }

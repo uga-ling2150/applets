@@ -1000,6 +1000,7 @@ h3 {
   font-size: 0.9rem;
   line-height: 1.55;
 }
+.source-card a { color: var(--uga-red); }
 .source-card details {
   margin: 0.6rem 0;
   padding: 0;
