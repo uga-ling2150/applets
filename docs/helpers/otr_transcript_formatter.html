@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Whisper Transcript Formatter</title>
+<title>oTranscribe Transcript Formatter</title>
 <style>
 :root {
   --uga-red: #ba0c2f;
@@ -486,6 +486,7 @@ h1, h2, h3 {
   white-space: nowrap;
 }
 .transcript-table td.col-participant { color: var(--muted); }
+.transcript-table td.col-participant.unlabeled { color: var(--muted-dim); }
 </style>
 </head>
 <body>
@@ -493,8 +494,8 @@ h1, h2, h3 {
 
   <div class="hero">
     <div class="hero-text">
-      <h1>Whisper <span>Formatter</span></h1>
-      <p>Upload a Whisper JSON export. Each segment becomes a turn with a blank <code>___</code> speaker label for you to fill in, since Whisper doesn't identify speakers.</p>
+      <h1>oTranscribe <span>Formatter</span></h1>
+      <p>Upload an oTranscribe <code>.otr</code> file. Each line becomes a row, split into timestamp, speaker (the text before the first colon), and message.</p>
     </div>
   </div>
 
@@ -506,7 +507,7 @@ h1, h2, h3 {
       <div class="stage-num">1</div>
       <div class="stage-body">
         <div class="stage-title">Upload</div>
-        <div class="stage-sub">.json file</div>
+        <div class="stage-sub">.otr file</div>
 
         <label class="dropzone" id="dropzone" for="file-input">
           <div class="dropzone-icon">
@@ -516,9 +517,9 @@ h1, h2, h3 {
               <line x1="12" y1="3" x2="12" y2="15"/>
             </svg>
           </div>
-          <div class="dropzone-title">Drop Whisper JSON file here, or click to browse</div>
-          <div class="dropzone-sub">array of { timestamp, text } segments (also accepts { segments } and whisper.cpp { transcription })</div>
-          <input type="file" id="file-input" accept="application/json,.json" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;" />
+          <div class="dropzone-title">Drop OTR file here, or click to browse</div>
+          <div class="dropzone-sub">oTranscribe export, one "Speaker: text" turn per line</div>
+          <input type="file" id="file-input" accept=".otr,application/json,.json" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;" />
         </label>
         <span class="filename-chip hidden" id="filename-chip"><span class="dot"></span><span id="filename-text"></span></span>
       </div>
@@ -534,25 +535,20 @@ h1, h2, h3 {
           </div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <div class="format-toggle">
-              <button type="button" id="format-list-btn" class="active">List</button>
-              <button type="button" id="format-table-btn">Table</button>
+              <button type="button" id="format-list-btn">List</button>
+              <button type="button" id="format-table-btn" class="active">Table</button>
             </div>
             <label class="brace-toggle">
-              <input type="checkbox" id="time-toggle" />
+              <input type="checkbox" id="time-toggle" checked />
               <span><span class="brace-glyph">&#9719;</span> Timestamps</span>
             </label>
-            <label class="brace-toggle" title="Remove [BLANK_AUDIO]-style tags and segments that are only stray brackets or punctuation">
-              <input type="checkbox" id="clean-toggle" checked />
-              <span><span class="brace-glyph">[ ]</span> Drop junk segments</span>
-            </label>
             <span class="copy-feedback" id="copy-feedback">Copied</span>
-            <button class="btn-uga-outline" id="copy-btn" disabled>Copy</button>
-            <button class="btn-uga-outline" id="otr-btn" title="Download for oTranscribe (otranscribe.com), with clickable timestamps" disabled>Download .otr</button>
+            <button class="btn-uga-outline" id="copy-btn" disabled>Copy as TSV</button>
             <button class="reset-btn" id="reset-btn">Reset</button>
           </div>
         </div>
-        <textarea class="output-box" id="output-box" placeholder="Formatted transcript will appear here once you upload a Whisper JSON file..." readonly></textarea>
-        <div class="table-wrap hidden" id="table-wrap">
+        <textarea class="output-box hidden" id="output-box" placeholder="Formatted transcript will appear here once you upload an OTR file..." readonly></textarea>
+        <div class="table-wrap" id="table-wrap">
           <table class="transcript-table" id="transcript-table">
             <thead>
               <tr id="table-head"></tr>
@@ -587,7 +583,6 @@ h1, h2, h3 {
   const unsupported = document.getElementById('unsupported');
   const messageCount = document.getElementById('message-count');
   const copyBtn = document.getElementById('copy-btn');
-  const otrBtn = document.getElementById('otr-btn');
   const copyFeedback = document.getElementById('copy-feedback');
   const resetBtn = document.getElementById('reset-btn');
   const statusLeft = document.getElementById('status-left');
@@ -595,13 +590,12 @@ h1, h2, h3 {
   const formatListBtn = document.getElementById('format-list-btn');
   const formatTableBtn = document.getElementById('format-table-btn');
   const timeToggle = document.getElementById('time-toggle');
-  const cleanToggle = document.getElementById('clean-toggle');
 
-  const SPEAKER = '___';
-  let rawSegments = [];     // [{ start, end, text }] as parsed
-  let currentMessages = []; // segments after optional cleaning
-  let currentFormat = 'list'; // 'list' | 'table'
-  let currentFileName = '';
+  // one color per distinct speaker, in order of first appearance
+  const speakerColors = ['var(--olympic)', 'var(--uga-red)', 'var(--lake-herrick)', 'var(--sanford)', '#7a5c00', '#5b2a86'];
+  let speakerIndex = {};
+  let currentMessages = []; // [{ time, speaker, text }]
+  let currentFormat = 'table'; // 'list' | 'table'
 
   function turnNumber(index) {
     const width = Math.max(2, String(currentMessages.length).length);
@@ -616,7 +610,7 @@ h1, h2, h3 {
   }
 
   function formatTime(sec) {
-    if (typeof sec !== 'number' || !isFinite(sec)) return '--:--';
+    if (typeof sec !== 'number' || !isFinite(sec)) return '';
     const total = Math.max(0, sec);
     const h = Math.floor(total / 3600);
     const m = Math.floor((total % 3600) / 60);
@@ -625,106 +619,88 @@ h1, h2, h3 {
     return h ? `${h}:${mm}:${s}` : `${mm}:${s}`;
   }
 
-  function timeRange(m) {
-    return `${formatTime(m.start)}–${formatTime(m.end)}`;
-  }
-
-  // oTranscribe .otr: JSON whose "text" is the editor HTML; timestamps are
-  // spans with data-timestamp (seconds) that seek the media when clicked.
-  function otrTimestamp(sec) {
-    const t = isFinite(sec) ? Math.max(0, sec) : 0;
-    const h = Math.floor(t / 3600);
-    const m = Math.floor((t % 3600) / 60);
-    const s = String(Math.floor(t % 60)).padStart(2, '0');
-    const label = h ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`;
-    return `<span class="timestamp" contenteditable="false" data-timestamp="${t}">${label}</span>`;
-  }
-
-  function buildOtr() {
-    const html = currentMessages
-      .map((m) => `<p>${otrTimestamp(m.start)} ${SPEAKER}: ${escapeHtml(m.text)}</p>`)
-      .join('');
-    return JSON.stringify({ text: html, media: '', 'media-source': '', 'media-time': 0 });
-  }
-
-  function downloadOtr() {
-    if (!currentMessages.length) return;
-    const blob = new Blob([buildOtr()], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = (currentFileName.replace(/\.[^.]+$/, '') || 'transcript') + '.otr';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }
-
-  // whisper.cpp "00:01:02,340" -> seconds
+  // "1:02" / "01:02:03.5" -> seconds
   function parseClock(str) {
-    const match = String(str).match(/^(?:(\d+):)?(\d+):(\d+(?:[.,]\d+)?)$/);
-    if (!match) return NaN;
-    return (+(match[1] || 0)) * 3600 + (+match[2]) * 60 + parseFloat(match[3].replace(',', '.'));
+    const parts = String(str).split(':').map(Number);
+    if (parts.some((n) => !isFinite(n))) return NaN;
+    return parts.reduce((acc, n) => acc * 60 + n, 0);
   }
 
-  function toSegment(seg) {
-    let start, end;
-    if (Array.isArray(seg.timestamp)) {
-      // transformers.js / HF pipeline: { timestamp: [start, end], text }
-      [start, end] = seg.timestamp;
-    } else if (seg.offsets) {
-      // whisper.cpp: offsets in milliseconds
-      start = seg.offsets.from / 1000;
-      end = seg.offsets.to / 1000;
-    } else if (seg.timestamps) {
-      start = parseClock(seg.timestamps.from);
-      end = parseClock(seg.timestamps.to);
-    } else {
-      // openai-whisper: { start, end, text }
-      start = seg.start;
-      end = seg.end;
+  const BLOCK_TAGS = new Set(['P', 'DIV', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE']);
+
+  // Walk the editor HTML, splitting into lines at <br> and block elements.
+  // oTranscribe timestamps are <span class="timestamp" data-timestamp="secs">.
+  function htmlToLines(html) {
+    const doc = new DOMParser().parseFromString('<div>' + html + '</div>', 'text/html');
+    const lines = [];
+    let line = { time: NaN, text: '' };
+
+    function flush() {
+      if (line.text.trim() || isFinite(line.time)) lines.push(line);
+      line = { time: NaN, text: '' };
     }
-    return { start: Number(start), end: Number(end), text: String(seg.text ?? '').trim() };
+
+    function walk(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        line.text += node.nodeValue;
+        return;
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return;
+      if (node.tagName === 'BR') { flush(); return; }
+      if (node.classList.contains('timestamp')) {
+        const t = parseFloat(node.getAttribute('data-timestamp'));
+        if (!isFinite(line.time)) line.time = isFinite(t) ? t : parseClock(node.textContent);
+        return;
+      }
+      const isBlock = BLOCK_TAGS.has(node.tagName);
+      if (isBlock) flush();
+      node.childNodes.forEach(walk);
+      if (isBlock) flush();
+    }
+
+    walk(doc.body.firstChild);
+    flush();
+    return lines;
   }
 
-  function parseSegments(data) {
-    const list = Array.isArray(data) ? data
-      : Array.isArray(data && data.chunks) ? data.chunks
-      : Array.isArray(data && data.segments) ? data.segments
-      : Array.isArray(data && data.transcription) ? data.transcription
-      : null;
-    if (!list) {
-      throw new Error('expected an array of segments (or a "segments" / "chunks" / "transcription" array)');
+  // Text before the first colon is the speaker if it looks like a label
+  // (short, no sentence punctuation), e.g. "Maya:", "___:", "Speaker 2:".
+  const speakerRe = /^([^:.?!,;\n]{1,30}):\s*([\s\S]*)$/;
+  // Typed timestamps like "[0:36]" or "01:02:03" at the start of a line
+  const typedTimeRe = /^\[?((?:\d+:)?\d{1,2}:\d{2}(?:\.\d+)?)\]?\s+/;
+
+  function parseLine(raw) {
+    let text = raw.text.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+    let time = raw.time;
+    const typed = text.match(typedTimeRe);
+    if (typed) {
+      if (!isFinite(time)) time = parseClock(typed[1]);
+      text = text.slice(typed[0].length);
     }
-    if (!list.length) throw new Error('the segment list is empty');
-    if (!list.every((s) => s && typeof s.text === 'string')) {
-      throw new Error('every segment needs a "text" field');
-    }
-    return list.map(toSegment);
+    const match = text.match(speakerRe);
+    return match
+      ? { time, speaker: match[1].trim(), text: match[2].trim() }
+      : { time, speaker: '', text };
   }
 
-  // Whisper hallucinates non-speech tags ([BLANK_AUDIO], [MUSIC]) and runs of
-  // stray brackets on silence; strip those and drop segments with no words left.
-  function cleanText(text) {
-    return text
-      .replace(/\[[A-Z_ ]+\]|\([A-Z_ ]+\)/g, ' ')
-      .replace(/(^|\s)[\[\]]+(?=\s|$)/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+  function parseOtr(data) {
+    if (!data || typeof data.text !== 'string') {
+      throw new Error('missing the "text" field of an oTranscribe export');
+    }
+    const messages = htmlToLines(data.text).map(parseLine).filter((m) => m.text || m.speaker);
+    if (!messages.length) throw new Error('the transcript is empty');
+    return messages;
   }
 
-  function applyCleaning() {
-    if (!cleanToggle.checked) {
-      currentMessages = rawSegments.slice();
-      return;
-    }
-    currentMessages = rawSegments
-      .map((s) => Object.assign({}, s, { text: cleanText(s.text) }))
-      .filter((s) => /[\p{L}\p{N}]/u.test(s.text));
+  function speakerColor(speaker) {
+    if (!(speaker in speakerIndex)) speakerIndex[speaker] = Object.keys(speakerIndex).length;
+    return speakerColors[speakerIndex[speaker] % speakerColors.length];
   }
 
   function listLine(m, i) {
-    const time = timeToggle.checked ? `[${timeRange(m)}] ` : '';
-    return `${turnNumber(i)} ${time}${SPEAKER}: ${m.text}`;
+    const time = timeToggle.checked && isFinite(m.time) ? `[${formatTime(m.time)}] ` : '';
+    const speaker = m.speaker ? `${m.speaker}: ` : '';
+    return `${turnNumber(i)} ${time}${speaker}${m.text}`;
   }
 
   function renderList() {
@@ -740,30 +716,31 @@ h1, h2, h3 {
       return;
     }
     tableEmpty.style.display = 'none';
+    speakerIndex = {};
     currentMessages.forEach((m, i) => {
       const tr = document.createElement('tr');
+      const colorStyle = m.speaker && m.speaker !== '___' ? ` style="color:${speakerColor(m.speaker)}"` : '';
       tr.innerHTML =
         '<td class="col-turn">' + turnNumber(i) + '</td>' +
-        (showTime ? '<td class="col-time">' + timeRange(m) + '</td>' : '') +
-        '<td class="col-participant">' + SPEAKER + '</td>' +
+        (showTime ? '<td class="col-time">' + formatTime(m.time) + '</td>' : '') +
+        '<td class="col-participant' + (colorStyle ? '' : ' unlabeled') + '"' + colorStyle + '>' + escapeHtml(m.speaker) + '</td>' +
         '<td>' + escapeHtml(m.text) + '</td>';
       tableBody.appendChild(tr);
     });
   }
 
   function updateCount() {
-    if (!rawSegments.length) {
+    if (!currentMessages.length) {
       messageCount.textContent = 'no file loaded';
       return;
     }
     const n = currentMessages.length;
-    const dropped = rawSegments.length - n;
-    messageCount.textContent = n + ' segment' + (n === 1 ? '' : 's') + ' parsed' +
-      (dropped ? ` (${dropped} junk dropped)` : '');
+    const speakers = new Set(currentMessages.map((m) => m.speaker).filter(Boolean)).size;
+    messageCount.textContent = n + ' line' + (n === 1 ? '' : 's') + ' parsed, ' +
+      speakers + ' speaker label' + (speakers === 1 ? '' : 's');
   }
 
   function renderAll() {
-    applyCleaning();
     renderList();
     renderTable();
     updateCount();
@@ -782,10 +759,9 @@ h1, h2, h3 {
   function showError(msg) {
     unsupported.textContent = msg;
     unsupported.classList.add('show');
-    rawSegments = [];
+    currentMessages = [];
     renderAll();
     copyBtn.disabled = true;
-    otrBtn.disabled = true;
     stageOutput.classList.remove('done');
     statusLeft.textContent = 'Error';
   }
@@ -798,16 +774,14 @@ h1, h2, h3 {
     if (!file) return;
     clearError();
     filenameText.textContent = file.name;
-    currentFileName = file.name;
     filenameChip.classList.remove('hidden');
 
     const reader = new FileReader();
     reader.onload = function (e) {
       try {
-        rawSegments = parseSegments(JSON.parse(e.target.result));
+        currentMessages = parseOtr(JSON.parse(e.target.result));
         renderAll();
         copyBtn.disabled = false;
-        otrBtn.disabled = false;
         stageOutput.classList.add('done');
         statusLeft.textContent = 'Parsed ' + file.name;
       } catch (err) {
@@ -846,8 +820,6 @@ h1, h2, h3 {
   formatListBtn.addEventListener('click', function () { setFormat('list'); });
   formatTableBtn.addEventListener('click', function () { setFormat('table'); });
 
-  otrBtn.addEventListener('click', downloadOtr);
-
   copyBtn.addEventListener('click', function () {
     if (!currentMessages.length) return;
     let text;
@@ -855,11 +827,11 @@ h1, h2, h3 {
       text = currentMessages.map(listLine).join('\n');
     } else {
       const showTime = timeToggle.checked;
-      text = '#\t' + (showTime ? 'Start\tEnd\t' : '') + 'Participant\tMessage\n' +
+      text = '#\t' + (showTime ? 'Time\t' : '') + 'Participant\tMessage\n' +
         currentMessages.map((m, i) =>
           `${turnNumber(i)}\t` +
-          (showTime ? `${formatTime(m.start)}\t${formatTime(m.end)}\t` : '') +
-          `${SPEAKER}\t${m.text.replace(/\t/g, ' ').replace(/\n/g, ' ')}`
+          (showTime ? `${formatTime(m.time)}\t` : '') +
+          `${m.speaker}\t${m.text.replace(/\t/g, ' ')}`
         ).join('\n');
     }
     navigator.clipboard.writeText(text).then(function () {
@@ -869,25 +841,22 @@ h1, h2, h3 {
   });
 
   timeToggle.addEventListener('change', renderAll);
-  cleanToggle.addEventListener('change', renderAll);
 
   resetBtn.addEventListener('click', function () {
     fileInput.value = '';
-    rawSegments = [];
-    timeToggle.checked = false;
-    cleanToggle.checked = true;
+    currentMessages = [];
+    timeToggle.checked = true;
     renderAll();
     filenameChip.classList.add('hidden');
     copyBtn.disabled = true;
-    otrBtn.disabled = true;
     clearError();
     stageOutput.classList.remove('done');
     statusLeft.textContent = 'Ready';
-    setFormat('list');
+    setFormat('table');
   });
 
   renderAll();
-  setFormat('list');
+  setFormat('table');
 })();
 </script>
 </body>
