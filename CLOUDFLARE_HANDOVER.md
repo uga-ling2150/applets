@@ -2,7 +2,7 @@
 
 Hi Ryan,
 
-This guide explains how Cloudflare supports Activities 5C, 7A and 7B. It also explains how to use the activities, update them, and move their services to your own Cloudflare account.
+This guide explains how Cloudflare supports Activities 5C, 7A, 7B and 10A. It also explains how to use the activities, update them, and move their services to your own Cloudflare account. Activity 9A uses audio files and browser JavaScript only; it has no Cloudflare service to transfer.
 
 The activities are already online. You do not need a Cloudflare account to use them in class. For 7A, use your GitHub account, `kayaulai`, to view the teacher tools. Students do not need accounts.
 
@@ -22,12 +22,13 @@ A **Cloudflare Worker** is a small program that runs on Cloudflare's computers. 
 | **5C: Explicature and Query Rewriting** | Runs AI to rewrite a selected Human turn using the earlier conversation. | Request counts and temporary records of requests in progress. It does not save the conversation in this storage. |
 | **7A: Backchannel Locations** | Saves classroom attempts, checks teacher sign-in, provides downloads, and shares class comparisons when the teacher chooses. It does not use AI. | Anonymous participant numbers, click times, attempts, task actions and submission times. Classroom records expire after 30 days. |
 | **7B: Presumptive Grounding** | Runs the same AI model with two different sets of instructions. One encourages an answer based on an interpretation. The other encourages a question when the meaning is unclear. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
+| **10A: Conversation Opening and Closing** | Continues the same completed task with the same model and settings. One instruction style tends to extend the interaction; the other tends to close after the task is done. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
 
-5C and 7B use **Llama 3.1 8B Instruct Fast**. The model runs on Cloudflare, so students do not download it. Their conversation text is sent to the model when they ask for a reply. Their private notes and reflections are not sent. Use fictional examples rather than personal information.
+5C, 7B and 10A use **Llama 3.1 8B Instruct Fast**. The model runs on Cloudflare, so students do not download it. Their conversation text is sent to the model when they ask for a reply. Their private notes and reflections are not sent. Use fictional examples rather than personal information.
 
 The public GitHub repository holds the code. It does not hold 7A classroom submissions or private service keys.
 
-## 2. How to use the three activities
+## 2. How to use the activities
 
 ### 5C: Rewrite a message so it makes sense on its own
 
@@ -102,6 +103,20 @@ Both assistants use the same model. Their instructions differ, but their behavio
 
 This activity does not submit student work to the instructor. Collect downloaded work separately if needed. If the live AI is unavailable, use **Offline discussion example (scripted, not live AI)**. That example is written in advance; it is not a new model response.
 
+### 10A: Compare two ways to end a conversation
+
+[Open Activity 10A](https://uga-ling2150.github.io/applets/week_10/10A_conversation_opening_closing.html)
+
+This activity follows 9A's question about when a new turn can start. Students now examine when a whole conversation can end. The opening and middle are fixed: a user requests a study-group reminder, supplies the details and receives the draft. The assistant has **not** sent the reminder.
+
+1. Read the four shared turns and identify where the task is completed.
+2. Write one ending message and select **Send the same message to both**.
+3. Compare the first live replies. Assistant A is instructed to keep a useful interaction going when possible; Assistant B is instructed to move toward closing when the task is complete. Both receive the same starting context, model and settings.
+4. Continue either conversation if useful, then mark what each first reply did and quote supporting words. The later histories may differ, so the first replies are the fairest direct comparison.
+5. Discuss when a follow-up is useful and when it makes the user do extra work to leave. Select **Download my work** before closing the tab.
+
+The instruction styles are tendencies, not guaranteed outcomes or automatic scores. The fixed exchange is composed on the server for each model request, so a browser cannot replace that shared starting context. Predictions, observations and reflection notes stay in the browser tab. No student work is automatically submitted to the instructor. If live AI is unavailable, use the clearly labelled scripted offline example for discussion.
+
 ## 3. Where the code and settings are
 
 ### GitHub
@@ -115,6 +130,7 @@ The GitHub Pages settings were checked for this handover. The site publishes fro
 | 5C | `docs/week_5/5C_explicit_query_rewriting.html` | `docs/week_5/5c/` | `services/query-rewrite/` |
 | 7A | `docs/week_7/7A_backchannel_locations.html` | `docs/week_7/7a/` | `services/backchannel-locations/` |
 | 7B | `docs/week_7/7B_presumptive_grounding.html` | `docs/week_7/7b/` | `services/presumptive-grounding/` |
+| 10A | `docs/week_10/10A_conversation_opening_closing.html` | `docs/week_10/10a/` | `services/conversation-closing/` |
 
 ### Cloudflare
 
@@ -125,8 +141,9 @@ The current Worker addresses are:
 | 5C | `ling2150-query-rewrite` | `https://ling2150-query-rewrite.ling2150-query-rewrite.workers.dev` |
 | 7A | `ling2150-7a-classroom` | `https://ling2150-7a-classroom.ling2150-query-rewrite.workers.dev` |
 | 7B | `ling2150-7b-grounding` | `https://ling2150-7b-grounding.ling2150-query-rewrite.workers.dev` |
+| 10A | `ling2150-10a-closing` | `https://ling2150-10a-closing.ling2150-query-rewrite.workers.dev` |
 
-The existing service notes describe a Cloudflare Free plan. The current account owner, billing settings and remaining allowance were not checked for this handover. The address ending in `workers.dev` is a public service address, not an account login.
+The existing service notes describe a Cloudflare Free plan. The 10A deployment was verified in the same Cloudflare account that lists the 5C, 7A and 7B Workers. Billing settings and remaining allowance were not checked. The address ending in `workers.dev` is a public service address, not an account login.
 
 Each backend folder contains `wrangler.jsonc`. This file tells Cloudflare the Worker name, storage connections and other settings. **Wrangler** is Cloudflare's command-line tool for sending code to Cloudflare. **Deploy** means publish that code so the service can run online.
 
@@ -138,6 +155,7 @@ These private values must be set separately:
 | --- | --- | --- |
 | 5C | `SESSION_SECRET` | Signs temporary browser sessions so the backend can check them. |
 | 7B | `SESSION_SECRET` | Does the same for 7B. Use a different value from 5C. |
+| 10A | `SESSION_SECRET` | Does the same for 10A. Use a unique value, separate from 5C and 7B. |
 | 7A | `GITHUB_CLIENT_SECRET` | Lets the backend complete GitHub teacher sign-in. |
 
 A **secret** is a private value stored in Cloudflare. Do not put it in GitHub, HTML, this guide or Freedcamp. Existing secret values are not needed for a fresh installation; create new ones in your own account.
@@ -164,9 +182,9 @@ Edit the matching file under `services/`, run its tests, and deploy that Worker.
 
 **A GitHub commit publishes the frontend through Pages. It does not deploy the Cloudflare backend under the documented setup.** Backend changes need a separate Wrangler deployment.
 
-7B also has a copy of the page served by its Worker. Run `npm run build` before deploying 7B so that copy includes the latest page changes.
+7B and 10A each have a copy of their page served by their Worker. Run `npm run build` in the matching service folder before deploying so that copy includes the latest page changes.
 
-5C and 7B have an `ENABLED` setting in `wrangler.jsonc`. Set it to `"false"` and deploy to pause AI requests. Set it to `"true"` and deploy to resume them. 7A does not use this setting.
+5C, 7B and 10A have an `ENABLED` setting in `wrangler.jsonc`. Set it to `"false"` and deploy to pause AI requests. Set it to `"true"` and deploy to resume them. 7A does not use this setting.
 
 ## 5. Move the services to your own Cloudflare account
 
@@ -199,13 +217,13 @@ npx wrangler whoami
 
 The login command opens a browser. Sign in to the new Cloudflare account. Check that `whoami` shows the intended account before continuing.
 
-Open the three `wrangler.jsonc` files listed in Section 3. In each file, add this top-level setting after the opening `{`, replacing the example text with your actual Account ID:
+Open the four `wrangler.jsonc` files listed in Section 3. In each file, add this top-level setting after the opening `{`, replacing the example text with your actual Account ID:
 
 ```json
 "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID",
 ```
 
-Keep the existing Worker names and storage settings. In the 5C and 7B files, change `"ENABLED": "true"` to `"ENABLED": "false"` for the first deployment. This keeps AI requests paused while you finish setup.
+Keep the existing Worker names and storage settings. Set `"ENABLED": "false"` in the 5C, 7B and 10A files for the first deployment. This keeps AI requests paused while you finish setup.
 
 ### Step 3: Set up 5C
 
@@ -265,6 +283,34 @@ cd ../..
 
 Step 6 below rebuilds the Worker page with its new address. Until then, that copy of the page still contains the old API address.
 
+### Step 4A: Set up 10A
+
+Run from the repository folder:
+
+```sh
+cd services/conversation-closing
+npm install
+npm test
+npm run build
+npx wrangler deploy
+```
+
+Copy the printed Worker URL as your **new 10A address**. Generate a different secret for this service:
+
+```sh
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+npx wrangler secret put SESSION_SECRET
+```
+
+Paste that value when asked. Set `ENABLED` to `"true"` in `services/conversation-closing/wrangler.jsonc`, then run:
+
+```sh
+npx wrangler deploy
+cd ../..
+```
+
+Like 7B, the 10A Worker also serves a standalone copy of its page. Step 6 rebuilds this copy after its API address changes. The fixed four-turn starting exchange is kept in `services/conversation-closing/src/core.mjs`; keep it synchronized with the visible exchange on the student page if you edit the scenario.
+
 ### Step 5: Set up 7A and your teacher sign-in
 
 Run from the repository folder:
@@ -304,28 +350,33 @@ Enter the new OAuth Client Secret when asked. Do not enter your GitHub password 
 
 ### Step 6: Connect the pages to the new services
 
-An **API address** is the address a page uses to reach its backend. Replace the old addresses in these three files with the new ones. Use the address without a final `/`.
+An **API address** is the address a page uses to reach its backend. Replace the old addresses in these four files with the new ones. Use the address without a final `/`.
 
 | File | Setting to change |
 | --- | --- |
 | `docs/week_5/5c/config.js` | `apiBase` → new 5C address |
 | `docs/week_7/7a/classroom.js` | `API` → new 7A address |
 | `docs/week_7/7b/applet.js` | `API` → new 7B address |
+| `docs/week_10/10a/applet.js` | `API` → new 10A address |
 
 Leave the student GitHub Pages URLs unchanged. The existing allowed website settings still apply because the pages remain on `https://uga-ling2150.github.io`.
 
-Rebuild and deploy the 7B mirror from your local copy:
+Rebuild and deploy the 7B and 10A mirrors from your local copy:
 
 ```sh
 cd services/presumptive-grounding
 npm run build
 npx wrangler deploy
 cd ../..
+cd services/conversation-closing
+npm run build
+npx wrangler deploy
+cd ../..
 ```
 
-Before publishing the frontend changes, run the health checks in Section 6 against the new addresses. Then save the three changed frontend files and three changed `wrangler.jsonc` files to this repository's `main` branch. You can use GitHub's file editor or **Add file → Upload files** in the correct folder. Preserve the paths in the tables above. Upload only those intended files, not the whole local folder, installed packages or secret files.
+Before publishing the frontend changes, run the health checks in Section 6 against the new addresses. Then save the four changed frontend files and four changed `wrangler.jsonc` files to this repository's `main` branch. You can use GitHub's file editor or **Add file → Upload files** in the correct folder. Preserve the paths in the tables above. Upload only those intended files, not the whole local folder, installed packages or secret files.
 
-Wait for GitHub Pages to finish publishing. Complete the activity checks in Section 6, including your own GitHub sign-in. If a check fails, restore the previous three frontend API addresses and publish them while you fix the new service. This reconnects the pages to the old service if it is still available.
+Wait for GitHub Pages to finish publishing. Complete the activity checks in Section 6, including your own GitHub sign-in. If a check fails, restore the previous frontend API addresses and publish them while you fix the new service. This reconnects the pages to the old services if they are still available.
 
 After all checks pass, update the address table in this guide. Record which account holds the old 7A records. Keep any needed exports in your usual private course storage, outside this public repository.
 
@@ -337,7 +388,7 @@ A **health check** is a small request that asks whether the service is reachable
 
 For 7A, open the new Worker address followed by `/api/health`. It should show `"ok":true`.
 
-For 7B, open the new Worker address followed by `/api/health`. It should show `"enabled":true` and the model name.
+For 7B and 10A, open each new Worker address followed by `/api/health`. Each should show `"enabled":true` and the model name.
 
 5C checks which website sent the request, so use this command with the actual new 5C address:
 
@@ -347,7 +398,7 @@ curl -H "Origin: https://uga-ling2150.github.io" "https://YOUR-5C-WORKER.workers
 
 On Windows PowerShell, use `curl.exe` instead of `curl`. Expect `"enabled":true` and the model name. Opening this URL directly in a browser can return `origin_not_allowed`; that alone does not mean the deployment failed.
 
-The three existing service health checks passed during the September 23, 2026 review. A health check does not prove that AI replies, sign-in or data saving work. After a move or backend change, also complete the checks below.
+The 5C, 7A and 7B service health checks passed during the September 23, 2026 review. 10A's health check and live replies were checked during its October 2026 deployment. A health check does not prove that AI replies, sign-in or data saving work. After a move or backend change, also complete the checks below.
 
 ### Then, check the full activity
 
@@ -359,6 +410,7 @@ The three existing service health checks passed during the September 23, 2026 re
 | 7A teacher | Share a completed classroom comparison. | A separate unsigned-in browser can see the released anonymous comparison, without submission timestamps. |
 | 7A recordings | Check each recording separately. | Records stay with the selected recording. |
 | 7B | Send an opening message to both assistants and continue each conversation. Download the result. | Both assistants return replies, and the download contains the conversations and reflection. |
+| 10A | Send the same ending message to both assistants after the fixed exchange. Compare the first replies, continue at least one side, annotate evidence and download. | Both assistants return replies, both received the same fixed context, and the download contains the conversations and observations. |
 
 Use fictional test content. AI checks use some of the account's allowance. Before a large class, also try the pages on the intended classroom network.
 
@@ -367,9 +419,9 @@ Use fictional test content. AI checks use some of the account's allowance. Befor
 | Problem | What to do |
 | --- | --- |
 | The page opens, but AI or saving does not work. | The page and backend are separate. Check the API address in the frontend file, then check that Worker in Cloudflare. |
-| The new page still calls the old service. | Confirm that the changed file is on `main`, wait for Pages publication, and refresh. For the 7B Worker copy, rebuild and deploy it as well. |
-| 5C or 7B says the service is unavailable. | Check `ENABLED`, the `SESSION_SECRET`, and the `AI` and `CLASSROOM` connections in the Worker configuration. Also check Workers AI usage and model availability. |
-| A request limit has been reached. | Check the app's daily/session limits and the Cloudflare account's remaining allowance. Do not repeatedly resend the same request. 7B has an offline discussion example. |
+| The new page still calls the old service. | Confirm that the changed file is on `main`, wait for Pages publication, and refresh. For the 7B and 10A Worker copies, rebuild and deploy the matching service as well. |
+| 5C, 7B or 10A says the service is unavailable. | Check `ENABLED`, that service's `SESSION_SECRET`, and the `AI` and `CLASSROOM` connections in its Worker configuration. Also check Workers AI usage and model availability. |
+| A request limit has been reached. | Check the app's daily/session limits and the Cloudflare account's remaining allowance. Do not repeatedly resend the same request. 7B and 10A have offline discussion examples. |
 | A reply takes too long. | Wait briefly and retry manually. The backend stops waiting after about 25 seconds; the page allows about 30 seconds. Keep or download existing work before leaving. |
 | 7A teacher sign-in fails. | Check the OAuth callback address, Client ID and Client Secret. Confirm that `43101723` is in the teacher list. Sign in again if the session has expired. |
 | A 7A attempt is missing. | Check the recording, selected collection, completion and submission status, and the 30-day expiry. Check whether the student changed browsers or cleared storage. |
@@ -379,7 +431,7 @@ Use fictional test content. AI checks use some of the account's allowance. Befor
 | A downloaded HTML copy fails while the course link works. | Use the official course link. A local file is a different browser origin, and each backend has its own rules about which origins it accepts. |
 | Code changed in GitHub, but backend behavior did not change. | Deploy the corresponding Worker. A GitHub Pages update alone does not publish backend code. |
 
-The configured daily AI request limits are 360 for 5C and 1,200 for 7B. These are limits set by the apps. They do not guarantee that the account's free AI allowance covers that many calls. Both activities may share the account allowance. Check Cloudflare usage before class. If capacity is insufficient, pause AI with `ENABLED` set to `"false"` rather than assuming a paid upgrade is required.
+The configured daily AI request limits are 360 for 5C, 1,200 for 7B and 600 for 10A. These are limits set by the apps. They do not guarantee that the account's free AI allowance covers that many calls. All three AI activities may share the account allowance. Check Cloudflare usage before class. If capacity is insufficient, pause AI with `ENABLED` set to `"false"` rather than assuming a paid upgrade is required.
 
 If you need help, record the activity URL, approximate time, exact error message and what you were doing. Also note whether you used the course page or a downloaded copy. Do not include private keys or student records in a public issue.
 
@@ -390,6 +442,7 @@ The service READMEs contain more detailed implementation and past test notes:
 - [5C service README](services/query-rewrite/README.md)
 - [7A service README](services/backchannel-locations/README.md)
 - [7B service README](services/presumptive-grounding/README.md)
+- [10A service README](services/conversation-closing/README.md)
 
 Official setup references: [Wrangler installation](https://developers.cloudflare.com/workers/wrangler/install-and-update/), [Cloudflare secrets](https://developers.cloudflare.com/workers/configuration/secrets/), and [creating a GitHub OAuth app](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
 

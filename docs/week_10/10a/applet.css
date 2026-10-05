@@ -1,0 +1,17 @@
+/* Only the Week 10 comparison layout. Controls and cards use shared style.css. */
+.activity-step { margin-top: 1.5rem; }
+.activity-step > h3, .app-wrapper > section > h3 { margin-bottom: 0.5rem; font-size: 1.25rem; }
+.chat-grid, .observation-grid, .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem; }
+.chat-panel { min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-alt); }
+.chat-panel h4 { margin-bottom: 0.6rem; font-size: 1.1rem; }
+.chat-panel .chat-log { height: 330px; max-height: none; }
+.chat-panel .btn-uga { transition: none; }
+.observation-grid .field { display: flex; flex-direction: column; gap: 0.4rem; }
+.observation-grid .field label:not(:first-child) { margin-top: 0.6rem; }
+.confirm-box { margin: 1rem 0; padding: 1rem; border: 2px solid var(--uga-red); border-radius: 8px; font-size: 15px; }
+.confirm-box p { margin: 0 0 0.5rem; }
+.example-grid h4 { font-size: 1rem; }
+@media (max-width: 760px) {
+  .chat-grid, .observation-grid, .example-grid { grid-template-columns: 1fr; }
+  .chat-panel .chat-log { height: 260px; }
+}
