@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Activity 9A: Turn-taking and TRPs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="9a/applet.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main id="main" tabindex="-1">
+  <section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 9A: Turn-taking and TRPs</h3>
+    <h4 class="uga-accent">Learning Objectives</h4>
+    <ul>
+      <li><strong>Identify</strong> possible transition relevance places (TRPs) while listening to natural conversation.</li>
+      <li><strong>Explain</strong> how grammar, intonation and the action being performed shape expectations about a turn ending.</li>
+      <li><strong>Compare</strong> your timing judgments with observed transitions in the recordings and published descriptions of English conversation.</li>
+    </ul>
+    <h4 class="uga-accent">Background</h4>
+    <p>A TRP is a point where a speaker's turn could be complete and another speaker could take the floor. There can be more than one possible point in a turn. Conversation partners use more than silence: wording, intonation and context help them anticipate when to enter.</p>
+    <h4 class="uga-accent">Instructions</h4>
+    <ol>
+      <li>Listen to each of five short meeting excerpts. Words appear as the speaker says them.</li>
+      <li>Press <strong>I would start speaking now</strong> once when you think you could take the next turn. You can use Space or Enter while that button has focus. The excerpt keeps playing after your choice.</li>
+      <li>After all five, compare your click positions with the annotated turn endings. Discuss why a different point might also have been possible.</li>
+    </ol>
+  </section>
+
+  <section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero"><div class="hero-text"><h2 id="applet-title">When would you <span>take the floor?</span></h2><p>Listen for a possible place to begin your turn.</p></div></div>
+    <div id="play-panel">
+      <h3 id="round-title" tabindex="-1">Recording 1 of 5</h3>
+      <p id="round-context" class="trp-context"></p>
+      <p id="round-status" role="status">Ready to listen.</p>
+      <audio id="clip-audio" preload="auto" aria-label="Current meeting excerpt"></audio>
+      <svg id="wave" class="trp-wave" viewBox="0 0 960 80" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <progress id="play-progress" value="0" max="1" aria-label="Playback progress"></progress>
+      <p id="play-clock" class="trp-clock" aria-live="off">0:00</p>
+      <div id="running-transcript" class="trp-transcript" aria-label="Words heard so far">The transcript will appear during playback.</div>
+      <p class="field-hint">The transcript follows the AMI word annotation; its timing is approximate.</p>
+      <div class="btn-row trp-actions">
+        <button id="start" class="btn-uga" type="button">Start listening</button>
+        <button id="mark" class="btn-uga trp-mark" type="button" disabled>I would start speaking now</button>
+        <button id="next" class="btn-uga-outline" type="button" hidden>Next recording</button>
+      </div>
+      <p id="mark-status" role="status"></p>
+      <p id="audio-error" class="error-text" role="alert"></p>
+      <details class="glossary-box"><summary>Listening support</summary><p>Use headphones if possible. The recording can be replayed after it ends. If you need the entire transcript before making a judgment, open it below; this changes the task, so note that when discussing your result.</p><p id="full-transcript"></p></details>
+    </div>
+
+    <section id="results" aria-labelledby="results-title" hidden>
+      <h3 id="results-title" tabindex="-1">Your timing choices</h3>
+      <p>A click records when you decided you could start. It does not measure when speech would actually begin. Negative offsets below mean before the annotated end of the current speaker's turn; positive offsets mean after it. They are not measured gaps or overlaps between speakers.</p>
+      <div class="trp-table-wrap"><table class="trp-table"><caption>Your choices and the original recording</caption><thead><tr><th scope="col">Recording</th><th scope="col">Your click relative to annotated end</th><th scope="col">Next speaker's onset in original recording</th></tr></thead><tbody id="result-rows"></tbody></table></div>
+      <h4>Your click positions</h4><div id="individual-chart" class="trp-bars" role="img"></div>
+      <p class="field-hint">The original excerpts stop before the next speaker. The observed gap column uses the uncut AMI recording. Five selected excerpts cannot represent the English language as a whole.</p>
+      <div class="trp-research"><h4>Compare with English conversation</h4><p>In Levinson and Torreira's analysis of the English Switchboard telephone corpus, <strong>30.1%</strong> of floor transfers involved speakers talking at the same time; the remaining <strong>69.9%</strong> involved a gap. Their paper shows the full <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2015.00731/full#F2" target="_blank" rel="noopener noreferrer">distribution of actual floor-transfer offsets</a> in 100 ms bins. These are speech onsets in conversations, whereas the chart above contains interface clicks relative to selected AMI turn endings. Compare the shape and timing questions in discussion, but do not treat the percentages or bins as equivalent measures.</p></div>
+      <div class="btn-row"><button id="download" class="btn-uga-outline" type="button">Download my choices (JSON)</button><button id="restart" class="btn-reset" type="button">Start a new attempt</button></div>
+    </section>
+  </section>
+
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <ol><li>Which words, pauses or intonation patterns made a turn seem possibly complete?</li><li>Did any speaker continue after a point where you could have entered? What changed your expectation?</li><li>Why would your click time differ from an actual next speaker's speech onset?</li></ol>
+    <div class="reflection-notes field">
+      <label for="reflection">Write down your thoughts</label>
+      <textarea id="reflection" rows="5" maxlength="4000"></textarea>
+      <div class="btn-row"><button class="btn-uga" type="button" data-download-notes>Download my notes</button><span class="field-hint" role="status" data-download-status></span></div>
+      <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
+  </section>
+
+  <section class="trp-teacher" aria-label="Group tools"><details class="glossary-box"><summary>For teachers: combine anonymous group choices</summary>
+    <p>Ask participants to download their JSON choices. Import up to 60 files from this activity version. Re-importing a file will not duplicate it. Files stay in this browser; no server receives them.</p>
+    <div class="field"><label for="import">Import 9A choices (JSON, at most 1 MB per file)</label><input id="import" type="file" accept=".json,application/json" multiple></div>
+    <p id="import-status" role="status"></p><div id="group-chart" class="trp-bars" role="img" aria-label="Group click positions"></div>
+    <div class="btn-row"><button id="clear-group" class="btn-reset" type="button">Clear imported files</button></div>
+  </details></section>
+</main>
+
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading"><div class="applet-feedback-card__content"><div><h2 id="applet-feedback-heading">Help us improve this applet</h2><a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a></div><a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%209A%3A%20Turn-taking%20and%20TRPs&amp;applet=Activity%209A%3A%20Turn-taking%20and%20TRPs&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_9%2F9A_turn_taking_trps.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a></div></section>
+<footer class="source-card" aria-labelledby="sources-title"><h3 id="sources-title">Sources &amp; permissions</h3><p>Audio and word timestamps: <strong>AMI Meeting Corpus</strong>, AMI Project and contributors, from the <a href="https://groups.inf.ed.ac.uk/ami/download/" target="_blank" rel="noopener noreferrer">official archive</a>, under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Research comparison: <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2015.00731/full" target="_blank" rel="noopener noreferrer">Levinson and Torreira (2015), Timing in turn-taking</a>.</p><details><summary>Clip details, changes and limitations</summary><ul><li>ES2003b: 1480.50–1487.27 s (speaker A), 1809.20–1821.70 s (B), 1966.70–1972.85 s (B).</li><li>IS1005c: 837.60–849.05 s (speaker B), 1882.60–1889.45 s (A).</li></ul><p>Changes: selected continuous excerpts from meeting headset mixes, amplified each excerpt, applied a 20 ms edge fade and cut before the next speaker's annotated onset. Word times were shifted to excerpt start. No synthetic speech or time stretching. Manual word boundaries and turn endings are approximate; these selected excerpts are teaching examples, not a validated experiment or answer key. The AMI contributors do not endorse this activity.</p><p>Choices and imported group files stay in your browser. Downloads contain anonymous click times, not names or voices. Nothing is submitted to a server by this applet.</p></details></footer>
+<noscript><p>Enable JavaScript to play and mark the recordings.</p></noscript>
+<script src="../reflection-notes.js" defer></script>
+<script src="9a/data.js"></script><script src="9a/core.js"></script><script src="9a/applet.js" defer></script>
+</body></html>
