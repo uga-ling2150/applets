@@ -20,7 +20,7 @@
       const section = element('section');
       section.className = 'trp-distribution';
       section.append(element('h4', clips.length > 1 ? `${index + 1}. ${clip.title}` : clip.title));
-      section.append(element('p', `${submissions.length} participants, ${marks.length} choices, ${submissions.length - marks.length} without a choice.`));
+      section.append(element('p', `${submissions.length} participant${submissions.length === 1 ? "" : "s"}, ${marks.length} choice${marks.length === 1 ? "" : "s"}, ${submissions.length - marks.length} without a choice.`));
       section.append(element('p', 'Click offset (seconds): negative = before the annotated turn end; positive = after. Each translucent dot is one choice; darker areas contain more choices.'));
       const minimum = -Math.ceil(clip.turnEnd);
       const maximum = Math.max(0.5, Math.ceil(clip.duration - clip.turnEnd));
@@ -29,10 +29,12 @@
       svg.append(svgElement('line', { x1: 40, x2: 560, y1: 42, y2: 42, stroke: '#555' }));
       svg.append(svgElement('line', { x1: x(0), x2: x(0), y1: 12, y2: 62, stroke: '#555', 'stroke-dasharray': '4 3' }));
       for (const t of offsets) svg.append(svgElement('circle', { cx: x(t), cy: 42, r: 7, fill: '#9b0028', 'fill-opacity': 0.2 }));
-      section.append(svg);
+      const plot = element("div"); plot.className = "trp-plot";
+      plot.append(svg);
       const axis = element('div'); axis.className = 'trp-axis';
       axis.append(element('span', `${minimum.toFixed(1)} s`), element('span', `${maximum.toFixed(1)} s`));
-      section.append(axis, element('p', 'The dashed line marks offset 0: the annotated final turn end.'));
+      plot.append(axis);
+      section.append(plot, element('p', 'The dashed line marks offset 0: the annotated final turn end.'));
       const frequencies = new Map();
       for (const value of offsets) {
         const bin = Math.floor(value / 0.25);

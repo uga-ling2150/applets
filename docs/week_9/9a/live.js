@@ -29,11 +29,11 @@ function render(){
  $('live-clip').disabled=!!state&&!finished;
  const t=state?clock.position(state,performance.now(),clip.duration):0;
  text('live-clock',`${stamp(t)} / ${stamp(clip.duration)}`);$('live-progress').value=t;
- text('live-counts',state?`${state.joined} browsers joined, ${state.submitted} submitted`:'No classroom prepared yet.');
+ text('live-counts',state?`${state.joined} browser${state.joined===1?"":"s"} joined, ${state.submitted} submitted`:'No classroom prepared yet.');
  let status=!state?'Waiting for the teacher to prepare a classroom.':({ready:'Waiting for the teacher to start.',countdown:'Get ready. The recording will start shortly.',running:'Listen to the classroom speakers and choose when you would start speaking.',paused:'The teacher paused the recording. Clicks are paused.',ended:'Recording finished. Your clicks are being saved.',cancelled:'The teacher cancelled this classroom. Its clicks are not included in a completed comparison.'})[state.status];
  if(running&&!teacher&&!usable)status=readOnly?'Another tab is recording. Use that tab or close it and reload this page.':!joined?'Joining the classroom…':'Synchronizing with the teacher. Clicks are paused until the connection is ready.';
  if(record?.complete&&state?.status==='ended')status='Recording finished. View your choice below, then open the class comparison when shared.';
- if(teacher)status=!state?'Prepare a classroom, share its link, then start when students have joined.':state.status==='running'?'Playing through this computer’s speakers.':status;
+ if(teacher)status=!state?'Prepare a classroom, share its link, then start when students have joined.':state.status==='running'?'Playing through this computer’s speakers.':state.status==='ended'?'Recording finished. Share the comparison when submissions arrive.':status;
  text('live-status',status);text('live-round',!state?'Waiting for the teacher':state.status==='countdown'?`Starting in ${Math.max(0,Math.ceil((state.startAt-clock.now(performance.now()))/1000))}…`:({ready:'Ready for the class',running:'Classroom listening',paused:'Classroom paused',ended:'Classroom complete',cancelled:'Classroom cancelled'})[state.status]);
  text('live-mark-count',record?`${record.marks.length ? 'Choice saved.' : 'No choice yet.'}${record.late?' Joined after playback began.':''}`:teacher?'Students choose on their own devices.':'No choice yet.');
 }
@@ -51,7 +51,7 @@ function anchor(status){if(!controlling||!state)return Promise.resolve();const s
 async function start(){if(busy)return;busy=true;fail('');try{if(clock.rtt>=800)throw Error('Connection is too slow to synchronize. Reconnect before starting.');const d=await control({action:'start'});controlling=true;audio.currentTime=d.session.position;clearTimeout(countdown);countdown=setTimeout(async()=>{try{await audio.play();}catch(e){await anchor('paused').catch(()=>{});fail('Audio did not start. Press Resume class listening to try again.');}},Math.max(0,d.session.startAt-clock.now(performance.now())));}catch(e){fail(e.message);}finally{busy=false;render();}}
 function showResults(records,shared){
  $('live-comparison').hidden=false;text('live-comparison-title',shared?'Classroom comparison':'Your timing choice');
- text('live-comparison-note',`${records.length} ${shared?'submitted participants':'participant'}. Participants without a choice are included. ${records.filter(r=>r.exposed).length} opened the transcript; ${records.filter(r=>r.late).length} joined after playback began.`);
+ text('live-comparison-note',`${records.length} ${shared?'submitted participant'+(records.length===1?'':'s'):'participant'}. Participants without a choice are included. ${records.filter(r=>r.exposed).length} opened the transcript; ${records.filter(r=>r.late).length} joined after playback began.`);
  window.TRPCharts.render($('live-chart'),records.map(r=>({marks:[r.marks[0]??null]})),[clip]);
 }
 

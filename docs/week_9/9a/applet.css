@@ -35,3 +35,5 @@
 .trp-dot-plot circle { stroke: #9b0028; stroke-width: 1; }
 
 .trp-axis { display: flex; justify-content: space-between; margin: 0 6.667%; font-size: .9rem; color: var(--text); }
+
+.trp-plot { max-width: 800px; }
