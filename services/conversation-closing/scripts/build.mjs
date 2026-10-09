@@ -9,6 +9,5 @@ for(const [tag,file] of [
 html=html.replace('<script src="10a/applet.js" defer></script>',()=>'<script>'+fs.readFileSync(new URL('week_10/10a/applet.js',docs),'utf8')+'</script>');
 html=html.replace('<script src="../reflection-notes.js" defer></script>',()=>'<script>'+fs.readFileSync(new URL('reflection-notes.js',docs),'utf8')+'</script>');
 html=html.replace('href="../index.html"','href="https://uga-ling2150.github.io/applets/"');
-html=html.replace('href="../week_9/9A_turn_taking_trps.html"','href="https://uga-ling2150.github.io/applets/week_9/9A_turn_taking_trps.html"');
 const output=new URL('../public/',import.meta.url);fs.mkdirSync(output,{recursive:true});fs.writeFileSync(new URL('index.html',output),html);
 console.log('Built standalone 10A HTML from the GitHub Pages source.');
