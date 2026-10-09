@@ -193,6 +193,8 @@ window.TRP_CLIPS = [
   },
   {
     "id": "beeping",
+    "internalTRP": 6.42,
+    "internalTRPNote": "After ‘that sounds like a rough idea’, the same speaker continues with a question. This possible completion is not a required speaker change.",
     "title": "A new idea for the remote control",
     "file": "9a/02_es2003b_beeping_question.wav",
     "meeting": "ES2003b",

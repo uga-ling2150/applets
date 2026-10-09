@@ -31,7 +31,7 @@
     <h4 class="uga-accent">Instructions</h4>
     <ol>
       <li>Read the fixed opening and middle. Notice what the user asked for and what the assistant has already done.</li>
-      <li>Write one message that tries to end the conversation. Send <strong>the same message</strong> to both assistants.</li>
+      <li>Write one message that tries to end the conversation. Next, predict how each assistant will respond. Then send <strong>the same message</strong> to both assistants.</li>
       <li>Compare their first replies before continuing. Then continue either conversation if you need more evidence.</li>
       <li>Mark the behavior you observe, cite a line from each conversation, and discuss the difference. Download your work before leaving.</li>
     </ol>
@@ -55,10 +55,10 @@
     <section class="activity-step" aria-labelledby="test-title">
       <h3 id="test-title">2. Test one ending signal</h3>
       <p>Because the draft is complete, this is a place where you might try to end the conversation. What will your message make relevant next?</p>
-      <div class="field"><label for="prediction">Your prediction <span class="field-optional">(optional)</span></label><textarea id="prediction" rows="2" maxlength="500" aria-describedby="prediction-help"></textarea><p id="prediction-help" class="field-hint">This note stays in your browser and is not sent to either assistant.</p></div>
       <form id="first-form" class="field">
-        <label for="first-message">Your ending message to both assistants</label>
+        <label for="first-message">First, write your ending message to both assistants</label>
         <textarea id="first-message" rows="2" maxlength="500" required>Thanks, that should do it.</textarea>
+        <div class="field"><label for="prediction">Then, predict each assistant’s reply <span class="field-optional">(optional)</span></label><textarea id="prediction" rows="2" maxlength="500" aria-describedby="prediction-help"></textarea><p id="prediction-help" class="field-hint">Predict what each assistant will do in response to the message you wrote. This note stays in your browser and is not sent to either assistant.</p></div>
         <div class="btn-row"><button id="start" class="btn-uga" type="submit">Send the same message to both</button><button id="reset" class="btn-reset" type="button">Start a new comparison</button></div>
       </form>
       <p id="setup-error" class="error-text" role="alert"></p>

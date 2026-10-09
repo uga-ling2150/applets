@@ -1,5 +1,7 @@
 (() => {
   'use strict';
+  if (new URLSearchParams(location.search).get('mode') !== 'practice') return;
+  document.getElementById('practice-panel').hidden = false;
   const clips = window.TRP_CLIPS;
   const core = window.TRPCore;
   const STORAGE = 'ling2150-9a-attempt-v1';
@@ -85,6 +87,7 @@
     visibleCount = -1;
     $('round-title').textContent = `Recording ${state.index + 1} of ${clips.length}`;
     $('round-context').textContent = clip.title;
+    $('visual-support').hidden = true;
     $('round-status').textContent = 'Ready to listen.';
     $('mark-status').textContent = '';
     $('audio-error').textContent = '';
@@ -110,6 +113,7 @@
   }
   $('start').addEventListener('click', async () => {
     if (state.index >= clips.length) return;
+    $('visual-support').hidden = true;
     audio.currentTime = 0;
     visibleCount = -1;
     $('audio-error').textContent = '';
@@ -143,6 +147,7 @@
     $('start').disabled = false;
     $('start').textContent = 'Replay recording';
     $('next').hidden = false;
+    $('visual-support').hidden = false;
     $('round-status').textContent = 'Recording ended.';
     $('mark-status').textContent = state.marks[state.index] === null ?
       'No choice recorded. You can replay and mark once, or continue without a mark.' :
@@ -168,24 +173,9 @@
     return `${Math.abs(value).toFixed(2)} s ${value < 0 ? 'before' : 'after'} the annotated end`;
   }
   function chart(target, submissions) {
-    const summary = core.summarize(submissions, clips);
-    target.replaceChildren();
-    const max = Math.max(1, ...summary.counts);
-    core.BINS.forEach((bin, i) => {
-      const row = document.createElement('div'); row.className = 'trp-bar-row';
-      const label = document.createElement('span'); label.textContent = bin.label;
-      const track = document.createElement('span'); track.className = 'trp-bar-track';
-      const fill = document.createElement('span'); fill.className = 'trp-bar-fill';
-      fill.style.width = `${summary.counts[i] / max * 100}%`;
-      track.append(fill);
-      const number = document.createElement('strong'); number.textContent = summary.counts[i];
-      row.append(label, track, number); target.append(row);
-    });
-    const note = document.createElement('p');
-    note.textContent = `${submissions.length} participant${submissions.length === 1 ? '' : 's'}, ${summary.missing} unmarked excerpt${summary.missing === 1 ? '' : 's'}. Counts include five excerpts per participant.`;
-    target.append(note);
-    target.setAttribute('aria-label', `${submissions.length} participant${submissions.length === 1 ? '' : 's'}. ` + core.BINS.map((b, i) => `${b.label}: ${summary.counts[i]}`).join('. ') + `. Unmarked: ${summary.missing}.`);
+    window.TRPCharts.render(target, submissions, clips);
   }
+
   function renderResults() {
     audio.pause();
     $('play-panel').hidden = true;

@@ -55,7 +55,7 @@ export async function liveRequest({store,m,path,r,teacher,body,hash,duration,now
  if(path==='/live-save'&&r.method==='POST') {
   if(!record)return json({error:'Join this classroom before saving.'},401);
   const b=await body(r);
-  if(!Array.isArray(b.marks)||b.marks.length>300||!b.marks.every((t,i)=>Number.isFinite(t)&&t>=0&&t<=duration&&(!i||t-b.marks[i-1]>=0.12))||typeof b.exposed!=='boolean'||!Number.isInteger(b.sequence)||b.sequence<1||typeof b.complete!=='boolean')return json({error:'Invalid classroom record.'},400);
+  if(!Array.isArray(b.marks)||b.marks.length>(m.clipId.startsWith('trp-9a-')?1:300)||!b.marks.every((t,i)=>Number.isFinite(t)&&t>=0&&t<=duration&&(!i||t-b.marks[i-1]>=0.12))||typeof b.exposed!=='boolean'||!Number.isInteger(b.sequence)||b.sequence<1||typeof b.complete!=='boolean')return json({error:'Invalid classroom record.'},400);
   if(b.sequence<=record.sequence)return json({ok:true,record});
   if(record.complete)return json({error:'This submitted classroom record cannot be changed.'},409);
   if(session.status==='cancelled')return json({error:'This classroom was cancelled. Download your local clicks if needed.'},409);

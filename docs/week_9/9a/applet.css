@@ -17,13 +17,21 @@
 .trp-table th, .trp-table td { text-align: left; vertical-align: top; padding: .7rem; border-bottom: 1px solid var(--line); }
 .trp-table caption { caption-side: top; color: var(--muted); }
 .trp-bars { margin: 1rem 0; }
-.trp-bar-row { display: grid; grid-template-columns: minmax(15rem, 1fr) minmax(3rem, 4fr) 3rem; gap: .7rem; align-items: center; margin: .6rem 0; font-size: .9rem; }
-.trp-bar-track { height: 1.25rem; background: #eee; border-radius: 3px; overflow: hidden; }
-.trp-bar-fill { display: block; height: 100%; background: var(--olympic); }
 .trp-research { border-left: 4px solid var(--olympic); background: #f2f7f8; padding: 1rem; margin: 1.5rem 0; }
 .trp-research h4 { margin-top: 0; }
 .trp-research a { color: var(--uga-red); }
 .trp-teacher { max-width: 1000px; margin: 0 auto 2rem; }
 .trp-teacher .glossary-box { margin-top: 0; }
 #import { max-width: 100%; }
-@media (max-width: 600px) { .trp-bar-row { grid-template-columns: 1fr 3rem; } .trp-bar-track { grid-column: 1 / -1; grid-row: 2; } }
+/* Timing graphics only appear after a recording. Native hidden always wins. */
+[hidden] { display: none !important; }
+.trp-distribution { margin: 1.5rem 0; font-family: "Merriweather Sans", sans-serif; }
+.trp-dot-plot { display: block; width: 100%; max-width: 800px; }
+#live-progress { width: 100%; }
+#live-transcript { font-family: "Merriweather Sans", sans-serif; }
+.trp-distribution .trp-table { table-layout: fixed; overflow-wrap: anywhere; }
+
+.trp-mode-links a { color: var(--uga-red); text-decoration: underline; }
+.trp-dot-plot circle { stroke: #9b0028; stroke-width: 1; }
+
+.trp-axis { display: flex; justify-content: space-between; margin: 0 6.667%; font-size: .9rem; color: var(--text); }
