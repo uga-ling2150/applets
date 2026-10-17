@@ -5,8 +5,8 @@ let pair = null,
   history = [],
   busy = false;
 const examples = {
-  a: "A manageable plan starts with identifying the exam topics. You could divide the remaining days between reviewing key ideas and practising retrieval. If possible, check which areas need the most attention before deciding how much time to spend on each.",
-  b: "Let’s make this feel a bit more manageable! Pick the trickiest topics first, then give yourself a small practice challenge each day. You’ve got a week to build momentum. Want to start by listing the three topics that worry you most?",
+  a: "A manageable plan starts with identifying the exam topics. You could then divide the week between reviewing key ideas and practising retrieval.",
+  b: "Let’s tackle the trickiest topics first! Give yourself a small practice challenge each day, and build momentum through the week.",
 };
 function renderOutput(side) {
   const log = $("log-" + side);
@@ -219,7 +219,7 @@ $("example").onclick = () => {
     id: crypto.randomUUID(),
     created: new Date().toISOString(),
     kind: "practice",
-    prompt: "How can I prepare for a difficult exam next week?",
+    prompt: "In 1–2 sentences, how can I prepare for a difficult exam next week?",
     systems: {
       a: "Authored to illustrate a measured university tutor.",
       b: "Authored to illustrate an enthusiastic peer.",
