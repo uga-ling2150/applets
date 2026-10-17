@@ -17,10 +17,10 @@ export function node(tag, text, cls) {
   return n;
 }
 let token = "",
-  endpoint = "";
+  endpoint = "https://ling2150-week11-lab.ling2150-query-rewrite.workers.dev";
 export function connection() {
   try {
-    endpoint = localStorage.getItem("ling2150-week11-endpoint") || "";
+    endpoint = localStorage.getItem("ling2150-week11-endpoint") || "https://ling2150-week11-lab.ling2150-query-rewrite.workers.dev";
   } catch {}
   $("endpoint").value = endpoint;
   $("disconnect").onclick = () => {

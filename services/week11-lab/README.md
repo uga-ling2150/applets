@@ -2,7 +2,7 @@
 
 Shared, API-only Cloudflare Worker for Activity 11A (editable system prompts) and 11B (temperature, top-k and top-p). Static course pages remain in `docs/week_11/`. The worker forwards only the bounded prompt, optional system prompt and sampling parameters; annotations and reflection notes are never included in the API payload.
 
-The service has not been deployed or tested against a live provider. Cloudflare deployment requires the account owner's approval. Local integration tests use an explicitly labelled test fixture, not a live model. The browser-local bigram model and 11A's authored practice examples work without deployment.
+The account owner explicitly approved cloud resource use and possible costs on 2026-10-17. The service is deployed at https://ling2150-week11-lab.ling2150-query-rewrite.workers.dev. Four initial real-model checks succeeded (two personas and two sampling conditions). Browser-local simulation and authored practice examples remain available without the service. The frontend uses this endpoint by default; instructor settings can override it.
 
 ## Validation
 
