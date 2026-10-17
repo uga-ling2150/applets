@@ -99,7 +99,7 @@ test("overlapping annotation phrases retain exact text offsets", () => {
   ]);
   assert.deepEqual(exactSpans("<script>", "<script>"), [[0, 8]]);
 });
-test("validation strips notes and rejects undefined top-q rather than silently accepting it", () => {
+test("validation strips notes and rejects conflicting nucleus settings", () => {
   assert.ok(
     !JSON.stringify(validate({ ...input, reflection: "PRIVATE" })).includes(
       "PRIVATE",
@@ -171,4 +171,28 @@ test("daily quota prevents further model calls", async () => {
     429,
   );
   assert.equal(seen.length, 1);
+});
+
+test("top-q nucleus keeps the boundary candidate and matches top-p", () => {
+  const counts = new Map([["a", 6], ["b", 3], ["c", 1]]);
+  assert.deepEqual(distribution(counts, { topq: 0.7 }), distribution(counts, { topp: 0.7 }));
+  distribution(counts, { topq: 0.7 }).forEach((r,i)=>assert.ok(Math.abs(r.prob - [2/3,1/3,0][i]) < 1e-12));
+  assert.equal(distribution(counts, { topq: 1 }).filter(r=>r.kept).length, 3);
+  assert.throws(()=>distribution(counts, { topq: 0 }));
+  assert.throws(()=>distribution(counts, { topq: 0.7, topp: 0.7 }));
+});
+test("top-q is passed to the provider as top_p and preserved in metadata", async () => {
+  const {topp, ...rest} = input;
+  const b = {...rest, topq: 0.65};
+  assert.equal(validate(b).topp, 0.65);
+  assert.equal(validate(b).nucleusName, "top-q");
+  assert.throws(()=>validate({...b, topq: 0}));
+  const { env, seen, ctx, waits } = setup();
+  const session = await worker.fetch(new Request("https://test/api/session", {method:"POST"}), env);
+  const {token} = await session.json();
+  const result = await worker.fetch(new Request("https://test/api/chat", {method:"POST", headers:{"Content-Type":"application/json", "X-Session":token}, body:JSON.stringify(b)}), env, ctx);
+  assert.equal(result.status, 200);
+  assert.equal(seen[0].top_p, 0.65);
+  assert.equal((await result.json()).settings.nucleusName, "top-q");
+  await Promise.all(waits);
 });

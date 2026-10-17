@@ -12,8 +12,11 @@ export function bigrams(text) {
 }
 export function distribution(
   counts,
-  { temperature = 1, topk = 0, topp = 1 } = {},
+  { temperature = 1, topk = 0, topp, topq } = {},
 ) {
+  // Top-q is the nucleus-mass notation used by NAACL 2025, Appendix F.
+  if (topp !== undefined && topq !== undefined) throw Error("Choose top-p or top-q, not both.");
+  topp = topq ?? topp ?? 1;
   if (
     !Number.isFinite(temperature) ||
     temperature < 0 ||
@@ -26,7 +29,7 @@ export function distribution(
     topp > 1
   )
     throw Error(
-      "Use temperature 0–2, integer top-k 0–50, and top-p greater than 0 up to 1.",
+      "Use temperature 0–2, integer top-k 0–50, and top-p/top-q greater than 0 up to 1.",
     );
   let rows = [...counts]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))

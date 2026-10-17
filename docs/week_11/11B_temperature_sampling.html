@@ -16,7 +16,7 @@
     />
     <link rel="stylesheet" href="../style.css" />
     <link rel="stylesheet" href="lab.css" />
-    <script type="module" src="sampling.mjs?v=20261017-a11y"></script>
+    <script type="module" src="sampling.mjs?v=20261017-topq"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -96,7 +96,11 @@ we study together</textarea
             ><input id="topk" type="number" min="0" max="50" value="0" />
           </div>
           <div class="field">
-            <label for="topp">Top-p cumulative probability</label
+            <label for="nucleus">Nucleus notation</label>
+            <select id="nucleus"><option value="topp">Top-p</option><option value="topq">Top-q</option></select>
+          </div>
+          <div class="field">
+            <label for="topp" id="cutoff-label">Top-p cumulative probability</label
             ><input
               id="topp"
               type="number"
@@ -108,7 +112,7 @@ we study together</textarea
           </div>
         </div>
         <p class="field-hint">
-          Temperature → top-k → top-p → normalize. This table samples words;
+          Temperature → top-k → nucleus cutoff → normalize. This table samples words;
           LLMs usually sample tokens.
         </p>
         <div class="btn-row">
@@ -154,7 +158,7 @@ we study together</textarea
           <p>
             Base probability is the bigram count divided by the total count for
             this context. For temperature T &gt; 0, the new weight is p raised
-            to the power 1/T. Normalize these weights to sum to one. Top-k keeps
+            to the power 1/T. Normalize these weights to sum to one. Top-q uses the same cumulative-mass rule as top-p here. Top-k keeps
             the k highest probabilities; top-p then keeps the smallest prefix
             whose cumulative probability reaches p, after normalizing the top-k
             candidates. Finally, normalize the remaining weights again.
@@ -186,7 +190,11 @@ Suggest a short opening sentence for a story about a student who finds an unfami
             ><input id="live-topk" type="number" min="1" max="50" value="50" />
           </div>
           <div class="field">
-            <label for="live-topp">LLM top-p</label
+            <label for="live-nucleus">LLM nucleus notation</label>
+            <select id="live-nucleus"><option value="topp">Top-p</option><option value="topq">Top-q</option></select>
+          </div>
+          <div class="field">
+            <label for="live-topp" id="live-cutoff-label">LLM top-p</label
             ><input
               id="live-topp"
               type="number"
@@ -228,9 +236,9 @@ Suggest a short opening sentence for a story about a student who finds an unfami
           </button><button id="disconnect" type="button" class="btn-uga-outline">Disconnect</button></div>
           <p id="connection" class="field-hint" role="status"></p>
           <p>
-            The task materials mention top-q but do not define it. This version
-            exposes temperature, top-k and top-p; top-q remains a content
-            question for the instructor, not an alias for another control.
+            Top-q uses the nucleus-mass definition in
+            <a href="https://aclanthology.org/2025.naacl-long.469/">NAACL 2025, Appendix F</a>.
+            Either notation maps to the model service's top_p parameter.
           </p>
         </details>
 <section class="reflection-container" aria-labelledby="reflection-title">

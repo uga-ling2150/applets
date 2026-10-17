@@ -1,5 +1,5 @@
 import { $, node, download, connection, generate } from "./common.mjs";
-import { bigrams, distribution, sample } from "./core.mjs";
+import { bigrams, distribution, sample } from "./core.mjs?v=20261017-topq";
 let model,
   rows = [],
   counts = {},
@@ -15,7 +15,7 @@ function parameters(prefix = "") {
   return {
     temperature: $(ids[0]).value.trim() ? Number($(ids[0]).value) : NaN,
     topk: $(ids[1]).value.trim() ? Number($(ids[1]).value) : NaN,
-    topp: $(ids[2]).value.trim() ? Number($(ids[2]).value) : NaN,
+    [$(prefix ? "live-nucleus" : "nucleus").value]: $(ids[2]).value.trim() ? Number($(ids[2]).value) : NaN,
   };
 }
 function render() {
@@ -75,7 +75,7 @@ function train() {
 $("train").onclick = train;
 $("apply").onclick = apply;
 $("context").onchange = apply;
-for (const id of ["temperature", "topk", "topp", "corpus"])
+for (const id of ["temperature", "topk", "topp", "nucleus", "corpus"])
   $(id).addEventListener("input", () => {
     for (const id of ["sample", "many", "clear"]) $(id).disabled = true;
     $("status").textContent =
@@ -141,7 +141,7 @@ $("generate").onclick = async () => {
       node("h4", `Generation ${generations.length}`),
       node(
         "p",
-        `${r.model}, temperature ${p.temperature}, top-k ${p.topk}, top-p ${p.topp}`,
+        `${r.model}, temperature ${p.temperature}, top-k ${p.topk}, ${p.topq !== undefined ? "top-q" : "top-p"} ${p.topq ?? p.topp}`,
         "field-hint",
       ),
       node("p", "Prompt: " + prompt),
@@ -169,5 +169,11 @@ $("download").onclick = () =>
     total,
     generations,
   });
+for (const prefix of ["", "live-"]) {
+  $(prefix + "nucleus").addEventListener("change", () => {
+    const name = $(prefix + "nucleus").value === "topq" ? "Top-q" : "Top-p";
+    $(prefix + "cutoff-label").textContent = prefix ? "LLM " + name.toLowerCase() : name + " cumulative probability";
+  });
+}
 connection();
 train();
