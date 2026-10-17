@@ -23,6 +23,13 @@ export function connection() {
     endpoint = localStorage.getItem("ling2150-week11-endpoint") || "";
   } catch {}
   $("endpoint").value = endpoint;
+  $("disconnect").onclick = () => {
+    endpoint = "";
+    token = "";
+    $("endpoint").value = "";
+    try { localStorage.removeItem("ling2150-week11-endpoint"); } catch {}
+    $("connection").textContent = "Disconnected. Offline activities remain available.";
+  };
   $("connect").onclick = async () => {
     const raw = $("endpoint").value.trim();
     try {

@@ -71,9 +71,9 @@ we study conversation
 we study together</textarea
           >
         </div>
-        <button id="train" type="button" class="btn-uga-outline">
+        <div class="btn-row"><button id="train" type="button" class="btn-uga-outline">
           Build bigram model
-        </button>
+        </button></div>
         <div class="field">
           <label for="context">Previous word</label
           ><select id="context"></select>
@@ -211,7 +211,9 @@ Suggest a short opening sentence for a story about a student who finds an unfami
           condition before comparing.
         </p>
         <div id="generations"></div>
-        <details class="glossary-box">
+
+      </section>
+      <details class="glossary-box mx-auto week11-support">
           <summary>Instructor connection settings</summary>
           <div class="field">
             <label for="endpoint">Course service URL</label
@@ -221,9 +223,9 @@ Suggest a short opening sentence for a story about a student who finds an unfami
               placeholder="https://your-course-service.workers.dev"
             />
           </div>
-          <button id="connect" type="button" class="btn-uga-outline">
+          <div class="btn-row"><button id="connect" type="button" class="btn-uga-outline">
             Connect
-          </button>
+          </button><button id="disconnect" type="button" class="btn-uga-outline">Disconnect</button></div>
           <p id="connection" class="field-hint" role="status"></p>
           <p>
             The task materials mention top-q but do not define it. This version
@@ -231,8 +233,7 @@ Suggest a short opening sentence for a story about a student who finds an unfami
             question for the instructor, not an alias for another control.
           </p>
         </details>
-      </section>
-      <section class="reflection-container" aria-labelledby="reflection-title">
+<section class="reflection-container" aria-labelledby="reflection-title">
         <h3 id="reflection-title" class="uga-accent mb-3">
           Reflection &amp; Discussion Guide
         </h3>
