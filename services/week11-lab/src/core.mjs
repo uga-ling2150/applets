@@ -1,6 +1,6 @@
 export { limitedJSON, admit } from "./budget.mjs";
 export const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
-export const LIMITS = { output: 200, perTurn: 5000 };
+export const LIMITS = { output: 1024, perTurn: 12000 };
 export function validate(b) {
   if (
     !b ||
@@ -44,7 +44,7 @@ export function messages(b) {
     {
       role: "system",
       content:
-        "You are participating in an introductory linguistics classroom activity. Reply in English, in plain text, at most 100 words. Do not claim to have taken actions outside the conversation. " +
+        "You are participating in an introductory linguistics classroom activity. Reply in English, in plain text. Follow the requested length; otherwise be concise. Do not claim to have taken actions outside the conversation. " +
         (b.mode === "persona"
           ? b.system
           : "Respond to the requested writing task directly. Do not explain your sampling settings."),
