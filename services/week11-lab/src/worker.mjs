@@ -46,6 +46,19 @@ async function session(r, secret) {
     ? id
     : null;
 }
+function requestLimits(env) {
+  const n = (k, fallback, allowZero = false) => {
+    const value = Number(env[k]);
+    return env[k] !== undefined && Number.isFinite(value) && value >= (allowZero ? 0 : 1)
+      ? Math.floor(value) : fallback;
+  };
+  return {
+    daily: n("DAILY_REQUEST_LIMIT", 0, true),
+    session: n("SESSION_REQUEST_LIMIT", 0, true),
+    rpm: n("RPM_LIMIT", 120),
+    concurrent: n("CONCURRENCY_LIMIT", 30),
+  };
+}
 export default {
   async fetch(request, env, ctx) {
     const path = new URL(request.url).pathname;
@@ -67,6 +80,7 @@ export default {
         enabled: env.ENABLED === "true",
         model: env.MODEL || MODEL,
         version: "week11-1",
+        limits: {...requestLimits(env), outputTokens: LIMITS.output},
       });
     if (
       env.ENABLED !== "true" ||
@@ -182,16 +196,7 @@ export class Classroom {
       await this.ctx.storage.put("budget", s);
       return json({ ok: true });
     }
-    const n = (k, d) =>
-      Number.isFinite(+this.env[k]) && +this.env[k] > 0
-        ? Math.floor(+this.env[k])
-        : d;
-    const a = admit(s, b.session, b.mode, b.id, Date.now(), {
-      daily: n("DAILY_REQUEST_LIMIT", 1200),
-      session: n("SESSION_REQUEST_LIMIT", 40),
-      rpm: n("RPM_LIMIT", 240),
-      concurrent: n("CONCURRENCY_LIMIT", 120),
-    });
+    const a = admit(s, b.session, b.mode, b.id, Date.now(), requestLimits(this.env));
     await this.ctx.storage.put("budget", s);
     return json(a);
   }
