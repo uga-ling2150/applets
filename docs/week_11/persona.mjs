@@ -1,5 +1,5 @@
 import { $, node, download, connection, generate } from "./common.mjs";
-import { exactSpans } from "./core.mjs";
+import { exactSpans } from "./core.mjs?v=20261017-state";
 let pair = null,
   annotations = [],
   history = [],
@@ -75,6 +75,7 @@ function renderAnnotations() {
 }
 function render() {
   $("annotation-panel").hidden = !pair;
+  promptNotice();
   renderOutput("a");
   renderOutput("b");
   renderAnnotations();
@@ -168,7 +169,7 @@ $("generate").onclick = async () => {
     return;
   }
   busy = true;
-  $("generate").disabled = true;
+  for (const id of ["generate", "prompt", "system-a", "system-b", "example"]) $(id).disabled = true;
   $("error").textContent = "";
   $("status").textContent = "Generating both personas…";
   try {
@@ -203,7 +204,7 @@ $("generate").onclick = async () => {
       "No comparison replaced; any existing work is preserved.";
   } finally {
     busy = false;
-    $("generate").disabled = false;
+    for (const id of ["generate", "prompt", "system-a", "system-b", "example"]) $(id).disabled = false;
   }
 };
 $("save-pair").onclick = () => {
@@ -235,5 +236,14 @@ $("download").onclick = () => {
   save();
   download("11A-style-persona.json", { activity: "11A", comparisons: history });
 };
+function promptNotice() {
+  const changed = pair && pair.kind === "live" &&
+    (pair.prompt !== $("prompt").value.trim() ||
+     pair.systems.a !== $("system-a").value.trim() ||
+     pair.systems.b !== $("system-b").value.trim());
+  $("prompt-notice").textContent = changed
+    ? "Prompts changed. Outputs still use the previous prompts. Generate again to compare." : "";
+}
+for (const id of ["prompt", "system-a", "system-b"]) $(id).addEventListener("input", promptNotice);
 connection();
 render();

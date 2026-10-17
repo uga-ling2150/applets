@@ -1,5 +1,5 @@
 import { $, node, download, connection, generate } from "./common.mjs";
-import { bigrams, distribution, sample } from "./core.mjs?v=20261017-topq";
+import { bigrams, distribution, sample } from "./core.mjs?v=20261017-state";
 let model,
   rows = [],
   counts = {},
@@ -7,7 +7,9 @@ let model,
   lastDraw = "",
   generations = [],
   busy = false,
-  settings;
+  settings,
+  appliedInput,
+  dirty = false;
 function parameters(prefix = "") {
   const ids = prefix
     ? ["live-temperature", "live-topk", "live-topp"]
@@ -49,8 +51,12 @@ function render() {
 }
 function apply() {
   try {
-    settings = parameters();
-    rows = distribution(model.get($("context").value) || new Map(), settings);
+    const nextSettings = parameters();
+    const nextRows = distribution(model.get($("context").value) || new Map(), nextSettings);
+    settings = nextSettings;
+    rows = nextRows;
+    appliedInput = {corpus: $("corpus").value, context: $("context").value};
+    dirty = false;
     counts = {};
     total = 0;
     lastDraw = "";
@@ -60,6 +66,7 @@ function apply() {
     for (const id of ["sample", "many", "clear"]) $(id).disabled = false;
   } catch (e) {
     $("error").textContent = e.message;
+    dirty = true;
     for (const id of ["sample", "many", "clear"]) $(id).disabled = true;
   }
 }
@@ -77,6 +84,7 @@ $("apply").onclick = apply;
 $("context").onchange = apply;
 for (const id of ["temperature", "topk", "topp", "nucleus", "corpus"])
   $(id).addEventListener("input", () => {
+    dirty = true;
     for (const id of ["sample", "many", "clear"]) $(id).disabled = true;
     $("status").textContent =
       "Inputs changed. " +
@@ -161,8 +169,9 @@ $("generate").onclick = async () => {
 $("download").onclick = () =>
   download("11B-sampling.json", {
     activity: "11B",
-    corpus: $("corpus").value,
-    context: $("context").value,
+    corpus: appliedInput?.corpus,
+    context: appliedInput?.context,
+    pendingInputs: dirty ? {corpus: $("corpus").value, context: $("context").value, settings: parameters()} : null,
     settings,
     distribution: rows,
     counts,
