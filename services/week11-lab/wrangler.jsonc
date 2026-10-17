@@ -24,8 +24,8 @@
   "vars": {
     "MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8",
     "ENABLED": "true",
-    "DAILY_REQUEST_LIMIT": "600",
-    "SESSION_REQUEST_LIMIT": "30",
+    "DAILY_REQUEST_LIMIT": "0",
+    "SESSION_REQUEST_LIMIT": "0",
     "RPM_LIMIT": "120",
     "CONCURRENCY_LIMIT": "30"
   },

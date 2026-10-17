@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import worker, { Classroom } from "../src/worker.mjs";
+import { admit } from "../src/budget.mjs";
 import { validate, messages } from "../src/core.mjs";
 import {
   bigrams,
@@ -195,4 +196,21 @@ test("top-q is passed to the provider as top_p and preserved in metadata", async
   assert.equal(seen[0].top_p, 0.65);
   assert.equal((await result.json()).settings.nucleusName, "top-q");
   await Promise.all(waits);
+});
+
+test("zero cumulative caps allow existing counts above old limits while retaining capacity guards", () => {
+  const now = Date.now();
+  const state = {day:new Date(now).toISOString().slice(0,10),count:600,sessions:{student:30},recent:[],active:{}};
+  const limits = {daily:0,session:0,rpm:120,concurrent:30};
+  assert.equal(admit(state,"student","sampling","r1",now,limits).ok,true);
+  assert.equal(state.count,601);
+  assert.equal(admit(state,"student","sampling","r2",now,limits).code,"busy");
+  state.active={}; state.recent=Array(120).fill(now);
+  assert.equal(admit(state,"other","sampling","r3",now,limits).code,"busy");
+});
+test("health exposes effective unlimited cumulative caps", async () => {
+  const {env,ctx} = setup();
+  env.DAILY_REQUEST_LIMIT="0"; env.SESSION_REQUEST_LIMIT="0";
+  const r=await worker.fetch(new Request("https://lab.test/api/health"),env,ctx);
+  assert.deepEqual((await r.json()).limits,{daily:0,session:0,rpm:120,concurrent:30,outputTokens:200});
 });
