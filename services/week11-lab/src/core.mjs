@@ -4,13 +4,14 @@ export const LIMITS = { output: 200, perTurn: 5000 };
 export function validate(b) {
   if (
     !b ||
-    Object.hasOwn(b, "topq") ||
     !["persona", "sampling"].includes(b.mode) ||
     typeof b.prompt !== "string" ||
     !b.prompt.trim() ||
     b.prompt.length > 1200
   )
     throw Error("invalid_input");
+  if (Object.hasOwn(b, "topp") && Object.hasOwn(b, "topq")) throw Error("invalid_input");
+  const nucleus = Object.hasOwn(b, "topq") ? b.topq : b.topp;
   if (
     !Number.isFinite(b.temperature) ||
     b.temperature < 0 ||
@@ -18,9 +19,9 @@ export function validate(b) {
     !Number.isInteger(b.topk) ||
     b.topk < 1 ||
     b.topk > 50 ||
-    !Number.isFinite(b.topp) ||
-    b.topp < 0.01 ||
-    b.topp > 1
+    !Number.isFinite(nucleus) ||
+    nucleus < 0.01 ||
+    nucleus > 1
   )
     throw Error("invalid_input");
   if (
@@ -34,7 +35,8 @@ export function validate(b) {
     system: b.mode === "persona" ? b.system.trim() : "",
     temperature: b.temperature,
     topk: b.topk,
-    topp: b.topp,
+    topp: nucleus,
+    nucleusName: Object.hasOwn(b, "topq") ? "top-q" : "top-p",
   };
 }
 export function messages(b) {

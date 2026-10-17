@@ -20,7 +20,7 @@ Run `npm test` in this directory. The suite covers probability transformations, 
 
 Defaults: 600 requests per UTC day, 30 requests per signed browser session, 120 requests per minute, 30 concurrent requests and 200 maximum output tokens per request. A comparison in 11A uses two requests. Quotas bound requests, not currency or provider neuron consumption; they are not a monetary spending cap. Existing provider quotas and account billing still apply. Set `ENABLED=false` to pause inference. No billing configuration is changed by this code.
 
-The default model is `@cf/meta/llama-3.1-8b-instruct-fp8`. Its current availability and parameter support must be verified during deployment. The [official model schema](https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fp8/) documents temperature, top-k and top-p. Top-q is deliberately absent: the course materials mention it without a definition.
+The default model is `@cf/meta/llama-3.1-8b-instruct-fp8`. Its current availability and parameter support must be verified during deployment. The [official model schema](https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fp8/) documents temperature, top-k and top-p. Top-q is supported as nucleus cumulative mass, following [NAACL 2025 Appendix F](https://aclanthology.org/2025.naacl-long.469/). Repository review found no earlier course-specific top-q implementation. This is an explicit implementation choice for instructor review, not a claim about the author’s intended notation. Choose either top-p or top-q; sending both is rejected. The provider receives top_p, and response metadata records the requested notation.
 
 ## Classroom content decisions
 

@@ -142,6 +142,7 @@ export default {
           temperature: input.temperature,
           topk: input.topk,
           topp: input.topp,
+          nucleusName: input.nucleusName,
         },
       });
     } catch (e) {
