@@ -4,6 +4,7 @@ let model,
   rows = [],
   counts = {},
   total = 0,
+  lastDraw = "",
   generations = [],
   busy = false,
   settings;
@@ -44,7 +45,7 @@ function render() {
     tbody.append(tr);
   });
   $("sample-status").textContent =
-    `${total} draws for the current distribution.`;
+    (lastDraw ? `Sampled “${lastDraw}”. ` : "") + `${total} draws for the current distribution.`;
 }
 function apply() {
   try {
@@ -52,6 +53,7 @@ function apply() {
     rows = distribution(model.get($("context").value) || new Map(), settings);
     counts = {};
     total = 0;
+    lastDraw = "";
     $("error").textContent = "";
     $("status").textContent = "Distribution updated. Sampling counts reset.";
     render();
@@ -91,8 +93,10 @@ $("train").addEventListener("click", () => {
   $("context").disabled = false;
 });
 function draw(n) {
+  lastDraw = "";
   for (let i = 0; i < n; i++) {
     const word = sample(rows);
+    if (n === 1) lastDraw = word;
     counts[word] = (counts[word] || 0) + 1;
     total++;
   }
@@ -103,6 +107,7 @@ $("many").onclick = () => draw(100);
 $("clear").onclick = () => {
   counts = {};
   total = 0;
+  lastDraw = "";
   render();
 };
 $("generate").onclick = async () => {
