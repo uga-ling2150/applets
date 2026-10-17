@@ -44,6 +44,6 @@ export function admit(s, session, mode, id, now, c) {
   s.count++;
   if (c.session > 0) s.sessions[session] = (s.sessions[session] || 0) + 1;
   s.recent.push(now);
-  s.active[id] = { session, mode, until: now + 35000 };
+  s.active[id] = { session, mode, until: now + 120000 };
   return { ok: true };
 }

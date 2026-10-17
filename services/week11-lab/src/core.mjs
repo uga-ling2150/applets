@@ -1,6 +1,6 @@
 export { limitedJSON, admit } from "./budget.mjs";
 export const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
-export const LIMITS = { output: 1024, perTurn: 12000 };
+export const LIMITS = { output: 1024, perTurn: 12000, inferenceMs: 90000 };
 export function validate(b) {
   if (
     !b ||

@@ -1,4 +1,4 @@
-import { $, node, download, connection, generate } from "./common.mjs";
+import { $, node, download, connection, generate } from "./common.mjs?v=20261017-output";
 import { bigrams, distribution, sample } from "./core.mjs?v=20261017-state";
 let model,
   rows = [],

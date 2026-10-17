@@ -138,7 +138,7 @@ export default {
           max_tokens: LIMITS.output,
         }),
         new Promise((_, reject) => {
-          timer = setTimeout(() => reject(Error("timeout")), 25000);
+          timer = setTimeout(() => reject(Error("timeout")), LIMITS.inferenceMs);
         }),
       ]);
       const text = result.response || result.choices?.[0]?.message?.content;

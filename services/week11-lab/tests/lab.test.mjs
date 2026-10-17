@@ -205,6 +205,7 @@ test("zero cumulative caps allow existing counts above old limits while retainin
   const limits = {daily:0,session:0,rpm:120,concurrent:30};
   assert.equal(admit(state,"student","sampling","r1",now,limits).ok,true);
   assert.equal(state.count,601);
+  assert.equal(state.active.r1.until, now+120000);
   assert.equal(admit(state,"student","sampling","r2",now,limits).code,"busy");
   state.active={}; state.recent=Array(120).fill(now);
   assert.equal(admit(state,"other","sampling","r3",now,limits).code,"busy");

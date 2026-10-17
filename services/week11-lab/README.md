@@ -27,3 +27,5 @@ The default model is `@cf/meta/llama-3.1-8b-instruct-fp8`. Its current availabil
 The two 11A starter personas and authored examples are discussion material, not asserted identities or validated effects. Students should support interpretations with language evidence and repeat conditions. The 11B toy model documents its own transformation order; hosted inference may differ. All displayed outputs record their actual source and request settings.
 
 The output budget was raised from 200 to 1,024 tokens at the owner’s request on 2026-10-17. The fixed 100-word system instruction was removed; the prompt controls length with concise replies as the default. The response validation ceiling is 12,000 characters to accommodate longer bounded output.
+
+Long-output timing: inference waits up to 90 seconds, browser requests up to 105 seconds, and capacity leases expire after 120 seconds. These replace the short 25/30/35-second timings used for 200-token replies.
