@@ -64,6 +64,8 @@ function renderAnnotations() {
     remove.onclick = () => {
       annotations.splice(i, 1);
       render();
+      $("annotate").focus();
+      $("status").textContent = "Annotation removed.";
     };
     li.append(remove);
     $("annotations").append(li);
