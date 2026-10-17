@@ -137,6 +137,7 @@ test("session enforcement, bounded sampling parameters, and private-note exclusi
     ctx,
   );
   assert.equal(r.status, 200);
+  assert.equal(seen[0].max_tokens, 1024);
   assert.equal(seen[0].top_k, 20);
   assert.equal(seen[0].top_p, 0.9);
   assert.equal(seen[0].temperature, 0.7);
@@ -212,5 +213,17 @@ test("health exposes effective unlimited cumulative caps", async () => {
   const {env,ctx} = setup();
   env.DAILY_REQUEST_LIMIT="0"; env.SESSION_REQUEST_LIMIT="0";
   const r=await worker.fetch(new Request("https://lab.test/api/health"),env,ctx);
-  assert.deepEqual((await r.json()).limits,{daily:0,session:0,rpm:120,concurrent:30,outputTokens:200});
+  assert.deepEqual((await r.json()).limits,{daily:0,session:0,rpm:120,concurrent:30,outputTokens:1024});
+});
+
+test("longer bounded output is retained without a forced 100-word instruction", async () => {
+  const {env,ctx,waits,seen}=setup();
+  env.AI.run=async (model,body)=>{seen.push(body);return {response:"a".repeat(6000)};};
+  const {token}=await(await worker.fetch(req("/api/session"),env,ctx)).json();
+  const response=await worker.fetch(req("/api/chat",input,token),env,ctx);
+  assert.equal(response.status,200);
+  assert.equal((await response.json()).reply.length,6000);
+  assert.equal(seen[0].max_tokens,1024);
+  assert.ok(!seen[0].messages[0].content.includes("at most 100 words"));
+  await Promise.all(waits);
 });
