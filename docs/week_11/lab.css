@@ -1,3 +1,75 @@
 /* Only the comparison, annotation and probability widgets are page-specific. */
-.lab-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-block:20px}.lab-grid>*{min-width:0}.table-scroll{overflow-x:auto}.prob-table{width:100%;border-collapse:collapse;font-family:"Merriweather Sans",sans-serif;font-size:14px;margin-block:20px}.prob-table caption{caption-side:top;color:var(--text)}.prob-table th,.prob-table td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left}.prob-table meter{display:block;width:100%;min-width:60px}.annotation-list>li,.generation{padding:18px 0;border-bottom:1px solid var(--line)}.chat-turn__text mark{background:#ffe39b;color:#1a1a1a}.chat-log--static{max-height:none}.generation{font-family:"Merriweather Sans",sans-serif;font-size:16px;overflow-wrap:anywhere}.annotation-list{overflow-wrap:anywhere}@media(max-width:700px){.lab-grid{grid-template-columns:1fr}.prob-table th,.prob-table td{padding:8px 5px}}
-.app-wrapper .annotation-list,.app-wrapper #history,.app-wrapper>p,.app-wrapper>.glossary-box{font-family:"Merriweather Sans",sans-serif}.app-wrapper .annotation-list,.app-wrapper #history{font-size:16px;line-height:1.7}
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-block: 20px;
+}
+.lab-grid > * {
+  min-width: 0;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+.prob-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 14px;
+  margin-block: 20px;
+}
+.prob-table caption {
+  caption-side: top;
+  color: var(--text);
+}
+.prob-table th,
+.prob-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.prob-table meter {
+  display: block;
+  width: 100%;
+  min-width: 60px;
+}
+.annotation-list > li,
+.generation {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.chat-turn__text mark {
+  background: #ffe39b;
+  color: #1a1a1a;
+}
+.chat-log--static {
+  max-height: none;
+}
+.generation {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.annotation-list {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .lab-grid {
+    grid-template-columns: 1fr;
+  }
+  .prob-table th,
+  .prob-table td {
+    padding: 8px 5px;
+  }
+}
+.app-wrapper .annotation-list,
+.app-wrapper #history,
+.app-wrapper > p,
+.app-wrapper > .glossary-box {
+  font-family: "Merriweather Sans", sans-serif;
+}
+.app-wrapper .annotation-list,
+.app-wrapper #history {
+  font-size: 16px;
+  line-height: 1.7;
+}
