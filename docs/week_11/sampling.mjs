@@ -9,6 +9,7 @@ let model,
   busy = false,
   settings,
   appliedInput,
+  modelDirty = false,
   dirty = false;
 function parameters(prefix = "") {
   const ids = prefix
@@ -72,6 +73,7 @@ function apply() {
 }
 function train() {
   model = bigrams($("corpus").value);
+  modelDirty = false;
   $("context").replaceChildren();
   for (const word of model.keys()) {
     $("context").append(new Option(word, word));
@@ -80,26 +82,17 @@ function train() {
   apply();
 }
 $("train").onclick = train;
-$("apply").onclick = apply;
 $("context").onchange = apply;
-for (const id of ["temperature", "topk", "topp", "nucleus", "corpus"])
-  $(id).addEventListener("input", () => {
-    dirty = true;
-    for (const id of ["sample", "many", "clear"]) $(id).disabled = true;
-    $("status").textContent =
-      "Inputs changed. " +
-      (id === "corpus"
-        ? "Build the bigram model again."
-        : "Apply the settings before sampling.");
-    if (id === "corpus") {
-      $("apply").disabled = true;
-      $("context").disabled = true;
-    }
-  });
-$("train").addEventListener("click", () => {
-  $("apply").disabled = false;
-  $("context").disabled = false;
+for (const id of ["temperature", "topk", "topp", "nucleus"]) {
+  $(id).addEventListener("input", () => { if (!modelDirty) apply(); });
+}
+$("corpus").addEventListener("input", () => {
+  modelDirty = true;
+  dirty = true;
+  for (const id of ["sample", "many", "clear", "context"]) $(id).disabled = true;
+  $("status").textContent = "Corpus changed. Build the model to update the distribution.";
 });
+$("train").addEventListener("click", () => { $("context").disabled = false; });
 function draw(n) {
   lastDraw = "";
   for (let i = 0; i < n; i++) {

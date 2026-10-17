@@ -16,7 +16,7 @@
     />
     <link rel="stylesheet" href="../style.css?v=20261017-review" />
     <link rel="stylesheet" href="lab.css?v=20261017-review" />
-    <script type="module" src="sampling.mjs?v=20261017-output"></script>
+    <script type="module" src="sampling.mjs?v=20261017-teaching"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -44,7 +44,7 @@
         </p>
         <h4 class="uga-accent">Instructions</h4>
         <ol>
-          <li>Change one setting. Inspect the table and sample.</li>
+          <li>Change one setting. Watch the probabilities change, then sample.</li>
           <li>Compare repeated LLM outputs using specific words or phrases.</li>
         </ol>
       </section>
@@ -112,13 +112,11 @@ we study together</textarea
           </div>
         </div>
         <p class="field-hint">
-          Temperature → top-k → nucleus cutoff → normalize. This table samples words;
+          Temperature → top-k → nucleus cutoff → normalize. Lower temperature concentrates probability. This table samples words;
           LLMs usually sample tokens.
         </p>
         <div class="btn-row">
-          <button id="apply" type="button" class="btn-uga">
-            Apply settings</button
-          ><button id="sample" type="button" class="btn-uga-outline">
+          <button id="sample" type="button" class="btn-uga-outline">
             Sample one word</button
           ><button id="many" type="button" class="btn-uga-outline">
             Sample 100 words</button
@@ -247,8 +245,7 @@ Suggest a short opening sentence for a story about a student who finds an unfami
           </li>
           <li>Why do sample counts vary?</li>
           <li>
-            Are low-temperature outputs more generic? Give an example and an
-            exception.
+            Compare repeated outputs: cite lexical choices, specificity or repetition.
           </li>
         </ol>
         <div class="reflection-notes field">
