@@ -1,0 +1,35 @@
+{
+  "name": "ling2150-week11-lab",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-09-01",
+  "ai": {
+    "binding": "AI"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CLASSROOM",
+        "class_name": "Classroom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "Classroom"
+      ]
+    }
+  ],
+  "vars": {
+    "MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8",
+    "ENABLED": "true",
+    "DAILY_REQUEST_LIMIT": "600",
+    "SESSION_REQUEST_LIMIT": "30",
+    "RPM_LIMIT": "120",
+    "CONCURRENCY_LIMIT": "30"
+  },
+  "observability": {
+    "enabled": false
+  }
+}

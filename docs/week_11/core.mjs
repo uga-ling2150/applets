@@ -1,0 +1,83 @@
+export function bigrams(text) {
+  const model = new Map();
+  for (const line of text.split(/\n/)) {
+    const words = line.toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g) || [];
+    for (let i = 0; i < words.length - 1; i++) {
+      if (!model.has(words[i])) model.set(words[i], new Map());
+      const counts = model.get(words[i]);
+      counts.set(words[i + 1], (counts.get(words[i + 1]) || 0) + 1);
+    }
+  }
+  return model;
+}
+export function distribution(
+  counts,
+  { temperature = 1, topk = 0, topp = 1 } = {},
+) {
+  if (
+    !Number.isFinite(temperature) ||
+    temperature < 0 ||
+    temperature > 2 ||
+    !Number.isInteger(topk) ||
+    topk < 0 ||
+    topk > 50 ||
+    !Number.isFinite(topp) ||
+    topp <= 0 ||
+    topp > 1
+  )
+    throw Error(
+      "Use temperature 0–2, integer top-k 0–50, and top-p greater than 0 up to 1.",
+    );
+  let rows = [...counts]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([word, count]) => ({ word, count }));
+  if (!rows.length) throw Error("This context has no observed next word.");
+  const total = rows.reduce((s, r) => s + r.count, 0),
+    max = rows[0].count;
+  rows.forEach((r) => {
+    r.base = r.count / total;
+    r.weight =
+      temperature === 0
+        ? r === rows[0]
+          ? 1
+          : 0
+        : Math.exp(Math.log(r.count / max) / temperature);
+  });
+  const z = rows.reduce((s, r) => s + r.weight, 0);
+  rows.forEach((r) => (r.tempered = r.weight / z));
+  let candidates = rows
+      .filter((r) => r.weight > 0)
+      .slice(0, topk || rows.length),
+    sum = candidates.reduce((s, r) => s + r.tempered, 0),
+    cumulative = 0;
+  const kept = [];
+  for (const r of candidates) {
+    if (cumulative >= topp) break;
+    kept.push(r);
+    cumulative += r.tempered / sum;
+  }
+  const norm = kept.reduce((s, r) => s + r.tempered, 0);
+  return rows.map((r) => ({
+    ...r,
+    kept: kept.includes(r),
+    prob: kept.includes(r) ? r.tempered / norm : 0,
+  }));
+}
+export function sample(rows, random = Math.random) {
+  let x = random();
+  for (const r of rows) {
+    x -= r.prob;
+    if (x < 0) return r.word;
+  }
+  return rows.filter((r) => r.prob > 0).at(-1).word;
+}
+export function exactSpans(text, quote) {
+  if (!quote) return [];
+  let spans = [],
+    at = 0;
+  while ((at = text.indexOf(quote, at)) >= 0) {
+    spans.push([at, at + quote.length]);
+    at += quote.length;
+  }
+  return spans;
+}
