@@ -1,4 +1,4 @@
-import { $, node, download, connection, generate } from "./common.mjs";
+import { $, node, download, connection, generate } from "./common.mjs?v=20261017-output";
 import { exactSpans } from "./core.mjs?v=20261017-state";
 let pair = null,
   annotations = [],

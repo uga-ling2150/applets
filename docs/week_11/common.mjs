@@ -83,7 +83,7 @@ export async function generate(body) {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Session": token },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(30000),
+    signal: AbortSignal.timeout(105000),
   });
   const d = await r.json();
   if (!r.ok) {
