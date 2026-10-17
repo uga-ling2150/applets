@@ -67,7 +67,9 @@ function renderAnnotations() {
       $("annotate").focus();
       $("status").textContent = "Annotation removed.";
     };
-    li.append(remove);
+    const actions = node("div", undefined, "btn-row");
+    actions.append(remove);
+    li.append(actions);
     $("annotations").append(li);
   });
 }

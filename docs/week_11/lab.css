@@ -42,9 +42,6 @@
   background: #ffe39b;
   color: #1a1a1a;
 }
-.chat-log--static {
-  max-height: none;
-}
 .generation {
   font-family: "Merriweather Sans", sans-serif;
   font-size: 16px;
@@ -75,3 +72,5 @@
 }
 
 .week11-support {max-width:1000px;font-family:"Merriweather Sans",sans-serif;}
+
+.app-wrapper #annotation-panel > p { font-family: "Merriweather Sans", sans-serif; }
