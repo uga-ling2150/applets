@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Persona N-Gram Highlighter (Compromise.js Powered)</title>
     <style>
         body { font-family: sans-serif; max-width: 650px; margin: 40px auto; padding: 20px; color: #333; }
@@ -18,15 +19,18 @@
     <script src="https://unpkg.com/compromise"></script>
 </head>
 <body>
+<main>
 
-<h2>Persona N-Gram Highlighter</h2>
+<h1>Persona N-Gram Highlighter</h1>
 <p>Type text below (e.g., <em>"circles back"</em> or <em>"synergizes deliverables"</em>):</p>
 
+<label for="userInput">Text to highlight</label>
 <textarea id="userInput" placeholder="We are synergizing deliverables and circling back..."></textarea>
 
-<h3>Live Highlighting Output:</h3>
+<h2>Live Highlighting Output:</h2>
 <div id="resultBox" class="output-box"></div>
 
+</main>
 <script>
 // --- 1. MODEL DATA (Exported from Python JSON format) ---
 const modelData = {

@@ -66,7 +66,7 @@
             <div class="stage" :class="{'active': step === 1, 'done': step > 1}">
                 <div class="stage-num">01</div>
                 <div class="stage-body">
-                    <div class="stage-title" x-text="schemas[currentIndex].title"></div>
+                    <div class="stage-title" role="heading" aria-level="3" x-text="schemas[currentIndex].title"></div>
                     <div class="stage-sub" x-text="schemas[currentIndex].category"></div>
                     <div class="stage-content mt-3">
                         <div class="p-3 bg-white border border-secondary-subtle rounded mb-3 fs-6" x-html="schemas[currentIndex].sentence"></div>
@@ -99,7 +99,7 @@
             <div class="stage" :class="{'active': step === 2, 'done': step > 2}" x-show="step >= 2">
                 <div class="stage-num">02</div>
                 <div class="stage-body">
-                    <div class="stage-title">Real-World Knowledge Reflection</div>
+                    <div class="stage-title" role="heading" aria-level="3">Real-World Knowledge Reflection</div>
                     <div class="stage-sub">Semantic & Cause-and-Effect Analysis</div>
                     <div class="stage-content mt-3">
                         <label for="knowledgeInput" class="form-label text-dark fw-bold" style="font-family: 'Merriweather', serif; font-size: 14px;">What specific real-world knowledge is required to resolve this ambiguity?</label>

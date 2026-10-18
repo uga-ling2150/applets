@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Activity 11A: Style and Persona</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../style.css?v=20261017-review" />
+    <link rel="stylesheet" href="lab.css?v=20261017-review" />
+    <script type="module" src="persona.mjs?v=20261017-teaching"></script>
+    <script src="../reflection-notes.js" defer></script>
+  </head>
+  <body class="iv-lab">
+    <a class="skip-link" href="#main">Skip to activity</a>
+    <header class="page-header">
+      <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+      <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+    </header>
+    <main id="main" tabindex="-1">
+      <section class="lesson-container" aria-labelledby="activity-title">
+        <h3 id="activity-title" class="h3 mb-4">
+          Activity 11A: Style and Persona
+        </h3>
+        <h4 class="uga-accent">Learning Objectives</h4>
+        <ul>
+          <li><strong>Identify</strong> language cues to persona.</li>
+          <li><strong>Compare</strong> the effects of system prompts.</li>
+        </ul>
+        <h4 class="uga-accent">Background</h4>
+        <p>A system prompt sets a speaking role; word choices suggest a persona or relationship.</p>
+        <h4 class="uga-accent">Instructions</h4>
+        <ol>
+          <li>With a partner, edit the personas and generate the same short task.</li>
+          <li>
+            Mark a phrase and explain its social meaning. Swap roles, change one prompt and compare.
+          </li>
+        </ol>
+      </section>
+      <section class="app-wrapper" aria-labelledby="applet-title">
+        <div class="hero">
+          <div class="hero-text">
+            <h2 id="applet-title">Language <span>makes a persona</span></h2>
+            <p>
+              Change the prompt. Compare the language. Explain the evidence.
+            </p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="prompt">Same user question for both personas</label
+          ><textarea id="prompt" rows="3" maxlength="1200">
+In 1–2 sentences, how can I prepare for a difficult exam next week?</textarea
+          >
+        </div>
+        <div class="lab-grid">
+          <section aria-labelledby="persona-a">
+            <h3 id="persona-a" class="h5">Persona A</h3>
+            <div class="field">
+              <label for="system-a">System prompt A</label
+              ><textarea id="system-a" rows="4" maxlength="1600">
+You are a careful university tutor. Explain clearly, use measured language, and support the learner without overstating certainty.</textarea
+              >
+            </div>
+            <ol
+              class="chat-log chat-log--static"
+              id="log-a"
+              tabindex="0"
+              aria-label="Output A"
+            ></ol>
+          </section>
+          <section aria-labelledby="persona-b">
+            <h3 id="persona-b" class="h5">Persona B</h3>
+            <div class="field">
+              <label for="system-b">System prompt B</label
+              ><textarea id="system-b" rows="4" maxlength="1600">
+You are an enthusiastic peer study partner. Use a relaxed conversational style and encourage the learner while still being accurate.</textarea
+              >
+            </div>
+            <ol
+              class="chat-log chat-log--static"
+              id="log-b"
+              tabindex="0"
+              aria-label="Output B"
+            ></ol>
+          </section>
+        </div>
+        <div class="btn-row">
+          <button id="generate" type="button" class="btn-uga">
+            Generate both outputs</button
+          ><button id="save-pair" type="button" class="btn-uga-outline">
+            Keep this comparison
+          </button>
+        </div>
+        <p id="status" class="field-hint" role="status" aria-live="polite"></p>
+        <p id="prompt-notice" class="field-hint" role="status"></p>
+        <p id="error" class="error-text" role="alert"></p>
+        <p class="field-hint">
+          Same model and settings; different system prompts. Prompts go to the
+          model service. Your annotations stay here.
+        </p>
+        <div id="annotation-panel" hidden>
+          <h3 class="h5">Annotate language evidence</h3>
+          <p>Select or enter a phrase, then explain its effect.</p>
+          <div class="btn-row">
+            <button id="capture" type="button" class="btn-uga-outline">
+              Use selected phrase
+            </button>
+          </div>
+          <div class="lab-grid">
+            <div class="field">
+              <label for="side">Output</label
+              ><select id="side">
+                <option value="a">Persona A</option>
+                <option value="b">Persona B</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="category">Feature</label
+              ><select id="category">
+                <option value="address">Address and relationship</option>
+                <option value="certainty">Certainty and hedging</option>
+                <option value="register">Register and vocabulary</option>
+                <option value="evaluation">Evaluation and affect</option>
+                <option value="politeness">Politeness and directness</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="quote">Exact quote</label
+            ><textarea id="quote" rows="2" maxlength="1600"></textarea>
+          </div>
+          <div class="field">
+            <label for="interpretation"
+              >What does this suggest about the speaker?</label
+            ><textarea id="interpretation" rows="3" maxlength="1600"></textarea>
+          </div>
+          <div class="btn-row">
+            <button id="annotate" type="button" class="btn-uga">
+              Add annotation</button
+            ><button id="download" type="button" class="btn-uga-outline">
+              Download my work
+            </button>
+          </div>
+          <ol id="annotations" class="annotation-list"></ol>
+        </div>
+        <div id="history-panel" hidden>
+          <h3 class="h5">Saved comparisons</h3>
+          <div id="history"></div>
+        </div>
+
+
+      </section>
+      <details class="glossary-box mx-auto week11-support">
+          <summary>Offline comparison</summary>
+          <p>
+            These are authored practice examples, not live model output. They do
+            not change when you edit the system prompts. Generate live outputs
+            to test your edits.
+          </p>
+          <div class="btn-row"><button id="example" type="button" class="btn-uga-outline">
+            Load practice examples
+          </button></div>
+        </details>
+<details class="glossary-box mx-auto week11-support">
+          <summary>Instructor connection settings</summary>
+          <div class="field">
+            <label for="endpoint">Course service URL</label
+            ><input
+              id="endpoint"
+              type="url"
+              placeholder="https://your-course-service.workers.dev"
+            />
+          </div>
+          <div class="btn-row"><button id="connect" type="button" class="btn-uga-outline">
+            Connect
+          </button><button id="disconnect" type="button" class="btn-uga-outline">Disconnect</button></div>
+          <p id="connection" class="field-hint" role="status"></p>
+        </details>
+<section class="reflection-container" aria-labelledby="reflection-title">
+        <h3 id="reflection-title" class="uga-accent mb-3">
+          Reflection &amp; Discussion Guide
+        </h3>
+        <ol>
+          <li>Which phrases suggest each persona?</li>
+          <li>Did changing the prompt change the language? Cite an example.</li>
+          <li>Would another generation support the same interpretation?</li>
+        </ol>
+        <div class="reflection-notes field">
+          <label for="reflection">Write down your thoughts</label
+          ><textarea id="reflection" rows="5" maxlength="4000"></textarea>
+          <div class="btn-row">
+            <button class="btn-uga" type="button" data-download-notes>
+              Download my notes</button
+            ><span class="field-hint" role="status" data-download-status></span>
+          </div>
+          <p class="field-hint">
+            Your notes stay in this browser and are not submitted to your
+            instructor. Download them before you close this page.
+          </p>
+        </div>
+      </section>
+    </main>
+    <section
+      class="applet-feedback-card applet-feedback-card--followed"
+      aria-labelledby="applet-feedback-heading"
+    >
+      <div class="applet-feedback-card__content">
+        <div>
+          <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+          <a
+            class="applet-feedback-card__tutorial"
+            href="https://kaltura.uga.edu/media/t/1_bhor4qfq"
+            target="_blank"
+            rel="noopener noreferrer"
+            >New to GitHub? Watch the one-minute account setup guide
+            <span class="visually-hidden">(opens in a new tab)</span></a
+          >
+        </div>
+        <a
+          class="applet-feedback-card__button"
+          href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2011A%3A%20Style%20and%20Persona&amp;applet=Activity%2011A%3A%20Style%20and%20Persona&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_11%2F11A_style_persona.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Report a problem or give feedback
+          <span class="visually-hidden">(opens in a new tab)</span></a
+        >
+      </div>
+    </section>
+    <footer class="source-card" aria-labelledby="sources-title">
+      <h3 id="sources-title">Sources &amp; permissions</h3>
+      <p>
+        Live generation uses the model identified beside each output, hosted
+        through
+        <a href="https://developers.cloudflare.com/workers-ai/"
+          >Cloudflare Workers AI</a
+        >. The service is configured for
+        <a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct"
+          >Meta Llama 3.1 8B Instruct</a
+        >, subject to its
+        <a
+          href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/LICENSE"
+          >community license</a
+        >. Classroom prompts and practice examples were authored for this
+        activity. Generated responses may not follow a persona consistently.
+      </p>
+    </footer>
+  </body>
+</html>

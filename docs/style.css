@@ -235,7 +235,7 @@ h3 {
 .stage {
   position: relative;
   display: grid;
-  grid-template-columns: 56px 1fr;
+  grid-template-columns: 56px minmax(0, 1fr);
   gap: 18px;
   padding: 22px 4px;
 }
@@ -282,7 +282,8 @@ h3 {
 }
 
 .stage-body {
-  min-width: 0; /* let wide content (tables, scroll regions) scroll instead of stretching the rack */
+  min-width: 0;
+  overflow-wrap: anywhere;
   background: var(--panel-alt);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -928,7 +929,7 @@ h3 {
     align-self: center;
   }
   .stage {
-    grid-template-columns: 44px 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
   .stage-num {
@@ -937,6 +938,7 @@ h3 {
     font-size: 13px;
   }
   .stage:not(:last-child)::after {
+    display: none;
     left: 21px;
   }
 }
@@ -1100,3 +1102,12 @@ a:focus-visible { outline: 3px solid #f9a825; outline-offset: 3px; }
 
 /* Feedback followed by another standard card needs inter-card spacing, not end-of-page spacing. */
 .applet-feedback-card--followed { margin-bottom: 24px; }
+
+/* Bootstrap inline-code pink fails AA on the site's gray and blue panels. */
+code { color: inherit; }
+
+/* Wide technical tables scroll within the card, including with a keyboard. */
+.table-scroll { max-width: 100%; overflow: auto; }
+
+/* Normalized dates must also contrast with newly highlighted table rows. */
+#temporal-results .text-success { color: var(--olympic) !important; }

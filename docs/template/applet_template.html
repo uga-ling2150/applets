@@ -101,20 +101,21 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to activity</a>
 
-<div class="template-banner">
+<aside class="template-banner" aria-label="Template information">
     📎 This is a <strong>template</strong>, not a real activity. It exists to show instructors how
     to build a new applet page. See <a href="https://github.com/uga-ling2150/applets/blob/main/conventions.md" style="color:#9fd6ff;" target="_blank" rel="noopener noreferrer">conventions.md</a> in the repo for the full written rules this page demonstrates.
-</div>
+</aside>
 
-<a class="skip-link" href="#main">Skip to activity</a>
+
 
 <header class="page-header">
     <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
     <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 
-<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+<aside class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;" aria-label="Convention note — header">
     <span class="tag">Convention note — header</span>
     This <code>&lt;header class="page-header"&gt;</code> block is copied byte-for-byte from
     every other applet (see conventions.md § Header). Never redeclare
@@ -122,11 +123,11 @@
     <code>&lt;p&gt;</code> — screen-reader users rely on the page having exactly one
     <code>&lt;h1&gt;</code>/<code>&lt;h2&gt;</code> pair here, and it doubles as a working link
     back to the department site and the app index.
-</div>
+</aside>
 
 <main id="main" tabindex="-1">
 
-<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+<aside class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;" aria-label="Convention note — landmarks">
     <span class="tag">Convention note — landmarks</span>
     Everything specific to <em>this page</em> — the lesson card, the interactive widget, the
     reflection guide — lives inside one <code>&lt;main&gt;</code>. There is exactly one
@@ -136,7 +137,7 @@
     is a <code>&lt;section&gt;</code> with <code>aria-labelledby</code> pointing at that section's
     own visible heading <code>id</code> — never a bare <code>&lt;div&gt;</code>, and never
     <code>aria-label</code> duplicating text that's already visible on screen.
-</div>
+</aside>
 
 <section class="lesson-container" aria-labelledby="activity-title">
     <h3 id="activity-title" class="h3 mb-4">Activity 0T: How This Applet Was Built</h3>
@@ -172,13 +173,13 @@
     </div>
 </section>
 
-<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+<aside class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;" aria-label="Convention note — no shrinking substantive text">
     <span class="tag">Convention note — no shrinking substantive text</span>
     Learning Objectives, Instructions, and the Reflection &amp; Discussion Guide are course
     content the student is meant to read, same as Background — don't add <code>class="small"</code>
     to their lists or wrap it around them. If you want a lighter visual touch, that's what
     <code>uga-accent</code> headings and generous line-height already provide.
-</div>
+</aside>
 
 <section class="app-wrapper" aria-labelledby="applet-title">
 
@@ -189,20 +190,20 @@
     </div>
   </div>
 
-  <div class="spec-callout">
+  <aside class="spec-callout" aria-label="Convention note — applet title">
       <span class="tag">Convention note — applet title</span>
       The <code>&lt;h2 id="applet-title"&gt;</code> above lives inside <code>.hero</code>/
       <code>.hero-text</code>, both defined once in <code>style.css</code>. The
       <code>id</code> here must match the <code>aria-labelledby</code> on the
       <code>&lt;section class="app-wrapper"&gt;</code> that contains it — that's what gives a
       screen reader user a named landmark to jump straight to the interactive part of the page.
-  </div>
+  </aside>
 
   <div class="rack">
     <div class="stage active" id="tplStage1" data-stage="1">
       <div class="stage-num">1</div>
       <div class="stage-body">
-        <div class="stage-title">Stage-rack pattern</div>
+        <div class="stage-title" role="heading" aria-level="3">Stage-rack pattern</div>
         <div class="stage-sub">Already defined in style.css — no local CSS needed</div>
         <div class="stage-content">
           <p style="margin:0 0 10px;">Use <code>.rack</code> / <code>.stage</code> /
@@ -216,7 +217,7 @@
     <div class="stage" id="tplStage2" data-stage="2">
       <div class="stage-num">2</div>
       <div class="stage-body">
-        <div class="stage-title">Per-step discussion box</div>
+        <div class="stage-title" role="heading" aria-level="3">Per-step discussion box</div>
         <div class="stage-sub">Optional — already defined in style.css, just add the class</div>
         <div class="stage-content">
           <div class="discussion-box">
@@ -231,7 +232,7 @@
     <div class="stage" id="tplStage3" data-stage="3">
       <div class="stage-num">3</div>
       <div class="stage-body">
-        <div class="stage-title">Optional supplementary info</div>
+        <div class="stage-title" role="heading" aria-level="3">Optional supplementary info</div>
         <div class="stage-sub">Collapsed by default — this is what &lt;details&gt; is for</div>
         <div class="stage-content">
           <details class="glossary-box">
@@ -249,7 +250,7 @@
     </div>
   </div>
 
-  <div class="spec-callout">
+  <aside class="spec-callout" aria-label="Convention note — chat">
       <span class="tag">Convention note — chat</span>
       Every applet that shows a conversation uses the same look: <code>.chat-log</code> (an
       <code>&lt;ol role="log"&gt;</code>) holding <code>.chat-turn</code> items, with the role
@@ -265,9 +266,9 @@
       <code>.just-added</code> to ring a new turn, <code>.thinking</code> + <code>.thinking-dots</code>
       for "AI is typing", and <code>.chat-log--static</code> for a fixed example that shouldn't
       scroll. For an <em>editable</em> list of turns (5C), use the <code>.turn-row</code> pattern instead.
-  </div>
+  </aside>
 
-  <ol id="tplChat" class="chat-log" role="log" aria-label="Conversation" tabindex="0"></ol>
+  <ol id="tplChat" class="chat-log" aria-label="Conversation" tabindex="0"></ol>
   <p id="tplChatStatus" class="chat-status" role="status" aria-live="polite"></p>
   <form class="chat-compose field" onsubmit="event.preventDefault(); addTemplateTurn();">
     <label for="tplTurnInput">Your message</label>
@@ -280,28 +281,28 @@
     </div>
   </form>
 
-  <div class="spec-callout">
+  <aside class="spec-callout" aria-label="Convention note — form fields">
       <span class="tag">Convention note — form fields</span>
       Wrap a label and its control in <code>.field</code> and it gets the site look (13px bold
       Merriweather Sans label, 15px control text, 44px minimum height). Put explanatory text in
       <code>.field-hint</code>, mark optional labels with <code>.field-optional</code>, and show
       validation problems in <code>.error-text</code> with <code>role="alert"</code>. Lay fields
       out in a grid of your own; don't restyle the fields themselves.
-  </div>
+  </aside>
   <div class="field">
     <label for="tplSelect">Choose a starting point <span class="field-optional">(optional)</span></label>
     <select id="tplSelect"><option>An interview</option><option>An unclear reference</option></select>
     <p class="field-hint">A hint sits under the control; use it for what the field is for or where the data goes.</p>
   </div>
 
-  <div class="spec-callout">
+  <aside class="spec-callout" aria-label="Convention note — buttons">
       <span class="tag">Convention note — buttons</span>
       <code>.btn-uga</code>, <code>.btn-uga-dark</code>, <code>.btn-uga-outline</code>, and
       <code>.btn-reset</code> are all defined once in <code>style.css</code> (same font, size and
       44px touch target, whether the button sits in a card or in a <code>.stage-content</code>) —
       reuse them instead of inventing a page-local button style. Group them in
       <code>.btn-row</code>; a row whose buttons are all <code>hidden</code> takes no space.
-  </div>
+  </aside>
   <div class="btn-row">
     <button class="btn-uga" type="button" onclick="alert('Primary action — e.g. Run, Submit, Add.')">Primary (.btn-uga)</button>
     <button class="btn-uga-dark" type="button" onclick="alert('Secondary dark action.')">Dark (.btn-uga-dark)</button>
@@ -354,7 +355,8 @@
     </div>
 
     <h3 class="uga-accent">Widget catalog — quick reference</h3>
-    <table class="table table-sm table-bordered" style="font-size:14px;">
+    <div class="table-scroll" role="region" aria-label="Reusable components and their sources" tabindex="0">
+<table class="table table-sm table-bordered" style="font-size:14px;">
         <thead><tr><th>Widget</th><th>Defined in</th><th>Use for</th></tr></thead>
         <tbody>
             <tr><td><code>.rack</code> / <code>.stage</code></td><td>shared <code>style.css</code></td><td>A linear, numbered, step-by-step process the student walks through.</td></tr>
@@ -370,6 +372,7 @@
             <tr><td><code>.source-card</code></td><td>shared <code>style.css</code></td><td>Credits for third-party material (datasets, recordings, papers, models), after the feedback card.</td></tr>
         </tbody>
     </table>
+</div>
 
     <h3 class="uga-accent">Accessibility notes</h3>
     <ul>
@@ -419,18 +422,18 @@
 
 <section class="reflection-container" aria-labelledby="reflection-title">
     <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
-    <div class="spec-callout">
+    <aside class="spec-callout" aria-label="Convention note — reflection guide">
         <span class="tag">Convention note — reflection guide</span>
         Always a plain <code>&lt;ol&gt;</code>, no tinted callout box, and never
         <code>class="small"</code> — this is the same weight of content as everything else on
         the page, just placed at the end, outside the interactive area.
-    </div>
+    </aside>
     <ol>
         <li>Which widget above would you reuse for your own activity, and which would you skip?</li>
         <li>Look at this file's source. Which parts are the reusable pattern, and which parts (the banner, the blue callouts, the divider lines) exist only to explain the pattern and should be deleted when you copy this file?</li>
         <li>Pick one heading on this page and confirm its <code>id</code> matches the <code>aria-labelledby</code> of the section that contains it.</li>
     </ol>
-    <div class="spec-callout">
+    <aside class="spec-callout" aria-label="Convention note — reflection notes">
         <span class="tag">Convention note — reflection notes</span>
         If students can write anything down, use the one standard box, exactly as below:
         <code>.reflection-notes</code> (also a <code>.field</code>), the fixed label "Write down your
@@ -441,7 +444,7 @@
         (include it with <code>&lt;script src="../reflection-notes.js" defer&gt;</code>). If the applet
         also lets students export their <em>work</em> (chat transcripts, rewrites, marker data), put that
         button in the applet card, not here. 5C, 7A and 7B all use exactly this.
-    </div>
+    </aside>
     <div class="reflection-notes field">
         <label for="tplNotes">Write down your thoughts</label>
         <textarea id="tplNotes" rows="5" maxlength="4000"></textarea>
@@ -464,7 +467,7 @@
       <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%200T%3A%20How%20This%20Applet%20Was%20Built&amp;applet=Activity%200T%3A%20How%20This%20Applet%20Was%20Built&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Ftemplate%2Fapplet_template.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a>
     </div>
 </section>
-<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+<aside class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;" aria-label="Convention note — feedback card (required)">
     <span class="tag">Convention note — feedback card (required)</span>
     Every applet ends with this card, directly after <code>&lt;/main&gt;</code>; it is how
     students and instructors report bugs and content errors. Copy the markup exactly. The three
@@ -473,7 +476,7 @@
     page URL; a site-wide audit once found two pages that had copy-pasted the link from a third
     page and were mislabeling every bug report. Add <code>applet-feedback-card--followed</code>
     when another card (the source card below) comes after it.
-</div>
+</aside>
 
 <footer class="source-card" aria-labelledby="sources-title">
     <h3 id="sources-title">Sources &amp; permissions</h3>
@@ -483,13 +486,13 @@
         <p>Clip details, model names, limitations and privacy notes go in collapsed <code>&lt;details&gt;</code> inside the card so the credit itself stays short.</p>
     </details>
 </footer>
-<div class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;">
+<aside class="spec-callout" style="max-width:1000px; margin-left:auto; margin-right:auto;" aria-label="Convention note — source card">
     <span class="tag">Convention note — source card</span>
     Any applet that reproduces or adapts someone else's material (a benchmark, a corpus,
     recordings, a paper, a hosted model) credits it in a <code>&lt;footer class="source-card"&gt;</code>
     after the feedback card — not in a page-local card style and not buried in a
     <code>&lt;details&gt;</code> in the app. If the applet uses no third-party material, omit it.
-</div>
+</aside>
 
 <script src="../reflection-notes.js" defer></script>
 <script>

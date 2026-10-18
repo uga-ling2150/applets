@@ -80,7 +80,7 @@
     <div class="stage" id="stage1" data-stage="1" aria-disabled="true">
       <div class="stage-num">1</div>
       <div class="stage-body">
-        <div class="stage-title">Automatic Speech Recognition</div>
+        <div class="stage-title" role="heading" aria-level="3">Automatic Speech Recognition</div>
         <div class="stage-sub">Audio in → raw text out</div>
         <div class="stage-content transcript-box" id="asrOut">
           <span class="placeholder">Nothing captured yet — tap the mic and speak.</span>
@@ -92,7 +92,7 @@
     <div class="stage" id="stage2" data-stage="2" aria-disabled="true">
       <div class="stage-num">2</div>
       <div class="stage-body">
-        <div class="stage-title">Intent &amp; Slot Recognition</div>
+        <div class="stage-title" role="heading" aria-level="3">Intent &amp; Slot Recognition</div>
         <div class="stage-sub">One intent, one slot: <em>order number</em></div>
         <div class="stage-content nlu-row" id="nluOut">
           <span class="placeholder">Waiting on a transcript.</span>
@@ -104,15 +104,17 @@
     <div class="stage" id="stage3" data-stage="3" aria-disabled="true">
       <div class="stage-num">3a</div>
       <div class="stage-body">
-        <div class="stage-title">Dialogue Manager</div>
+        <div class="stage-title" role="heading" aria-level="3">Dialogue Manager</div>
         <div class="stage-sub">Maps recognized user intent → machine intent</div>
         <div class="stage-content" id="dmOut">
-          <table class="dm-table">
+          <div class="table-scroll" role="region" aria-label="Dialogue manager mapping" tabindex="0">
+<table class="dm-table">
             <thead>
               <tr><th>User intent</th><th>→</th><th>Machine intent</th></tr>
             </thead>
             <tbody id="dmBody"></tbody>
           </table>
+</div>
         </div>
       </div>
     </div>
@@ -121,7 +123,7 @@
     <div class="stage" id="stage4" data-stage="4" aria-disabled="true">
       <div class="stage-num">3b</div>
       <div class="stage-body">
-        <div class="stage-title">Machine Intent</div>
+        <div class="stage-title" role="heading" aria-level="3">Machine Intent</div>
         <div class="stage-sub">What the system has decided to do</div>
         <div class="stage-content" id="miOut">
           <span class="placeholder">No decision yet.</span>
@@ -133,7 +135,7 @@
     <div class="stage" id="stage5" data-stage="5" aria-disabled="true">
       <div class="stage-num">4</div>
       <div class="stage-body">
-        <div class="stage-title">Natural Language Generation</div>
+        <div class="stage-title" role="heading" aria-level="3">Natural Language Generation</div>
         <div class="stage-sub">Template fill using the extracted slot</div>
         <div class="stage-content" id="nlgOut">
           <span class="placeholder">Nothing generated yet.</span>
@@ -145,7 +147,7 @@
     <div class="stage" id="stage6" data-stage="6" aria-disabled="true">
       <div class="stage-num">5</div>
       <div class="stage-body">
-        <div class="stage-title">Text-to-Speech</div>
+        <div class="stage-title" role="heading" aria-level="3">Text-to-Speech</div>
         <div class="stage-sub">Reply is spoken aloud automatically</div>
         <div class="stage-content tts-row">
           <button class="tts-btn" id="ttsBtn" disabled>▶ Replay reply</button>

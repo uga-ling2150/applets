@@ -138,6 +138,7 @@ h1, h2, h3 {
   background: rgba(0, 85, 164, 0.08);
 }
 .stage-body {
+  min-width: 0;
   background: var(--panel-alt);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -470,8 +471,13 @@ h1, h2, h3 {
 .copy-feedback.show { opacity: 1; }
 
 @media (max-width: 640px) {
+  body { padding: 16px 12px 32px; }
+  .wrap { padding: 20px 16px; }
+  .stage-body { padding: 16px 12px; }
+  .stage:not(:last-child)::after { display: none; }
+
   .hero { flex-direction: column; align-items: flex-start; }
-  .stage { grid-template-columns: 44px 1fr; gap: 12px; }
+  .stage { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .stage-num { width: 42px; height: 42px; font-size: 13px; }
   .stage:not(:last-child)::after { left: 21px; }
 }
@@ -490,7 +496,7 @@ h1, h2, h3 {
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" role="main">
 
   <div class="hero">
     <div class="hero-text">
@@ -506,7 +512,7 @@ h1, h2, h3 {
     <div class="stage active" id="stage-upload">
       <div class="stage-num">1</div>
       <div class="stage-body">
-        <div class="stage-title">Upload</div>
+        <div class="stage-title" role="heading" aria-level="2">Upload</div>
         <div class="stage-sub">.otr file</div>
 
         <label class="dropzone" id="dropzone" for="file-input">
@@ -530,13 +536,13 @@ h1, h2, h3 {
       <div class="stage-body">
         <div class="stage-toolbar">
           <div>
-            <div class="stage-title">Transcript</div>
+            <div class="stage-title" role="heading" aria-level="2">Transcript</div>
             <div class="stage-sub" id="message-count">no file loaded</div>
           </div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <div class="format-toggle">
-              <button type="button" id="format-list-btn">List</button>
-              <button type="button" id="format-table-btn" class="active">Table</button>
+              <button type="button" id="format-list-btn" aria-pressed="false">List</button>
+              <button type="button" id="format-table-btn" class="active" aria-pressed="true">Table</button>
             </div>
             <label class="brace-toggle">
               <input type="checkbox" id="time-toggle" checked />
@@ -547,8 +553,8 @@ h1, h2, h3 {
             <button class="reset-btn" id="reset-btn">Reset</button>
           </div>
         </div>
-        <textarea class="output-box hidden" id="output-box" placeholder="Formatted transcript will appear here once you upload an OTR file..." readonly></textarea>
-        <div class="table-wrap" id="table-wrap">
+        <textarea class="output-box hidden" id="output-box" aria-label="Formatted transcript" placeholder="Formatted transcript will appear here once you upload an OTR file..." readonly></textarea>
+        <div class="table-wrap" id="table-wrap" role="region" aria-label="Transcript table" tabindex="0">
           <table class="transcript-table" id="transcript-table">
             <thead>
               <tr id="table-head"></tr>
@@ -563,7 +569,7 @@ h1, h2, h3 {
   </div>
 
   <div class="statusbar">
-    <span id="status-left">Ready</span>
+    <span id="status-left" role="status">Ready</span>
     <span>Runs entirely in your browser — files are never uploaded anywhere</span>
   </div>
 
@@ -750,7 +756,9 @@ h1, h2, h3 {
     currentFormat = format;
     const isList = format === 'list';
     formatListBtn.classList.toggle('active', isList);
+    formatListBtn.setAttribute('aria-pressed', String(isList));
     formatTableBtn.classList.toggle('active', !isList);
+    formatTableBtn.setAttribute('aria-pressed', String(!isList));
     outputBox.classList.toggle('hidden', !isList);
     tableWrap.classList.toggle('hidden', isList);
     copyBtn.textContent = isList ? 'Copy' : 'Copy as TSV';

@@ -10,6 +10,7 @@
 
 </head>
 <body>
+<main>
 <div class="text-center mb-4">
     <h1 style="font-size: 1.4rem;">University of Georgia</h1>
     <h2 class="text-muted small">Quantitative Linguistics Webapps</h2>
@@ -21,7 +22,7 @@
 <div class=" mt-5">    
     <div class="row mb-4">
         <div class="col-md-12">
-            <h5 style="color:var(--uga-red); font-weight:bold;">Learning Objectives</h5>
+            <h2 style="color:var(--uga-red); font-weight:bold;">Learning Objectives</h2>
             <ul class="small">
                 <li><strong>Analyze</strong> how linguistic features are used to identify named entities and coreference relationships
                 <li><strong>Experiment</strong> with a (weak) named entity recogniser and coreference resolution tool to explore the difficulties inherent in the task</li>
@@ -30,7 +31,7 @@
     </div>
 
         <div class="col-md-12">
-                <strong style="color:var(--uga-red)">Background</strong><br>
+                <strong style="color:var(--uga-red)" role="heading" aria-level="2">Background</strong><br>
                 <p class="small mb-0 mt-2">
                     During conversations with chatbots, chatbots must be able to recognise names of people, places, etc. that are named in the conversation, track mentions across turns (including pronouns), and link them to external databases. This applet simulates this process, using Wikidata as the external database, and a very lightweight system to detect named entities and coreference relations between noun phrases.
 </p>
@@ -63,7 +64,7 @@
         <div class="hero">
             <div class="hero-text">
                 <div class="eyebrow">NLP Research · Temporal Pronoun &amp; Coreference Pipeline</div>
-                <h1>Resolve time pronouns.<br>Watch the <span>signal</span> move.</h1>
+                <h1 role="heading" aria-level="2">Resolve time pronouns.<br>Watch the <span>signal</span> move.</h1>
                 <p>Analyze dialogues with temporal expression normalization preceding coreference binding—detecting 'then' as a temporal pronoun bound to prior time anchors (Anchor: August 10, 2026).</p>
             </div>
             <div>
@@ -79,20 +80,23 @@
             <div class="stage active" id="stage1" data-stage="1">
                 <div class="stage-num">1</div>
                 <div class="stage-body">
-                    <div class="stage-title">Conversation Turns</div>
+                    <div class="stage-title" role="heading" aria-level="3">Conversation Turns</div>
                     <div class="stage-sub">Enter any 3-turn dialogue between Human and AI</div>
                     <div class="stage-content">
                         <div class="mb-3">
                             <label class="form-label text-muted" style="font-size: 11px; text-transform: uppercase;">Human (Turn 1)</label>
-                            <input type="text" id="turn-1" class="form-control font-monospace" style="font-size: 13px;" value="I am planning a trip to Paris and Lyon with John next month.">
+                            <label class="visually-hidden" for="turn-1">Conversation turn 1</label>
+<input type="text" id="turn-1" class="form-control font-monospace" style="font-size: 13px;" value="I am planning a trip to Paris and Lyon with John next month.">
                         </div>
                         <div class="mb-3">
                             <label class="form-label text-muted" style="font-size: 11px; text-transform: uppercase;">AI (Turn 2)</label>
-                            <input type="text" id="turn-2" class="form-control font-monospace" style="font-size: 13px;" value="That sounds wonderful! He will surely love it then.">
+                            <label class="visually-hidden" for="turn-2">Conversation turn 2</label>
+<input type="text" id="turn-2" class="form-control font-monospace" style="font-size: 13px;" value="That sounds wonderful! He will surely love it then.">
                         </div>
                         <div>
                             <label class="form-label text-muted" style="font-size: 11px; text-transform: uppercase;">Human (Turn 3)</label>
-                            <input type="text" id="turn-3" class="form-control font-monospace" style="font-size: 13px;" value="Yes, we can't wait to see it together. By the way, we're going to Disneyland tomorrow!">
+                            <label class="visually-hidden" for="turn-3">Conversation turn 3</label>
+<input type="text" id="turn-3" class="form-control font-monospace" style="font-size: 13px;" value="Yes, we can't wait to see it together. By the way, we're going to Disneyland tomorrow!">
                         </div>
                     </div>
                 </div>
@@ -102,7 +106,7 @@
             <div class="stage" id="stage2" data-stage="2">
                 <div class="stage-num">2</div>
                 <div class="stage-body">
-                    <div class="stage-title">Gazetteers &amp; Extracted Named Entities</div>
+                    <div class="stage-title" role="heading" aria-level="3">Gazetteers &amp; Extracted Named Entities</div>
                     <div class="stage-sub">Entities discovered dynamically with semantic gender/type detection</div>
                     <div class="stage-content">
                         <ul id="ner-results" class="list-group">
@@ -116,10 +120,10 @@
             <div class="stage" id="stage3" data-stage="3">
                 <div class="stage-num">3</div>
                 <div class="stage-body">
-                    <div class="stage-title">Temporal Expression Detection &amp; Normalization</div>
+                    <div class="stage-title" role="heading" aria-level="3">Temporal Expression Detection &amp; Normalization</div>
                     <div class="stage-sub">Parsing relative time phrases &amp; temporal pronouns anchored to System Time (August 10, 2026)</div>
                     <div class="stage-content">
-                        <div class="table-responsive border rounded">
+                        <div class="table-responsive border rounded" role="region" aria-label="Temporal expressions table" tabindex="0">
                             <table class="table mb-0" style="font-size: 12.5px;">
                                 <thead>
                                     <tr class="table-light text-uppercase font-monospace" style="font-size: 10.5px;">
@@ -141,7 +145,7 @@
             <div class="stage" id="stage4" data-stage="4">
                 <div class="stage-num">4</div>
                 <div class="stage-body">
-                    <div class="stage-title">Cross-Turn Coreference Highlighting</div>
+                    <div class="stage-title" role="heading" aria-level="3">Cross-Turn Coreference Highlighting</div>
                     <div class="stage-sub">Entity, pronoun, and temporal pronoun ('then') binding</div>
                     <div class="stage-content" id="coref-results">
                         <span class="placeholder">Awaiting analysis...</span>
@@ -153,10 +157,10 @@
             <div class="stage" id="stage5" data-stage="5">
                 <div class="stage-num">5</div>
                 <div class="stage-body">
-                    <div class="stage-title">External Entity Linking (Wikidata Gazetteers)</div>
+                    <div class="stage-title" role="heading" aria-level="3">External Entity Linking (Wikidata Gazetteers)</div>
                     <div class="stage-sub">Querying live Wikidata API for canonical identifiers and semantic attributes</div>
                     <div class="stage-content">
-                        <div class="table-responsive border rounded">
+                        <div class="table-responsive border rounded" role="region" aria-label="Linked entities table" tabindex="0">
                             <table class="table mb-0" style="font-size: 12.5px;">
                                 <thead>
                                     <tr class="table-light text-uppercase font-monospace" style="font-size: 10.5px;">
@@ -410,5 +414,6 @@
             document.getElementById('statusText').innerText = "Idle · ready to analyze conversation pipeline";
         }
     </script>
+</main>
 </body>
 </html>

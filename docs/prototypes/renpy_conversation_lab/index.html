@@ -155,7 +155,7 @@
       background: rgba(0, 0, 0, 0.75);
       width: 50%;
       margin: auto;
-      min-width: 340px;
+      min-width: min(340px, 100%);
       padding: 10px;
 
       position: absolute;
@@ -307,7 +307,7 @@
     <div id="overlayDiv" aria-hidden="true"></div>
   </div>
 
-  <img id="presplash" src="web-presplash.jpg" alt="" role="presentation">
+  <img id="presplash" src="web-presplash.jpg" alt="Ren'Py loading">
 
   <div id="ContextContainer">
     <button id="ContextButton" type="button" aria-label="Open Ren'Py game menu" aria-expanded="false" aria-controls="ContextMenu"></button><br />
