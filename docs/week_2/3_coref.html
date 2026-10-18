@@ -15,6 +15,9 @@
     <style>
         /* Allow the visible Wikidata URL to wrap on narrow screens. */
         p { overflow-wrap: anywhere; }
+        .stage-body a { color: var(--uni-blue); }
+        /* These are readable empty-state messages, not Bootstrap skeletons. */
+        .placeholder { opacity: 1; background-color: transparent; cursor: default; }
         /* Page-specific additions layered on top of style.css — kept to what style.css
            doesn't already define, and built entirely from the UGA palette in :root.
            The conversation list and its composer in stage 1 use the shared
