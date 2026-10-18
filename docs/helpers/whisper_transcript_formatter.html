@@ -138,6 +138,7 @@ h1, h2, h3 {
   background: rgba(0, 85, 164, 0.08);
 }
 .stage-body {
+  min-width: 0;
   background: var(--panel-alt);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -470,8 +471,13 @@ h1, h2, h3 {
 .copy-feedback.show { opacity: 1; }
 
 @media (max-width: 640px) {
+  body { padding: 16px 12px 32px; }
+  .wrap { padding: 20px 16px; }
+  .stage-body { padding: 16px 12px; }
+  .stage:not(:last-child)::after { display: none; }
+
   .hero { flex-direction: column; align-items: flex-start; }
-  .stage { grid-template-columns: 44px 1fr; gap: 12px; }
+  .stage { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .stage-num { width: 42px; height: 42px; font-size: 13px; }
   .stage:not(:last-child)::after { left: 21px; }
 }
@@ -534,8 +540,8 @@ h1, h2, h3 {
           </div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <div class="format-toggle">
-              <button type="button" id="format-list-btn" class="active">List</button>
-              <button type="button" id="format-table-btn">Table</button>
+              <button type="button" id="format-list-btn" class="active" aria-pressed="true">List</button>
+              <button type="button" id="format-table-btn" aria-pressed="false">Table</button>
             </div>
             <label class="brace-toggle">
               <input type="checkbox" id="time-toggle" />
@@ -552,7 +558,7 @@ h1, h2, h3 {
           </div>
         </div>
         <textarea class="output-box" id="output-box" aria-label="Formatted transcript" placeholder="Formatted transcript will appear here once you upload a Whisper JSON file..." readonly></textarea>
-        <div class="table-wrap hidden" id="table-wrap">
+        <div class="table-wrap hidden" id="table-wrap" role="region" aria-label="Transcript table" tabindex="0">
           <table class="transcript-table" id="transcript-table">
             <thead>
               <tr id="table-head"></tr>
@@ -773,7 +779,9 @@ h1, h2, h3 {
     currentFormat = format;
     const isList = format === 'list';
     formatListBtn.classList.toggle('active', isList);
+    formatListBtn.setAttribute('aria-pressed', String(isList));
     formatTableBtn.classList.toggle('active', !isList);
+    formatTableBtn.setAttribute('aria-pressed', String(!isList));
     outputBox.classList.toggle('hidden', !isList);
     tableWrap.classList.toggle('hidden', isList);
     copyBtn.textContent = isList ? 'Copy' : 'Copy as TSV';
