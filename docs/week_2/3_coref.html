@@ -152,10 +152,10 @@
             <div class="stage active" id="stage1" data-stage="1">
                 <div class="stage-num">1</div>
                 <div class="stage-body">
-                    <div class="stage-title">Conversation Turns</div>
+                    <div class="stage-title" role="heading" aria-level="3">Conversation Turns</div>
                     <div class="stage-sub" id="turnCount">0 lines, add the first one below</div>
                     <div class="stage-content">
-                        <ol id="turnList" class="chat-log" role="log" aria-label="Conversation" tabindex="0"></ol>
+                        <div role="log" aria-label="Conversation updates"><ol id="turnList" class="chat-log" aria-label="Conversation" tabindex="0"></ol></div>
                         <form class="chat-compose field" onsubmit="event.preventDefault(); addTurn();">
                             <label for="turnInput">Next line of the conversation</label>
                             <div class="chat-compose__row">
@@ -179,7 +179,7 @@
             <div class="stage" id="stage2" data-stage="2">
                 <div class="stage-num">2</div>
                 <div class="stage-body">
-                    <div class="stage-title">Extracting and Classifying Named Entities</div>
+                    <div class="stage-title" role="heading" aria-level="3">Extracting and Classifying Named Entities</div>
                     <div class="stage-sub">Extracted by <a href="https://compromise.cool/">compromise.js</a> (people/places/orgs + gender lexicon); Wikidata fills gaps</div>
                     <div class="stage-content">
                         <ul id="ner-results" class="list-group">
@@ -194,7 +194,7 @@
             <div class="stage" id="stage3" data-stage="3">
                 <div class="stage-num">3</div>
                 <div class="stage-body">
-                    <div class="stage-title">Temporal Expression Detection &amp; Normalization</div>
+                    <div class="stage-title" role="heading" aria-level="3">Temporal Expression Detection &amp; Normalization</div>
                     <div class="stage-sub">Parsing relative time phrases &amp; the temporal pronoun "then", anchored to August 10, 2026</div>
                     <div class="stage-content">
                         <div class="table-responsive border rounded">
@@ -221,7 +221,7 @@
             <div class="stage" id="stage4" data-stage="4">
                 <div class="stage-num">4</div>
                 <div class="stage-body">
-                    <div class="stage-title">Cross-Turn Coreference Highlighting</div>
+                    <div class="stage-title" role="heading" aria-level="3">Cross-Turn Coreference Highlighting</div>
                     <div class="stage-sub">Entity, pronoun, and temporal pronoun ('then') binding across every line so far</div>
                     <div class="stage-content" id="coref-results">
                         <span class="placeholder">Add a line above to begin.</span>
@@ -233,7 +233,7 @@
             <div class="stage" id="stage5" data-stage="5">
                 <div class="stage-num">5</div>
                 <div class="stage-body">
-                    <div class="stage-title">External Entity Linking (Wikidata Gazetteers)</div>
+                    <div class="stage-title" role="heading" aria-level="3">External Entity Linking (Wikidata Gazetteers)</div>
                     <div class="stage-sub">Canonical IDs from Wikidata, cached once resolved so re-runs only fetch genuinely new entities</div>
                     <div class="stage-content">
                         <div class="table-responsive border rounded">

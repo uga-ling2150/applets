@@ -384,11 +384,13 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="page-header">
     <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
     <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
 </header>
 
+<main id="main" tabindex="-1">
 <section class="lesson-container" aria-labelledby="activity-title">
     <h3 id="activity-title" class="h3 mb-4">Activity: Picture Reference</h3>
     <div class="row">
@@ -455,6 +457,7 @@
 </section>
 
 
+</main>
   <section class="applet-feedback-card" aria-labelledby="applet-feedback-heading">
     <div class="applet-feedback-card__content">
       <div>
@@ -647,7 +650,7 @@
         '<div class="' + classes + '" data-pos="' + opts.position + '">' +
           '<button type="button" class="grid-option-btn" data-pick="' + opts.position + '" ' +
           'aria-pressed="' + (opts.selected ? "true" : "false") + '" ' +
-          'aria-label="' + esc(opts.label) + (opts.selected ? ", currently selected" : "") + '">' +
+          'aria-label="' + esc(opts.label + ': ' + opts.slotObj.alt) + (opts.selected ? ", currently selected" : "") + '">' +
             inner +
           "</button>" +
         "</div>"
