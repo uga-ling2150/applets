@@ -32,6 +32,4 @@ Long-output timing: inference waits up to 90 seconds, browser requests up to 105
 
 ## Maintainer handoff
 
-The two static GitHub Pages activities call this Worker; the AI binding performs inference, and the CLASSROOM Durable Object coordinates transient capacity. Keep the Worker and its bindings deployed; there is no local computer or notebook that must stay running. Check `/api/health` first when debugging, then verify ENABLED, the AI binding, the session secret, provider availability and current account limits. A 429 is capacity protection; a 503 may be provider failure or the inference timeout.
-
-To move to the instructor's Cloudflare account: sign into that account with Wrangler, deploy this service with its AI and Durable Object bindings, and create a fresh SESSION_SECRET using `wrangler secret put SESSION_SECRET` via stdin. Do not copy an existing secret into the repository. Use the new deployed origin in `docs/week_11/common.mjs` (both default endpoint locations), publish the static pages with versioned module URLs, and validate both activities against `/api/health` and real calls. Instructor connection settings can temporarily test the new origin. Keep the previous service available until the new origin is verified, then retire it separately. No student annotations or reflection notes need migration; the model service does not store them.
+Account migration, connection checks and troubleshooting are maintained in the shared [Cloudflare guide for LING2150](../../CLOUDFLARE_HANDOVER.md), including the shared 11A/11B service.
