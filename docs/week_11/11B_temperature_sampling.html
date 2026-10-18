@@ -16,7 +16,7 @@
     />
     <link rel="stylesheet" href="../style.css?v=20261017-review" />
     <link rel="stylesheet" href="lab.css?v=20261017-review" />
-    <script type="module" src="sampling.mjs?v=20261017-teaching"></script>
+    <script type="module" src="sampling.mjs?v=20261017-final"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -44,8 +44,8 @@
         </p>
         <h4 class="uga-accent">Instructions</h4>
         <ol>
-          <li>Change one setting. Watch the probabilities change, then sample.</li>
-          <li>Compare repeated LLM outputs using specific words or phrases.</li>
+          <li>With a partner, predict a change, adjust one setting, then sample.</li>
+          <li>Keep the LLM prompt fixed, repeat each setting, then swap roles and compare phrases.</li>
         </ol>
       </section>
       <section class="app-wrapper" aria-labelledby="applet-title">
@@ -126,6 +126,7 @@ we study together</textarea
         </div>
         <p id="status" class="field-hint" role="status" aria-live="polite"></p>
         <p id="error" class="error-text" role="alert"></p>
+        <div id="probability-panel">
         <div
           class="table-scroll"
           role="region"
@@ -151,6 +152,7 @@ we study together</textarea
           </table>
         </div>
         <p id="sample-status" class="field-hint" role="status"></p>
+        </div>
         <details class="glossary-box">
           <summary>How the probabilities are calculated</summary>
           <p>
@@ -245,7 +247,7 @@ Suggest a short opening sentence for a story about a student who finds an unfami
           </li>
           <li>Why do sample counts vary?</li>
           <li>
-            Compare repeated outputs: cite lexical choices, specificity or repetition.
+            Does lower temperature produce more predictable or generic wording? Cite repeated outputs and any exceptions.
           </li>
         </ol>
         <div class="reflection-notes field">
