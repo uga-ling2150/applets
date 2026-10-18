@@ -1108,3 +1108,6 @@ code { color: inherit; }
 
 /* Wide technical tables scroll within the card, including with a keyboard. */
 .table-scroll { max-width: 100%; overflow: auto; }
+
+/* Normalized dates must also contrast with newly highlighted table rows. */
+#temporal-results .text-success { color: var(--olympic) !important; }
