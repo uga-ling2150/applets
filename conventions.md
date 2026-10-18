@@ -266,7 +266,8 @@ Every applet that shows a conversation — 3B's chatroom, 3_coref's transcript, 
 so far", both 7B assistants and its offline example — uses the same components:
 
 ```html
-<ol id="log" class="chat-log" role="log" aria-label="Conversation" tabindex="0">
+<div role="log" aria-label="Conversation updates">
+<ol id="log" class="chat-log" aria-label="Conversation" tabindex="0">
   <li class="chat-turn human">
     <span class="chat-turn__speaker">1. You</span>
     <p class="chat-turn__text">…</p>
@@ -277,6 +278,7 @@ so far", both 7B assistants and its offline example — uses the same components
     <div class="chat-turn__extras field"><!-- optional per-turn control --></div>
   </li>
 </ol>
+</div>
 <p class="chat-status" role="status" aria-live="polite"></p>
 <form class="chat-compose field">
   <label for="msg">Your message</label>
@@ -289,9 +291,9 @@ The standard look: human turns left in grey, AI turns right in a teal tint; a sm
 "1. You" line (number, then speaker) above each bubble (so students can cite "turn 3"); 15px sans text;
 a bordered, scrollable log (`.chat-log--static` for a fixed example that shouldn't scroll).
 Set text with `textContent`, never `innerHTML`, and scroll the log to the bottom after a change.
-Role classes are `human` / `ai` (not `user` / `assistant`). Give the log `role="log"`, unless a
-separate `role="status"` line already announces each reply (7B), in which case use `aria-label`
-only, so replies aren't read twice.
+Role classes are `human` / `ai` (not `user` / `assistant`). Put `role="log"` on a wrapper around
+the ordered list, so the list keeps its list semantics. If a separate `role="status"` line
+already announces each reply (7B and the template), omit that wrapper, so replies are not read twice.
 
 Different apps need different extras. Use the slots; do not fork the chat CSS:
 

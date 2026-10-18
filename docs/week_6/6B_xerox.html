@@ -172,11 +172,13 @@ tr.tag-success td:first-child { color: var(--olympic); font-weight: 600; }
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="text-center mb-4 page-header">
     <h1 style="font-size: 1.4rem;"><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
     <h2 class="text-muted small"><a href="https://uga-ling2150.github.io/applets/">Quantitative Linguistics Webapps</a></h2>
 </header>
 
+<main id="main" tabindex="-1">
 <section class="lesson-container">
     <h3 class="h3 mb-4">Activity: The Uncooperative Copier</h3>
 
@@ -203,7 +205,7 @@ tr.tag-success td:first-child { color: var(--olympic); font-weight: 600; }
     </div>
 </section>
 
-<main class="app-wrapper">
+<section class="app-wrapper" aria-label="Copier activity">
 
   <div class="hero">
     <div class="hero-text">
@@ -357,7 +359,7 @@ tr.tag-success td:first-child { color: var(--olympic); font-weight: 600; }
 
   </div>
 
-</main>
+</section>
 
 <div class="reflection-container">
     <h3 class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
@@ -375,6 +377,7 @@ tr.tag-success td:first-child { color: var(--olympic); font-weight: 600; }
     </div>
 </div>
 
+</main>
 <script>
 // ---------------------------------------------------------------------------
 // A DELIBERATELY SIMPLIFIED "copier": four settings (duplex, finishing,

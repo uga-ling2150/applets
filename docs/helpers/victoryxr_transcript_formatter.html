@@ -482,7 +482,7 @@ h1, h2, h3 {
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" role="main">
 
   <div class="hero">
     <div class="hero-text">
@@ -500,7 +500,7 @@ h1, h2, h3 {
     <div class="stage active" id="stage-upload">
       <div class="stage-num">1</div>
       <div class="stage-body">
-        <div class="stage-title">Upload</div>
+        <div class="stage-title" role="heading" aria-level="2">Upload</div>
         <div class="stage-sub">.json file</div>
 
         <label class="dropzone" id="dropzone" for="file-input">
@@ -524,7 +524,7 @@ h1, h2, h3 {
       <div class="stage-body">
         <div class="stage-toolbar">
           <div>
-            <div class="stage-title">Transcript</div>
+            <div class="stage-title" role="heading" aria-level="2">Transcript</div>
             <div class="stage-sub" id="message-count">no file loaded</div>
           </div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
@@ -541,7 +541,7 @@ h1, h2, h3 {
             <button class="reset-btn" id="reset-btn">Reset</button>
           </div>
         </div>
-        <textarea class="output-box" id="output-box" placeholder="Formatted transcript will appear here once you upload a JSON file..." readonly></textarea>
+        <textarea class="output-box" id="output-box" aria-label="Formatted transcript" placeholder="Formatted transcript will appear here once you upload a JSON file..." readonly></textarea>
         <div class="table-wrap hidden" id="table-wrap">
           <table class="transcript-table" id="transcript-table">
             <thead>
@@ -557,7 +557,7 @@ h1, h2, h3 {
   </div>
 
   <div class="statusbar">
-    <span id="status-left">Ready</span>
+    <span id="status-left" role="status">Ready</span>
     <span>Runs entirely in your browser — files are never uploaded anywhere</span>
   </div>
 

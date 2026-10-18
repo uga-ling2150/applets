@@ -1099,3 +1099,6 @@ a:focus-visible { outline: 3px solid #f9a825; outline-offset: 3px; }
 
 /* Feedback followed by another standard card needs inter-card spacing, not end-of-page spacing. */
 .applet-feedback-card--followed { margin-bottom: 24px; }
+
+/* Bootstrap inline-code pink fails AA on the site's gray and blue panels. */
+code { color: inherit; }
