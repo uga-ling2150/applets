@@ -58,6 +58,7 @@ function apply() {
     rows = nextRows;
     appliedInput = {corpus: $("corpus").value, context: $("context").value};
     dirty = false;
+    $("probability-panel").hidden = false;
     counts = {};
     total = 0;
     lastDraw = "";
@@ -67,6 +68,8 @@ function apply() {
     for (const id of ["sample", "many", "clear"]) $(id).disabled = false;
   } catch (e) {
     $("error").textContent = e.message;
+    $("status").textContent = "No current distribution. Fix the settings or rebuild with at least one word pair.";
+    $("probability-panel").hidden = true;
     dirty = true;
     for (const id of ["sample", "many", "clear"]) $(id).disabled = true;
   }
@@ -74,6 +77,7 @@ function apply() {
 function train() {
   model = bigrams($("corpus").value);
   modelDirty = false;
+  $("context").disabled = model.size === 0;
   $("context").replaceChildren();
   for (const word of model.keys()) {
     $("context").append(new Option(word, word));
@@ -89,10 +93,11 @@ for (const id of ["temperature", "topk", "topp", "nucleus"]) {
 $("corpus").addEventListener("input", () => {
   modelDirty = true;
   dirty = true;
+  $("probability-panel").hidden = true;
+  $("error").textContent = "";
   for (const id of ["sample", "many", "clear", "context"]) $(id).disabled = true;
   $("status").textContent = "Corpus changed. Build the model to update the distribution.";
 });
-$("train").addEventListener("click", () => { $("context").disabled = false; });
 function draw(n) {
   lastDraw = "";
   for (let i = 0; i < n; i++) {
@@ -124,7 +129,7 @@ $("generate").onclick = async () => {
     return;
   }
   busy = true;
-  $("generate").disabled = true;
+  for (const id of ["generate", "prompt", "live-temperature", "live-topk", "live-topp", "live-nucleus"]) $(id).disabled = true;
   $("live-error").textContent = "";
   $("live-status").textContent = "Waiting for the model…";
   try {
@@ -156,7 +161,7 @@ $("generate").onclick = async () => {
     $("live-status").textContent = "Existing results preserved.";
   } finally {
     busy = false;
-    $("generate").disabled = false;
+    for (const id of ["generate", "prompt", "live-temperature", "live-topk", "live-topp", "live-nucleus"]) $(id).disabled = false;
   }
 };
 $("download").onclick = () =>
