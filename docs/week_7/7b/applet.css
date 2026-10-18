@@ -4,7 +4,7 @@
 .chat-grid,
 .example-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.1rem;
 }
 .setup-grid { margin-bottom: 0.4rem; }
@@ -40,6 +40,6 @@
 @media (max-width: 760px) {
   .setup-grid,
   .chat-grid,
-  .example-grid { grid-template-columns: 1fr; }
+  .example-grid { grid-template-columns: minmax(0, 1fr); }
   .chat-panel .chat-log { height: 320px; }
 }
