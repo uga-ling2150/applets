@@ -538,6 +538,7 @@ h1, h2, h3 {
             </label>
             <span class="copy-feedback" id="copy-feedback">Copied</span>
             <button class="btn-uga-outline" id="copy-btn" disabled>Copy</button>
+            <button class="btn-uga-outline" id="otr-btn" title="Download for oTranscribe (otranscribe.com)" disabled>Download .otr</button>
             <button class="reset-btn" id="reset-btn">Reset</button>
           </div>
         </div>
@@ -576,6 +577,7 @@ h1, h2, h3 {
   const unsupported = document.getElementById('unsupported');
   const messageCount = document.getElementById('message-count');
   const copyBtn = document.getElementById('copy-btn');
+  const otrBtn = document.getElementById('otr-btn');
   const copyFeedback = document.getElementById('copy-feedback');
   const resetBtn = document.getElementById('reset-btn');
   const statusLeft = document.getElementById('status-left');
@@ -587,6 +589,7 @@ h1, h2, h3 {
   const roleMap = { user: 'User', assistant: 'Agent' };
   let currentMessages = []; // [{ role, label, content }]
   let currentFormat = 'list'; // 'list' | 'table'
+  let currentFileName = '';
 
   function displayContent(m) {
     return (m.role === 'user' && braceToggle.checked) ? `{${m.content}}` : m.content;
@@ -602,6 +605,27 @@ h1, h2, h3 {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  // oTranscribe .otr: JSON whose "text" is the editor HTML. These exports
+  // have no timing, so turns are written without timestamp spans.
+  function buildOtr() {
+    const html = currentMessages
+      .map((m) => `<p>${escapeHtml(m.label)}: ${escapeHtml(displayContent(m)).replace(/\n/g, '<br>')}</p>`)
+      .join('');
+    return JSON.stringify({ text: html, media: '', 'media-source': '', 'media-time': 0 });
+  }
+
+  function downloadOtr() {
+    if (!currentMessages.length) return;
+    const blob = new Blob([buildOtr()], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (currentFileName.replace(/\.[^.]+$/, '') || 'transcript') + '.otr';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
   function parseMessages(data) {
@@ -689,6 +713,7 @@ h1, h2, h3 {
     renderAll();
     messageCount.textContent = 'no file loaded';
     copyBtn.disabled = true;
+    otrBtn.disabled = true;
     stageOutput.classList.remove('done');
     statusLeft.textContent = 'Error';
   }
@@ -701,6 +726,7 @@ h1, h2, h3 {
     if (!file) return;
     clearError();
     filenameText.textContent = file.name;
+    currentFileName = file.name;
     filenameChip.classList.remove('hidden');
 
     const isTxt = /\.txt$/i.test(file.name) || file.type === 'text/plain';
@@ -718,6 +744,7 @@ h1, h2, h3 {
         const n = currentMessages.length;
         messageCount.textContent = n + ' message' + (n === 1 ? '' : 's') + ' parsed';
         copyBtn.disabled = false;
+        otrBtn.disabled = false;
         stageOutput.classList.add('done');
         statusLeft.textContent = 'Parsed ' + file.name;
       } catch (err) {
@@ -756,6 +783,8 @@ h1, h2, h3 {
   formatListBtn.addEventListener('click', function () { setFormat('list'); });
   formatTableBtn.addEventListener('click', function () { setFormat('table'); });
 
+  otrBtn.addEventListener('click', downloadOtr);
+
   copyBtn.addEventListener('click', function () {
     if (!currentMessages.length) return;
     let text;
@@ -783,6 +812,7 @@ h1, h2, h3 {
     filenameChip.classList.add('hidden');
     messageCount.textContent = 'no file loaded';
     copyBtn.disabled = true;
+    otrBtn.disabled = true;
     clearError();
     stageOutput.classList.remove('done');
     statusLeft.textContent = 'Ready';

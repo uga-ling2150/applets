@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity 10B: Plans and Situated Action</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="10b/applet.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main id="main" tabindex="-1">
+  <section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 10B: Plans and Situated Action</h3>
+    <h4 class="uga-accent">Learning Objectives</h4>
+    <ul>
+      <li><strong>Compare</strong> what you meant in a message with what a scripted chatbot took from it.</li>
+      <li><strong>Trace</strong> a conversation through a designer's step-by-step plan and find where the two came apart.</li>
+      <li><strong>Explain</strong> why a plan made of sensible steps can still break down when the situation changes.</li>
+    </ul>
+    <h4 class="uga-accent">Background</h4>
+    <p>Many booking assistants, phone menus and help bots run on a script written in advance. A designer decides which questions get asked, in what order, and which answers count. RoomBot, the study-room chatbot in this activity, works this way. Its replies are friendly, but behind them is a fixed plan. First you'll talk to that plan without seeing it. Then you'll see it laid out next to your own conversation.</p>
+    <h4 class="uga-accent">Instructions</h4>
+    <ol>
+      <li><strong>On your own:</strong> read the texts from your friend Pat, then book the room by chatting with RoomBot. Write the way you normally would, and keep an eye on your phone. Don't compare notes with your neighbours yet.</li>
+      <li><strong>Still on your own:</strong> once you've made a booking (or used the skip button), go behind the curtain. Compare what Pat asked for with what RoomBot did, look at the designer's plan, and jot down what you meant at two moments RoomBot misunderstood you.</li>
+      <li><strong>With your group:</strong> put your results side by side and compare the different mistakes you each ran into, using the discussion questions.</li>
+      <li><strong>As a group:</strong> gather around one person's computer and do round 2 together, with the plan in view. Then compare it with everyone's round 1.</li>
+      <li>Finish with the Reflection &amp; Discussion Guide at the bottom of the page.</li>
+    </ol>
+  </section>
+
+  <section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero"><div class="hero-text"><h2 id="applet-title">Book <span>a room</span></h2><p>A friendly study-room chatbot. What could go wrong?</p></div></div>
+    <p id="announcer" class="visually-hidden" role="status" aria-live="polite"></p>
+
+    <div class="rack">
+      <section id="stage1" class="stage active" aria-labelledby="stage1-title">
+        <div class="stage-num" aria-hidden="true">1</div>
+        <div class="stage-body">
+          <h3 id="stage1-title" class="stage-title" tabindex="-1">Book your room</h3>
+          <div class="stage-content">
+            <p class="solo-note">Do this round on your own. Everyone's conversation will go a little differently, and that's what you'll compare later.</p>
+            <div class="split">
+              <div>
+              <div class="phone" role="group" aria-labelledby="phone1-name">
+                <div class="phone__bar"><span class="phone__avatar" aria-hidden="true">P</span><div><p id="phone1-name" class="phone__name">Texts from Pat</p><p class="phone__meta">RoomBot can't see these</p></div></div>
+                <ol id="phone1-log" class="phone__log" role="log" aria-live="polite" aria-label="Text messages from Pat" tabindex="0"></ol>
+              </div>
+              <div class="id-card" role="group" aria-label="Your student ID card">
+                <p class="id-card__band">Student ID</p>
+                <div class="id-card__body">
+                  <span class="id-card__photo" aria-hidden="true"></span>
+                  <dl>
+                    <dt>Name</dt><dd>You</dd>
+                    <dt>ID number</dt><dd class="mono">81144207</dd>
+                    <dt>Valid through</dt><dd>May 2027</dd>
+                  </dl>
+                </div>
+              </div>
+              <div class="table-scroll" role="region" aria-labelledby="room-guide-caption" tabindex="0">
+                <table class="room-guide">
+                  <caption id="room-guide-caption">Room guide (from the library website)</caption>
+                  <thead><tr><th scope="col">Group size</th><th scope="col">Room</th><th scope="col">Seats</th><th scope="col">Whiteboard</th></tr></thead>
+                  <tbody data-room-guide></tbody>
+                </table>
+              </div>
+              </div>
+              <div class="chat-area">
+              <ol id="chat1-log" class="chat-log" role="log" aria-live="polite" aria-label="Conversation with RoomBot" tabindex="0"></ol>
+              <form id="chat1-form" class="chat-compose field">
+                <label for="chat1-input">Your message</label>
+                <div class="chat-compose__row"><input id="chat1-input" type="text" maxlength="300" autocomplete="off"><button id="chat1-send" class="btn-uga" type="submit">Send</button></div>
+              </form>
+              <p id="phone1-alert" class="phone-alert" hidden><span aria-hidden="true">📱</span> New text message. Check your phone.</p>
+              <p class="explanation">While you chat, notice the moment you start changing <em>how</em> you talk to RoomBot.</p>
+              <div class="btn-row">
+                <button id="to-stage2" class="btn-uga" type="button" hidden>Go behind the curtain →</button>
+                <button id="skip1" class="btn-uga-outline" type="button" hidden>Stuck? Skip ahead to see behind the curtain →</button>
+                <button id="reset1" class="btn-reset" type="button">Start this round over</button>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stage2" class="stage" aria-labelledby="stage2-title">
+        <div class="stage-num" aria-hidden="true">2</div>
+        <div class="stage-body">
+          <h3 id="stage2-title" class="stage-title" tabindex="-1">Behind the curtain</h3>
+          <div class="stage-content">
+            <p id="stage2-lock" class="lock-note"><span aria-hidden="true">🔒</span> Locked. This stage opens when you make a booking in Stage 1. If you get stuck, a skip button appears after 6 messages.</p>
+            <div id="stage2-content" hidden>
+              <h4 class="sub-heading">Did you get what you needed?</h4>
+              <div id="outcome1" class="outcome-grid"></div>
+
+              <h4 class="sub-heading">The designer's plan</h4>
+              <p>This is the plan RoomBot was following the whole time. Your own route through it is drawn on top: thicker, labelled arrows are the ones you took.</p>
+              <p id="stats1" class="stats-line"></p>
+              <div id="flow1" class="flow-wrap" role="region" aria-label="Designer's plan, scrollable" tabindex="0"></div>
+              <p id="path1" class="path-line"></p>
+              <div class="never-box">
+                <h5>What RoomBot did behind your back</h5>
+                <p>Whenever a booking was cut off by starting over, RoomBot quietly saved it in a pile of unfinished bookings. After every finished booking, it takes the most recent one off the pile and goes back to the step where it stopped. Nothing on screen told you this.</p>
+                <ul id="hidden1"></ul>
+              </div>
+              <div class="never-box">
+                <h5>Things the plan never asks about</h5>
+                <ul id="never-list"></ul>
+                <p>Here's what you typed that didn't fit anywhere:</p>
+                <ul id="misfits1" class="misfit-list"></ul>
+              </div>
+
+              <h4 class="sub-heading">Your conversation, line by line</h4>
+              <p>On your own, pick two moments where RoomBot misunderstood you and jot down what you actually meant. RoomBot never got to see this column.</p>
+              <div class="table-scroll convo-scroll" role="region" aria-labelledby="convo-caption" tabindex="0">
+                <table class="convo-table">
+                  <caption id="convo-caption" class="visually-hidden">Your round 1 messages, what you meant, what RoomBot heard and what it did</caption>
+                  <thead><tr><th scope="col">You typed</th><th scope="col">What you meant (you fill this in)</th><th scope="col">What RoomBot heard</th><th scope="col">What RoomBot did, and why (designer's note)</th></tr></thead>
+                  <tbody id="rows1"></tbody>
+                </table>
+              </div>
+
+              <div class="discussion-box">
+                <h4>Now compare with your group</h4>
+                <p>Everyone's conversation with RoomBot went differently. Put your results and tables side by side.</p>
+                <ul>
+                  <li>Go round the group. Each person shares one moment from their table where RoomBot heard something different from what they meant. What did they type, and what did RoomBot do with it?</li>
+                  <li>Compare how each of you handled Pat's requests: the two hours, the whiteboard, and Jackie's change of time. Did anyone find a way to change just one answer? How many requests did each of you meet?</li>
+                  <li>Did anyone have an old booking come back after "You're all set!"? What had they done earlier that saved it?</li>
+                  <li>Read the designer's notes behind your group's mistakes. Each one sounds reasonable on its own. So whose mistake was it: yours, RoomBot's, or the designer's?</li>
+                </ul>
+              </div>
+              <div class="btn-row"><button id="to-stage3" class="btn-uga" type="button">Try again with the map →</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stage3" class="stage" aria-labelledby="stage3-title">
+        <div class="stage-num" aria-hidden="true">3</div>
+        <div class="stage-body">
+          <h3 id="stage3-title" class="stage-title" tabindex="-1">Try again with the map</h3>
+          <div class="stage-content">
+            <p id="stage3-lock" class="lock-note"><span aria-hidden="true">🔒</span> Locked. This stage opens when you press "Try again with the map" at the end of Stage 2.</p>
+            <div id="stage3-content" hidden>
+              <p class="solo-note">Do this round together as a group, on one person's computer. Others can just have the plan open from Step 2. Agree on each message before you send it. This time Jordan is asking, and the plan is next to the chat, showing where you are.</p>
+              <div class="map-split">
+                <div>
+              <div class="phone" role="group" aria-labelledby="phone2-name">
+                <div class="phone__bar"><span class="phone__avatar" aria-hidden="true">J</span><div><p id="phone2-name" class="phone__name">Texts from Jordan</p><p class="phone__meta">RoomBot can't see these</p></div></div>
+                <ol id="phone2-log" class="phone__log" role="log" aria-live="polite" aria-label="Text messages from Jordan" tabindex="0"></ol>
+              </div>
+              <ol id="chat2-log" class="chat-log" role="log" aria-live="polite" aria-label="Conversation with RoomBot, round 2" tabindex="0"></ol>
+              <form id="chat2-form" class="chat-compose field">
+                <label for="chat2-input">Your message</label>
+                <div class="chat-compose__row"><input id="chat2-input" type="text" maxlength="300" autocomplete="off"><button id="chat2-send" class="btn-uga" type="submit">Send</button></div>
+              </form>
+              <p id="phone2-alert" class="phone-alert" hidden><span aria-hidden="true">📱</span> New text message. Check your phone.</p>
+              <div class="btn-row">
+                <button id="skip2" class="btn-uga-outline" type="button" hidden>Stuck? Skip ahead to see how you did →</button>
+                <button id="reset2" class="btn-reset" type="button">Start this round over</button>
+              </div>
+                </div>
+                <div>
+                  <div class="id-card" role="group" aria-label="Your student ID card">
+                    <p class="id-card__band">Student ID</p>
+                    <div class="id-card__body">
+                      <span class="id-card__photo" aria-hidden="true"></span>
+                      <dl>
+                        <dt>Name</dt><dd>You</dd>
+                        <dt>ID number</dt><dd class="mono">81144207</dd>
+                        <dt>Valid through</dt><dd>May 2027</dd>
+                      </dl>
+                    </div>
+                  </div>
+                  <div class="table-scroll" role="region" aria-labelledby="room-guide-caption-2" tabindex="0">
+                    <table class="room-guide">
+                      <caption id="room-guide-caption-2">Room guide (from the library website)</caption>
+                      <thead><tr><th scope="col">Group size</th><th scope="col">Room</th><th scope="col">Seats</th><th scope="col">Whiteboard</th></tr></thead>
+                      <tbody data-room-guide></tbody>
+                    </table>
+                  </div>
+                  <h4 class="sub-heading">The plan</h4>
+                  <div id="flow2" class="flow-wrap" role="region" aria-label="The plan, scrollable" tabindex="0"></div>
+                  <p id="path2" class="path-line"></p>
+                </div>
+              </div>
+
+              <div id="round2-results" hidden>
+                <h4 id="round2-title" class="sub-heading" tabindex="-1">How did round 2 go?</h4>
+                <div id="outcome2" class="outcome-grid"></div>
+                <div class="table-scroll" role="region" aria-labelledby="compare-caption" tabindex="0">
+                  <table class="compare-table">
+                    <caption id="compare-caption">Round 1 and Round 2 compared</caption>
+                    <thead><tr><th scope="col"></th><th scope="col">Round 1 (on your own, this computer)</th><th scope="col">Round 2 (as a group)</th></tr></thead>
+                    <tbody id="compare-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <ol>
+      <li>Compare the group's round 2 numbers with each person's round 1. What changed when you worked together with the map in view?</li>
+       <li>You might have noticed that the chatbot did not handle new texts you received very well. How did you get around this problem?</li>
+      <li>Throughout the activity, where have you had to learn to "think like a machine" to get something done? Think of phone menus, online forms or voice assistants. You might find it helpful to think back to the examples we discussed on door openers that change how people walk through doors.</li>
+      <li>Today's LLM-driven chatbots would understand "tomorrow afternoon for 3 of us" just fine. Does that mean the gap between a designer's plan and what people actually do is gone? Where do you still see the dominance of the plan-based paradigm? How might this affect LLM outputs?</li>
+      <li>If you were redesigning RoomBot, what's <em>one</em> change you'd make, and what new problem might it create?</li>
+    </ol>
+    <details class="glossary-box">
+      <summary>Want the official terms?</summary>
+      <ul>
+        <li><strong>Plan:</strong> a description, made in advance, of the steps an interaction should follow.</li>
+        <li><strong>Situated action:</strong> what people actually do in the moment, using whatever is around them (what was just said, what they can see, what they know) to figure out the next step.</li>
+        <li><strong>Background:</strong> the anthropologist Lucy Suchman made this distinction famous in 1987, after watching people struggle with a photocopier's "smart" help system. Her point wasn't that plans are useless. She argued that plans are <em>resources</em> people draw on while acting, not scripts that control what they do, which is exactly what Stage 3 tests.</li>
+      </ul>
+      <p>Suchman, L. A. (1987). <em>Plans and situated actions: The problem of human-machine communication.</em> Cambridge University Press.</p>
+    </details>
+    <div class="reflection-notes field">
+      <label for="reflection">Write down your thoughts</label>
+      <textarea id="reflection" rows="5" maxlength="4000"></textarea>
+      <div class="btn-row">
+        <button class="btn-uga" type="button" data-download-notes>Download my notes</button>
+        <span class="field-hint" role="status" data-download-status></span>
+      </div>
+      <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
+  </section>
+</main>
+<section class="applet-feedback-card" aria-labelledby="applet-feedback-heading"><div class="applet-feedback-card__content"><div><h2 id="applet-feedback-heading">Help us improve this applet</h2><a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a></div><a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2010B%3A%20Plans%20and%20Situated%20Action&amp;applet=Activity%2010B%3A%20Plans%20and%20Situated%20Action&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_10%2F10B_plans_situated_action.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a></div></section>
+<noscript><p>Enable JavaScript to chat with RoomBot.</p></noscript>
+<script src="../reflection-notes.js" defer></script><script src="10b/core.js" defer></script><script src="10b/applet.js" defer></script>
+</body></html>

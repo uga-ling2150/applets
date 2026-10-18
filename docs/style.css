@@ -282,6 +282,7 @@ h3 {
 }
 
 .stage-body {
+  min-width: 0; /* let wide content (tables, scroll regions) scroll instead of stretching the rack */
   background: var(--panel-alt);
   border: 1px solid var(--line);
   border-radius: 8px;
