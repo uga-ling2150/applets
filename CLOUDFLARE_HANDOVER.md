@@ -22,7 +22,7 @@ A **Cloudflare Worker** is a small program that runs on Cloudflare's computers. 
 | **5C: Explicature and Query Rewriting** | Runs AI to rewrite a selected Human turn using the earlier conversation. | Request counts and temporary records of requests in progress. It does not save the conversation in this storage. |
 | **7A: Backchannel Locations** | Saves classroom attempts, checks teacher sign-in, provides downloads, and shares class comparisons when the teacher chooses. It does not use AI. | Anonymous participant numbers, click times, attempts, task actions and submission times. Classroom records expire after 30 days. |
 | **7B: Presumptive Grounding** | Runs the same AI model with two different sets of instructions. One encourages an answer based on an interpretation. The other encourages a question when the meaning is unclear. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
-| **10A: Conversation Opening and Closing** | Continues the same completed task with the same model and settings. One instruction style tends to extend the interaction; the other tends to close after the task is done. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
+| **10A: Conversation Closing** | Continues the same completed task with the same model and settings. One instruction style tends to extend the interaction; the other tends to close after the task is done. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
 | **11A: Style and Persona / 11B: Temperature and Sampling** | One shared Worker runs real model comparisons with editable system prompts or sampling settings. The 11B toy distribution runs entirely in the browser. | Request counts and temporary capacity records only. Student annotations, reflections and conversation text are not saved in this storage. |
 
 5C, 7B, 10A, 11A and 11B use **Llama 3.1 8B Instruct Fast**. The model runs on Cloudflare, so students do not download it. Their conversation text is sent to the model when they ask for a reply. Their private notes and reflections are not sent. Use fictional examples rather than personal information.
@@ -108,7 +108,7 @@ This activity does not submit student work to the instructor. Collect downloaded
 
 [Open Activity 10A](https://uga-ling2150.github.io/applets/week_10/10A_conversation_opening_closing.html)
 
-This activity follows 9A's question about when a new turn can start. Students now examine when a whole conversation can end. The opening and middle are fixed: a user requests a study-group reminder, supplies the details and receives the draft. The assistant has **not** sent the reminder.
+This activity follows 9A's question about when a new turn can start. Students now examine when a whole conversation can end. The first four turns are fixed: a user requests a study-group reminder, supplies the details and receives the draft. The assistant has **not** sent the reminder.
 
 1. Read the four shared turns and identify where the task is completed.
 2. Write one ending message and select **Send the same message to both**.

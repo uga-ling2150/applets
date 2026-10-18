@@ -97,8 +97,8 @@ $('reset-yes').addEventListener('click',()=>{
   state=fresh();$('reset-confirm').hidden=true;$('download-status').textContent='';$('setup-error').textContent='';paint();$('first-message').focus();
 });
 $('download').addEventListener('click',()=>{
-  const lines=['LING2150 — Activity 10A: Conversation Opening and Closing','Live conversations (scripted offline example is NOT included)','',
-    'Shared opening and middle:',
+  const lines=['LING2150 — Activity 10A: Conversation Closing','Live conversations (scripted offline example is NOT included)','',
+    'Shared conversation so far:',
     '1. You: Help me write a short reminder to my study group about our meeting.',
     '2. Assistant: Sure. When and where is the meeting, and what should everyone bring?',
     '3. You: Thursday at 4 p.m. in the library. Everyone should bring their notes for the linguistics quiz.',

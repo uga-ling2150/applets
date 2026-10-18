@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Activity 10A: Conversation Opening and Closing</title>
+<title>Activity 10A: Conversation Closing</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -19,10 +19,10 @@
 </header>
 <main id="main" tabindex="-1">
   <section class="lesson-container" aria-labelledby="activity-title">
-    <h3 id="activity-title" class="h3 mb-4">Activity 10A: Conversation Opening and Closing</h3>
+    <h3 id="activity-title" class="h3 mb-4">Activity 10A: Conversation Closing</h3>
     <h4 class="uga-accent">Learning Objectives</h4>
     <ul>
-      <li><strong>Identify</strong> how an opening establishes a task and when that task has been completed.</li>
+      <li><strong>Identify</strong> when the user's task has been completed, making it a place where the conversation could close.</li>
       <li><strong>Compare</strong> how two AI interaction styles respond to the same attempt to close a conversation.</li>
       <li><strong>Explain</strong> how a follow-up question, a check for outstanding work, or a goodbye affects the user's ability to leave.</li>
     </ul>
@@ -30,7 +30,7 @@
     <p>You have considered how an action or sequence, such as a question and its answer, reaches completion. Here, consider how participants close an entire conversation. Completing one sequence does not necessarily end the conversation: another question or offer can open a new sequence. In this activity, the assistant has completed the user's task. Compare how two assistants respond when the user signals that they are ready to leave, and look for words that move toward closing or keep the conversation going.</p>
     <h4 class="uga-accent">Instructions</h4>
     <ol>
-      <li>Read the fixed opening and middle. Notice what the user asked for and what the assistant has already done.</li>
+      <li>Read the fixed conversation. Notice what the user asked for and what the assistant has already done.</li>
       <li>Write one message that tries to end the conversation. Next, predict how each assistant will respond. Then send <strong>the same message</strong> to both assistants.</li>
       <li>Compare their first replies before continuing. Then continue either conversation if you need more evidence.</li>
       <li>Mark the behavior you observe, cite a line from each conversation, and discuss the difference. Download your work before leaving.</li>
@@ -43,7 +43,7 @@
     <section aria-labelledby="fixed-title">
       <h3 id="fixed-title">1. Read the shared conversation</h3>
       <p>The user asks for a reminder, supplies the missing details, and receives a draft. Both assistants below start from these exact four turns.</p>
-      <ol class="chat-log chat-log--static" aria-label="Shared opening and middle of the conversation">
+      <ol class="chat-log chat-log--static" aria-label="Shared conversation so far">
         <li class="chat-turn human"><span class="chat-turn__speaker">1. You</span><p class="chat-turn__text">Help me write a short reminder to my study group about our meeting.</p></li>
         <li class="chat-turn ai"><span class="chat-turn__speaker">2. Assistant</span><p class="chat-turn__text">Sure. When and where is the meeting, and what should everyone bring?</p></li>
         <li class="chat-turn human"><span class="chat-turn__speaker">3. You</span><p class="chat-turn__text">Thursday at 4 p.m. in the library. Everyone should bring their notes for the linguistics quiz.</p></li>
@@ -72,14 +72,14 @@
       <div class="chat-grid">
         <section class="chat-panel" aria-labelledby="continue-title">
           <h4 id="continue-title">Assistant A</h4>
-          <ol id="continue-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant A after the shared opening"></ol>
+          <ol id="continue-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant A after the shared conversation"></ol>
           <p id="continue-status" class="chat-status" role="status" aria-live="polite">Ready for your ending message.</p><p id="continue-error" class="error-text" role="alert"></p>
           <div class="btn-row"><button id="continue-retry" class="btn-uga-outline" type="button" hidden>Retry this reply</button><button id="continue-stop" class="btn-uga-outline" type="button" hidden>Stop waiting</button></div>
           <form id="continue-form" class="chat-compose field"><label for="continue-input">Your next message to A</label><div class="chat-compose__row"><textarea id="continue-input" rows="2" maxlength="500" required disabled></textarea><button id="continue-send" class="btn-uga" type="submit" disabled>Send to A</button></div><div class="chat-compose__extras"><span id="continue-limit"></span></div></form>
         </section>
         <section class="chat-panel" aria-labelledby="close-title">
           <h4 id="close-title">Assistant B</h4>
-          <ol id="close-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant B after the shared opening"></ol>
+          <ol id="close-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant B after the shared conversation"></ol>
           <p id="close-status" class="chat-status" role="status" aria-live="polite">Ready for your ending message.</p><p id="close-error" class="error-text" role="alert"></p>
           <div class="btn-row"><button id="close-retry" class="btn-uga-outline" type="button" hidden>Retry this reply</button><button id="close-stop" class="btn-uga-outline" type="button" hidden>Stop waiting</button></div>
           <form id="close-form" class="chat-compose field"><label for="close-input">Your next message to B</label><div class="chat-compose__row"><textarea id="close-input" rows="2" maxlength="500" required disabled></textarea><button id="close-send" class="btn-uga" type="submit" disabled>Send to B</button></div><div class="chat-compose__extras"><span id="close-limit"></span></div></form>
@@ -102,9 +102,9 @@
     <details class="glossary-box"><summary>Offline discussion example (scripted, not live AI)</summary><p>This author-written example is available if the live service is unavailable. It is not evidence of model behavior.</p><div class="example-grid"><div><h4>Assistant A</h4><p><strong>You:</strong> Thanks, that should do it.</p><p><strong>Assistant A:</strong> Glad that helped! Would you like a quick checklist for the study session?</p></div><div><h4>Assistant B</h4><p><strong>You:</strong> Thanks, that should do it.</p><p><strong>Assistant B:</strong> You're welcome. Is that all for today?</p></div></div></details>
   </section>
 
-  <section class="reflection-container" aria-labelledby="reflection-title"><h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3><ol><li>Which part of the shared opening established the user's task? Which turn completed it?</li><li>How did each assistant respond to your ending signal? Quote the words that led you to your judgment.</li><li>Did either assistant make the user do extra work to leave? When might another question be useful instead?</li><li>What changed when you continued the conversations separately, and why does that limit a direct comparison?</li></ol><div class="reflection-notes field"><label for="reflection">Write down your thoughts</label><textarea id="reflection" rows="5" maxlength="4000"></textarea><div class="btn-row"><button class="btn-uga" type="button" data-download-notes>Download my notes</button><span class="field-hint" role="status" data-download-status></span></div><p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p></div><p>Next, <a href="10B_plans_situated_action.html">Activity 10B: Plans and Situated Action</a> asks what happens when a chatbot follows a plan written in advance and the conversation doesn't.</p></section>
+  <section class="reflection-container" aria-labelledby="reflection-title"><h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3><ol><li>Which turn completed the user's task? What made that a point where the conversation could close?</li><li>How did each assistant respond to your ending signal? Quote the words that led you to your judgment.</li><li>Did either assistant make the user do extra work to leave? When might another question be useful instead?</li><li>What changed when you continued the conversations separately, and why does that limit a direct comparison?</li></ol><div class="reflection-notes field"><label for="reflection">Write down your thoughts</label><textarea id="reflection" rows="5" maxlength="4000"></textarea><div class="btn-row"><button class="btn-uga" type="button" data-download-notes>Download my notes</button><span class="field-hint" role="status" data-download-status></span></div><p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p></div></section>
 </main>
-<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading"><div class="applet-feedback-card__content"><div><h2 id="applet-feedback-heading">Help us improve this applet</h2><a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a></div><a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2010A%3A%20Conversation%20Opening%20and%20Closing&amp;applet=Activity%2010A%3A%20Conversation%20Opening%20and%20Closing&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_10%2F10A_conversation_opening_closing.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a></div></section>
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading"><div class="applet-feedback-card__content"><div><h2 id="applet-feedback-heading">Help us improve this applet</h2><a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a></div><a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2010A%3A%20Conversation%20Closing&amp;applet=Activity%2010A%3A%20Conversation%20Closing&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_10%2F10A_conversation_opening_closing.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a></div></section>
 <footer class="source-card" aria-labelledby="sources-title"><h3 id="sources-title">Sources &amp; permissions</h3><p>The fixed study-group exchange and offline example were written for this activity. Live replies are produced by <a href="https://developers.cloudflare.com/workers-ai/models/llama-3.1-8b-instruct-fast/" target="_blank" rel="noopener noreferrer">Llama 3.1 8B Instruct Fast via Cloudflare Workers AI</a>. The model provider does not endorse this activity.</p><details><summary>What is sent and saved?</summary><p>When you request a live reply, the fixed exchange, your messages and that assistant's conversation history are sent to the model service. The service keeps request counts and temporary request records, not transcripts. Predictions, observations and reflection notes stay in this browser tab. Nothing is submitted to your instructor. Download your work before closing this tab. Outputs can vary and should be examined, not treated as an answer key.</p></details></footer>
 <noscript><p>Enable JavaScript to use the live comparison. The fixed conversation and offline example remain readable.</p></noscript>
 <script src="../reflection-notes.js" defer></script><script src="10a/applet.js" defer></script>
