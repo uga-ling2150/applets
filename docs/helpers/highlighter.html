@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weighted Highlighter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+    /* Page-specific: code samples and the JSON box on this how-to page only. */
+    .hl-docs pre {
+        margin: 12px 0 20px;
+        padding: 14px 16px;
+        background: var(--panel-alt);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--text);
+    }
+    #hl-json { font-family: "IBM Plex Mono", monospace; font-size: 13px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to the highlighter</a>
+
+<header class="page-header">
+    <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+    <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+
+<main id="main" tabindex="-1">
+
+<section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Weighted Highlighter</h3>
+
+    <h4 class="uga-accent">What it's for</h4>
+    <p>Lots of simple language models work by giving every word or short phrase a number, called a
+    <strong>weight</strong>. A positive weight nudges a text toward one label; a negative weight nudges
+    it toward the other; a bigger number means a bigger nudge. This tool shows those weights right
+    inside a piece of text, so students can see what a model is "noticing", and start asking whether
+    it is noticing the right things.</p>
+    <p>It's a shared building block: any applet can use it with its own list of words and weights.
+    The demo below uses a made-up list that tells <em>manager-speak</em> apart from <em>casual chat</em>.
+    Instructions for writing your own list are further down the page.</p>
+
+    <h4 class="uga-accent">Try it</h4>
+    <ol>
+        <li>Type or paste something into the box, or press <strong>Try an example</strong>.</li>
+        <li>Look at what lights up, and what doesn't. Amber pushes toward manager-speak, teal toward
+        casual chat, and a stronger colour means a bigger weight.</li>
+        <li>Try other forms of the same word. Does "circling back" count as "circle back"? Does
+        "synergies" count as "synergize"?</li>
+        <li>Turn on <strong>Show weights</strong> and read the tally under the box. Can you write a sentence
+        that a person would call manager-speak, but the tally calls casual (or the other way round)?</li>
+    </ol>
+</section>
+
+<section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero">
+        <div class="hero-text">
+            <h2 id="applet-title">Persona <span>highlighter</span></h2>
+            <p>See which words a simple model notices, and which way each one pushes.</p>
+        </div>
+    </div>
+
+    <ul id="hl-legend" class="hl-legend" aria-label="Highlight key"></ul>
+
+    <div class="field">
+        <label for="hl-input">Type or paste some text</label>
+        <textarea id="hl-input" rows="5" maxlength="4000" placeholder="We're circling back on the deliverables, lol."></textarea>
+    </div>
+
+    <div class="btn-row">
+        <button id="hl-example" class="btn-uga-outline" type="button">Try an example</button>
+        <button id="hl-clear" class="btn-reset" type="button">Clear</button>
+        <label class="field-hint" style="margin:0; padding:10px 4px; cursor:pointer;">
+            <input id="hl-show-weights" type="checkbox"> Show weights
+        </label>
+    </div>
+
+    <div class="field">
+        <p class="field-label" id="hl-output-label">Highlighted text</p>
+        <div id="hl-output" class="hl-output" role="region" aria-labelledby="hl-output-label"></div>
+        <p id="hl-status" class="chat-status" role="status" aria-live="polite"></p>
+        <p id="hl-notice" class="field-hint"></p>
+    </div>
+
+    <div class="field">
+        <p class="field-label" id="hl-matches-label">Every match, in order</p>
+        <div id="hl-matches" class="table-scroll" role="region" aria-labelledby="hl-matches-label" tabindex="0"></div>
+    </div>
+
+    <details class="glossary-box">
+        <summary>Test your own weights list</summary>
+        <p class="field-hint">Paste a weights list (the format is explained in "Using it in your own applet",
+        below) and press <strong>Use these weights</strong>. The demo above switches to your list so you can
+        try it out before it goes into an applet. Nothing is saved or sent anywhere.</p>
+        <div class="field">
+            <label for="hl-json">Weights list</label>
+            <textarea id="hl-json" rows="14" spellcheck="false" autocomplete="off"></textarea>
+        </div>
+        <div class="btn-row">
+            <button id="hl-use" class="btn-uga" type="button">Use these weights</button>
+            <button id="hl-restore" class="btn-uga-outline" type="button">Put the example back</button>
+        </div>
+        <p id="hl-json-error" class="error-text" role="alert"></p>
+        <div id="hl-json-status" class="field-hint" role="status" aria-live="polite"></div>
+    </details>
+</section>
+
+<section class="lesson-container hl-docs" aria-labelledby="howto-title">
+    <h3 id="howto-title" class="h3 mb-4">Using it in your own applet</h3>
+
+    <h4 class="uga-accent">Writing a weights list</h4>
+    <p>A weights list is a small block of JSON. Here is the one the demo uses, shortened:</p>
+<pre tabindex="0" aria-label="Example weights list"><code>{
+  "labels": { "positive": "Manager-speak", "negative": "Casual chat" },
+  "minWeight": 0.3,
+  "weights": {
+    "circle back": 5.0,
+    "synergize": 7.5,
+    "low-hanging fruit": 5.6,
+    "kpi": 7.04,
+    "lol": -4.8,
+    "hang out": -3.9,
+    "gonna": -3.6
+  }
+}</code></pre>
+    <ul>
+        <li><strong>weights</strong> (required): one line per word or phrase, written as
+        <code>"word or phrase": number</code>. Positive numbers push toward the first label, negative
+        numbers toward the second. The further from zero, the stronger the push and the stronger the
+        colour. An entry of exactly 0 is never highlighted.</li>
+        <li><strong>Numbers</strong> are written plainly: <code>2.5</code>, <code>-1</code>,
+        <code>0.75</code>. No quotation marks around them, no plus sign, and a dot (not a comma) for decimals.</li>
+        <li><strong>Words</strong> can be written however is natural. Capitals, accents and punctuation are
+        ignored, so "Low-hanging fruit" and "low hanging fruit" are the same entry. With word-form
+        matching on (the default), "circling back", "circled back" and "circle back" are the same entry too.
+        If two entries turn out to be the same, the first one is used and the tester above tells you
+        which ones were skipped.</li>
+        <li><strong>Phrases</strong> can be any length. When phrases overlap, the longest one wins ("circle
+        back" beats "circle" and "back"), each word belongs to at most one highlight, and a phrase never
+        stretches across the end of a sentence.</li>
+        <li><strong>Contractions and slang</strong> stay as written: "gonna" matches "gonna", not "going to",
+        and "don't" matches "don't" or "dont", not "do not". List both forms if you want both.</li>
+        <li><strong>labels</strong> (optional): short names for the two directions. They appear in the key,
+        the match table and the tally ("the text leans <em>Manager-speak</em>"), so pick names that read well
+        after "leans". If you leave them out, they are "Positive weight" and "Negative weight".</li>
+        <li><strong>minWeight</strong> (optional, default 0): entries closer to zero than this are not
+        highlighted. Useful for hiding hundreds of tiny weights in a list exported from a real model.</li>
+        <li><strong>lemmatize</strong> (optional, default <code>true</code>): set it to <code>false</code> to
+        match exact word forms only, for example if the model you are showing was trained on words exactly
+        as written.</li>
+        <li><strong>JSON is picky:</strong> use straight double quotes (<code>"</code>, not curly ones from a
+        word processor), put a comma between entries but not after the last one, and don't add comments.
+        The tester above points out most mistakes.</li>
+    </ul>
+    <p>Colour strength is measured against the biggest weight in the <em>whole list</em>, not just in the
+    current text, so a word always looks the same however much else is typed. Even the smallest weights
+    stay visible (15% strength), and the underline always shows which direction a word pushes.</p>
+
+    <details class="glossary-box">
+        <summary>Getting weights out of a trained model (technical)</summary>
+        <p>For a scikit-learn <code>TfidfVectorizer</code> plus <code>LogisticRegression</code>, a word's
+        weight is its IDF value times the model's coefficient for it. This is what the original prototype
+        worked out in the browser; now you do it once, in Python:</p>
+<pre tabindex="0" aria-label="Python export example"><code>import json
+
+terms = vectorizer.get_feature_names_out()
+idf = vectorizer.idf_
+coef = model.coef_[0]      # two classes: positive = model.classes_[1]
+
+weights = {t: round(float(i * c), 2) for t, i, c in zip(terms, idf, coef)}
+# Keep the 200 strongest so the list stays readable.
+weights = dict(sorted(weights.items(), key=lambda kv: -abs(kv[1]))[:200])
+
+with open("weights.json", "w") as f:
+    json.dump({"labels": {"positive": model.classes_[1], "negative": model.classes_[0]},
+               "weights": weights}, f, indent=2)</code></pre>
+        <ul>
+            <li>With more than two classes, use <code>model.coef_[k]</code> for the class you want to show;
+            every other class then counts as the "negative" direction.</li>
+            <li>If the vectorizer saw words exactly as written (no lemmatizing), set
+            <code>"lemmatize": false</code> so the highlighter matches the way the model reads.</li>
+            <li>The tally just adds up the weights of the matches. It leaves out word counts, length
+            normalization and the model's intercept, so it shows what the model notices rather than
+            recreating its exact score. That simplification is deliberate.</li>
+        </ul>
+    </details>
+
+    <h4 class="uga-accent">Adding it to a page</h4>
+    <ol>
+        <li>Put the weights list in the page, inside a script tag with <code>type="application/json"</code>
+        and an <code>id</code>. Keeping it in the page means it works even when the file is opened straight
+        from a computer.</li>
+        <li>In the applet card, add a labelled text box and an empty <code>.hl-output</code> box. The key,
+        tally line and match table are optional; leave out any you don't need.</li>
+        <li>At the end of the page, load Compromise (for word-form matching), the shared script, and start it.</li>
+    </ol>
+<pre tabindex="0" aria-label="Page markup example"><code>&lt;script type="application/json" id="my-weights"&gt;
+{ "labels": { "positive": "Formal", "negative": "Informal" },
+  "weights": { "regarding": 2.1, "gonna": -3 } }
+&lt;/script&gt;
+
+&lt;ul id="hl-legend" class="hl-legend" aria-label="Highlight key"&gt;&lt;/ul&gt;
+&lt;div class="field"&gt;
+  &lt;label for="hl-input"&gt;Type or paste some text&lt;/label&gt;
+  &lt;textarea id="hl-input" rows="5"&gt;&lt;/textarea&gt;
+&lt;/div&gt;
+&lt;div class="field"&gt;
+  &lt;p class="field-label" id="hl-output-label"&gt;Highlighted text&lt;/p&gt;
+  &lt;div id="hl-output" class="hl-output" role="region" aria-labelledby="hl-output-label"&gt;&lt;/div&gt;
+  &lt;p id="hl-status" class="chat-status" role="status" aria-live="polite"&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="field"&gt;
+  &lt;p class="field-label" id="hl-matches-label"&gt;Every match, in order&lt;/p&gt;
+  &lt;div id="hl-matches" class="table-scroll" role="region" aria-labelledby="hl-matches-label" tabindex="0"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script src="https://cdn.jsdelivr.net/npm/compromise@14.19.0/builds/compromise.js"&gt;&lt;/script&gt;
+&lt;script src="../highlighter.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  Highlighter.attach({
+    weights: "#my-weights",   // or a file path, e.g. "my-applet/weights.json"
+    input: "#hl-input",
+    output: "#hl-output",
+    legend: "#hl-legend",     // optional
+    status: "#hl-status",     // optional: the tally line
+    matches: "#hl-matches",   // optional: the match table
+    showWeights: false        // optional: show each weight on its highlight
+  });
+&lt;/script&gt;</code></pre>
+    <p>A weights file in its own <code>.json</code> file also works, but only once the page is on GitHub
+    Pages (browsers block it when a page is opened straight from a computer). If a list has a problem, the
+    highlighted-text box shows what went wrong instead of staying blank.</p>
+    <p><code>Highlighter.attach</code> returns a promise of a controller with <code>setText(text)</code>,
+    <code>setShowWeights(on)</code>, <code>setWeights(list)</code> and the current <code>matches</code>,
+    for applets that want to drive it from their own buttons. <code>Highlighter.find(text, Highlighter.prepare(list))</code>
+    gives the matches without drawing anything.</p>
+</section>
+
+</main>
+
+<footer class="source-card" aria-labelledby="sources-title">
+    <h3 id="sources-title">Sources &amp; permissions</h3>
+    <p>Word-form matching uses <strong>Compromise</strong> by Spencer Kelly and contributors, loaded unchanged from
+    <a href="https://github.com/spencermountain/compromise" target="_blank" rel="noopener noreferrer">its GitHub repository<span class="visually-hidden"> (opens in a new tab)</span></a>
+    under the MIT licence. The manager-speak word list and its weights are invented for this demo.</p>
+</footer>
+
+<script type="application/json" id="hl-weights">
+{
+  "labels": { "positive": "Manager-speak", "negative": "Casual chat" },
+  "minWeight": 0.3,
+  "weights": {
+    "circle back": 5.0,
+    "circle": 1.8,
+    "back": 1.32,
+    "synergize": 7.5,
+    "deliverable": 1.44,
+    "kpi": 7.04,
+    "core": 1.5,
+    "core competency": 4.2,
+    "leverage": 3.1,
+    "bandwidth": 2.6,
+    "touch base": 4.4,
+    "going forward": 2.2,
+    "low-hanging fruit": 5.6,
+    "stakeholder": 2.9,
+    "lol": -4.8,
+    "gonna": -3.6,
+    "kinda": -3.1,
+    "hang out": -3.9,
+    "awesome": -2.4,
+    "chat": -1.6,
+    "hey": -2.0
+  }
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/compromise@14.19.0/builds/compromise.js"></script>
+<script src="../highlighter.js"></script>
+<script>
+(function () {
+    const examples = [
+        "Hey team! Let's circle back on the deliverables going forward and leverage our core competencies.",
+        "lol that meeting was kinda awesome. Gonna grab lunch, wanna hang out after?",
+        "Quick touch base: the stakeholders loved the new KPIs, lol. Let's chat about the low-hanging fruit.",
+        "We're synergizing our synergies and circling back to the deliverable."
+    ];
+    let next = 0;
+    const exampleList = document.getElementById("hl-weights").textContent.trim();
+    const jsonBox = document.getElementById("hl-json");
+    const jsonError = document.getElementById("hl-json-error");
+    const jsonStatus = document.getElementById("hl-json-status");
+    const notice = document.getElementById("hl-notice");
+    jsonBox.value = exampleList;
+
+    function showNotes(notes, el) {
+        el.replaceChildren();
+        if (!notes.length) return;
+        const ul = document.createElement("ul");
+        ul.style.margin = "4px 0 0";
+        notes.forEach(n => { const li = document.createElement("li"); li.textContent = n; ul.append(li); });
+        el.append(ul);
+    }
+
+    Highlighter.attach({
+        weights: "#hl-weights",
+        input: "#hl-input",
+        output: "#hl-output",
+        legend: "#hl-legend",
+        status: "#hl-status",
+        matches: "#hl-matches"
+    }).then(ctl => {
+        notice.textContent = ctl.model.notes.join(" ");
+
+        document.getElementById("hl-example").addEventListener("click", () => {
+            ctl.setText(examples[next]);
+            next = (next + 1) % examples.length;
+        });
+        document.getElementById("hl-clear").addEventListener("click", () => {
+            ctl.setText("");
+            document.getElementById("hl-input").focus();
+        });
+        document.getElementById("hl-show-weights").addEventListener("change", e => {
+            ctl.setShowWeights(e.target.checked);
+        });
+
+        function useList(text) {
+            jsonError.textContent = "";
+            jsonStatus.replaceChildren();
+            try {
+                const notes = ctl.setWeights(Highlighter.parse(text));
+                notice.textContent = "";
+                jsonStatus.append("Loaded " + ctl.model.size + " entries into the demo above." +
+                    (notes.length ? " A few things to check:" : ""));
+                showNotes(notes, jsonStatus.appendChild(document.createElement("div")));
+            } catch (err) {
+                jsonError.textContent = err.message + " The demo is still using the previous list.";
+            }
+        }
+        document.getElementById("hl-use").addEventListener("click", () => useList(jsonBox.value));
+        document.getElementById("hl-restore").addEventListener("click", () => {
+            jsonBox.value = exampleList;
+            useList(exampleList);
+        });
+    }).catch(() => { /* the output box already explains what went wrong */ });
+})();
+</script>
+
+</body>
+</html>
