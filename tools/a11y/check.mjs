@@ -53,10 +53,14 @@ try {
    summary.push({page:pathname,state,violations:result.violations,manualReview:result.incomplete.map(x=>({id:x.id,description:x.description})),errors});
    if(result.violations.length||errors.length)failed=true;
   }
-  await page.setViewportSize({width:390,height:844});
-  const sizes=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
-  if(sizes.scroll>sizes.viewport+1){failed=true;summary.push({page:pathname,error:'Page overflows at 390px',sizes});}
-  await page.screenshot({path:`a11y-results/${pathname.split('/').pop()}-mobile.png`,fullPage:true});
+  await page.getByRole('link',{name:'Skip to activity',exact:true}).focus();await page.keyboard.press('Enter');
+  if(!await page.locator('#main').evaluate(n=>n===document.activeElement)){failed=true;summary.push({page:pathname,error:'Skip link did not focus main'});}
+  for(const width of [390,320]){
+   await page.setViewportSize({width,height:844});
+   const sizes=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
+   if(sizes.scroll>sizes.viewport+1){failed=true;summary.push({page:pathname,error:`Page overflows at ${width}px`,sizes});}
+   await page.screenshot({path:`a11y-results/${pathname.split('/').pop()}-${width}px.png`,fullPage:true});
+  }
   await context.close();
  }
 } finally {await browser.close();}
