@@ -18,3 +18,6 @@
 
 .app-wrapper .stage-title {display:flex;align-items:center;gap:12px;}
 .app-wrapper .stage-title .stage-num {flex-shrink:0;}
+
+/* Avoid a low-contrast intermediate opacity when stage 2 unlocks. */
+#live-activity .btn-uga {transition:none;}
