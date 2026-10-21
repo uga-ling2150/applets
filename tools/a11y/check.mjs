@@ -19,7 +19,7 @@ try {
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
    if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
-   await page.locator('#corpus').fill('new words');
+   await page.locator('#corpus').fill('we study language\nwe study speech');
    if(!await page.locator('#generate').isDisabled())throw Error('Corpus edit did not relock part 2.');
    if((await page.locator('#sentence-output').innerText())!=='Sentence not started.')throw Error('Stale sentence remained.');
    await page.getByRole('button',{name:'Build bigram model',exact:true}).click();
@@ -29,7 +29,11 @@ try {
    await page.locator('#step').click();await page.locator('#step').click();
    if(await page.locator('#calls li').count()<2)throw Error('Two calls were not shown.');
   }]);
-  if(pathname.includes('Text_Files'))states.push(['complete',async()=>{await page.locator('#run').click();}]);
+  if(pathname.includes('Text_Files'))states.push(['complete',async()=>{await page.locator('#run').click();}],['EOF',async()=>{
+   await page.locator('#n').fill('8');await page.locator('#prepare').click();await page.locator('#run').click();
+   if(!(await page.locator('#variables').innerText()).includes('File: closed.'))throw Error('Run to end did not close the file after EOF.');
+   if(!(await page.locator('#error').innerText()).includes('StopIteration'))throw Error('EOF evidence was lost.');
+  }]);
   for(const [state,prepare] of states){
    await prepare(); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
    const name=pathname.split('/').pop().replace('.html','')+'-'+state;

@@ -11,7 +11,7 @@
 .term-help:hover .term-definition,.term-help:focus .term-definition {display:block;}
 #live-activity {border:0;padding:0;min-width:0;}
 #live-activity:disabled {opacity:1;}
-@media(max-width:800px){.sampling-controls{grid-template-columns:repeat(2,minmax(0,1fr));}.term-definition{left:auto;right:0;}}
+@media(max-width:800px){.sampling-controls{grid-template-columns:repeat(2,minmax(0,1fr));}.term-definition{position:fixed;bottom:1rem;left:1rem;right:1rem;width:auto;max-width:calc(100vw - 2rem);}}
 @media(max-width:450px){.sampling-controls{grid-template-columns:1fr;}}
 .term-help.help-dismissed .term-definition {display:none;}
 .term-help:focus-visible {outline:3px solid #005fcc;outline-offset:3px;}
