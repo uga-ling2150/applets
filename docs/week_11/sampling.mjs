@@ -126,7 +126,9 @@ function draw(n) {
     $("sentence-output").textContent=sentenceWords.join(' ')+(complete?'.':' …')+(trace.length>=40&&!complete?' (Stopped at 40 steps; restart or adjust the corpus/settings.)':'');
     $("inspect-step").replaceChildren();
     trace.forEach((t,i)=>$("inspect-step").append(new Option(`${i+1}. ${t.context} → ${t.word}`,i)));
-    $("inspect-step").disabled=false; $("inspect-step").value=trace.length-1;
+    $("inspect-step").disabled=false;
+    const branching = n === 1 ? -1 : trace.findIndex(t=>t.rows.length>1);
+    $("inspect-step").value=branching>=0?branching:trace.length-1;
     inspect();
     if(complete) { $("live-activity").disabled=false; $("unlock-status").textContent='Sentence complete: part 2 is unlocked. Changing part 1 settings or rebuilding starts a new exploration.'; }
   } catch(e) { $("error").textContent=e.message; }
