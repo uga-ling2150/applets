@@ -1,0 +1,9 @@
+.week11-support {max-width:1000px;font-family:"Merriweather Sans",sans-serif;}
+.annotation-list {max-height:18rem;overflow:auto;padding-inline-start:1.6rem;scrollbar-gutter:stable;}
+.annotation-list > li {padding:8px 4px;position:relative;}
+.annotation-list > li p {margin:4px 0;}
+.annotation-list > li .btn-row {margin:0;display:inline-flex;}
+.annotation-list > li button {padding:4px 10px;}
+.chat-turn__text .current-phrase {background:#d2f1d7;outline:2px solid #236b37;}
+#annotation-panel .lab-grid {gap:12px;margin:8px 0;}
+#annotation-panel .field {margin-block:8px;}
