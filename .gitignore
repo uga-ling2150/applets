@@ -1,0 +1,4 @@
+
+# Local accessibility dependencies and reports
+tools/a11y/node_modules/
+a11y-results/

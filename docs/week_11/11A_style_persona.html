@@ -14,9 +14,9 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../style.css?v=20261017-review" />
-    <link rel="stylesheet" href="lab.css?v=20261017-review" />
-    <script type="module" src="persona.mjs?v=20261017-teaching"></script>
+    <link rel="stylesheet" href="../style.css?v=20261021-meeting" />
+    <link rel="stylesheet" href="lab.css?v=20261021-meeting" />
+    <script type="module" src="persona.mjs?v=20261021-meeting"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -36,12 +36,12 @@
           <li><strong>Compare</strong> the effects of system prompts.</li>
         </ul>
         <h4 class="uga-accent">Background</h4>
-        <p>A system prompt sets a speaking role; word choices suggest a persona or relationship.</p>
+        <p>A persona is the social identity a speaker projects through language, such as a careful tutor or an enthusiastic peer. A system prompt gives the model a role and speaking instructions; the user question is the task both personas answer. Look beyond whether the advice is correct: forms of address, hedges (such as “could”), vocabulary and expressions of enthusiasm can index a relationship, authority or attitude. These are interpretations supported by language evidence, not fixed personality measurements.</p>
         <h4 class="uga-accent">Instructions</h4>
         <ol>
-          <li>With a partner, edit the personas and generate the same short task.</li>
+          <li>With a partner, keep the user question fixed and compare the two system prompts. Predict how their wording might differ, then generate both outputs (or open Offline comparison below).</li>
           <li>
-            Mark a phrase and explain its social meaning. Swap roles, change one prompt and compare.
+            Select a phrase inside one output; it will appear in the annotation form. Choose a feature and explain what the phrase suggests about the speaker and relationship. Add the annotation, compare the evidence below the outputs, then swap roles and change one system prompt.
           </li>
         </ol>
       </section>
@@ -106,14 +106,10 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
           Same model and settings; different system prompts. Prompts go to the
           model service. Your annotations stay here.
         </p>
+        <section id="evidence-panel" hidden aria-labelledby="evidence-title"><h3 id="evidence-title" class="h5">Evidence beside the outputs</h3><p class="field-hint">Yellow: saved evidence. Green outline: the phrase currently being annotated. Select a phrase or type an exact quote below.</p><ol id="annotations" tabindex="0" class="annotation-list" tabindex="0" aria-label="Saved language evidence"></ol></section>
         <div id="annotation-panel" hidden>
           <h3 class="h5">Annotate language evidence</h3>
           <p>Select or enter a phrase, then explain its effect.</p>
-          <div class="btn-row">
-            <button id="capture" type="button" class="btn-uga-outline">
-              Use selected phrase
-            </button>
-          </div>
           <div class="lab-grid">
             <div class="field">
               <label for="side">Output</label
@@ -136,12 +132,12 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
           </div>
           <div class="field">
             <label for="quote">Exact quote</label
-            ><textarea id="quote" rows="2" maxlength="1600"></textarea>
+            ><textarea id="quote" rows="1" maxlength="1600"></textarea>
           </div>
           <div class="field">
             <label for="interpretation"
               >What does this suggest about the speaker?</label
-            ><textarea id="interpretation" rows="3" maxlength="1600"></textarea>
+            ><textarea id="interpretation" rows="2" maxlength="1600"></textarea>
           </div>
           <div class="btn-row">
             <button id="annotate" type="button" class="btn-uga">
@@ -150,7 +146,7 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
               Download my work
             </button>
           </div>
-          <ol id="annotations" class="annotation-list"></ol>
+
         </div>
         <div id="history-panel" hidden>
           <h3 class="h5">Saved comparisons</h3>

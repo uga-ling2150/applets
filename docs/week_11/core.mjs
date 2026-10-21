@@ -84,3 +84,28 @@ export function exactSpans(text, quote) {
   }
   return spans;
 }
+
+// Sentence boundaries are explicit so sentence generation can stop naturally.
+export function sentenceBigrams(text) {
+  const model = new Map();
+  for (const line of text.split(/\n/)) {
+    const words = line.toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g) || [];
+    if (!words.length) continue;
+    const seq = ['<start>', ...words, '<end>'];
+    for (let i=0;i<seq.length-1;i++) {
+      if (!model.has(seq[i])) model.set(seq[i],new Map());
+      const counts=model.get(seq[i]); counts.set(seq[i+1],(counts.get(seq[i+1])||0)+1);
+    }
+  }
+  return model;
+}
+export function sentenceTrace(model, settings, random = Math.random, limit = 40) {
+  let context = '<start>'; const words=[], steps=[];
+  for (let i=0;i<limit;i++) {
+    const rows=distribution(model.get(context)||new Map(),settings);
+    const word=sample(rows,random); steps.push({context,word,rows});
+    if(word==='<end>') return {words,steps,complete:true};
+    words.push(word); context=word;
+  }
+  return {words,steps,complete:false};
+}
