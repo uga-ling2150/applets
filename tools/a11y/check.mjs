@@ -8,6 +8,7 @@ try {
  for(const pathname of pages){
   const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const response=await page.goto(`http://127.0.0.1:8765/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
+  if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
   const states=[['initial',async()=>{}]];
   if(pathname.includes('11A_'))states.push(['annotated',async()=>{
    await page.getByText('Offline comparison',{exact:true}).click();await page.getByRole('button',{name:'Load practice examples',exact:true}).click();
@@ -17,9 +18,9 @@ try {
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
-   if(await page.locator('#live-activity').isDisabled())throw Error('Part 2 was not unlocked.');
+   if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
    await page.locator('#corpus').fill('new words');
-   if(!await page.locator('#live-activity').isDisabled())throw Error('Corpus edit did not relock part 2.');
+   if(!await page.locator('#generate').isDisabled())throw Error('Corpus edit did not relock part 2.');
    if((await page.locator('#sentence-output').innerText())!=='Sentence not started.')throw Error('Stale sentence remained.');
    await page.getByRole('button',{name:'Build bigram model',exact:true}).click();
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
