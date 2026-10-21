@@ -34,6 +34,17 @@ try {
    if(!(await page.locator('#variables').innerText()).includes('File: closed.'))throw Error('Run to end did not close the file after EOF.');
    if(!(await page.locator('#error').innerText()).includes('StopIteration'))throw Error('EOF evidence was lost.');
   }]);
+  if(pathname.includes('Keyword')){
+   states.push(['practice-feedback',async()=>{
+    const practice=page.frameLocator('iframe.defaults-check');
+    await practice.getByRole('radio',{name:/Both cat and dog/}).click();
+    await practice.getByRole('button',{name:/Check the answers/}).click();
+   }]);
+   for(let chapter=2;chapter<=4;chapter++)states.push([`practice-page-${chapter}`,async()=>{
+    await page.frameLocator('iframe.defaults-check').getByRole('button',{name:'Next page',exact:true}).first().click();
+    await page.waitForTimeout(500);
+   }]);
+  }
   for(const [state,prepare] of states){
    await prepare(); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
    const name=pathname.split('/').pop().replace('.html','')+'-'+state;
