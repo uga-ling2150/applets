@@ -15,3 +15,6 @@
 @media(max-width:450px){.sampling-controls{grid-template-columns:1fr;}}
 .term-help.help-dismissed .term-definition {display:none;}
 .term-help:focus-visible {outline:3px solid #005fcc;outline-offset:3px;}
+
+.app-wrapper .stage-title {display:flex;align-items:center;gap:12px;}
+.app-wrapper .stage-title .stage-num {flex-shrink:0;}
