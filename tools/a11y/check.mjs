@@ -7,7 +7,7 @@ const browser=await chromium.launch(); let failed=false; const summary=[];
 try {
  for(const pathname of pages){
   const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(`http://127.0.0.1:8765/${pathname}`);await page.waitForTimeout(1500);
+  const response=await page.goto(`http://127.0.0.1:8765/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
   const states=[['initial',async()=>{}]];
   if(pathname.includes('11A_'))states.push(['annotated',async()=>{
    await page.getByText('Offline comparison',{exact:true}).click();await page.getByRole('button',{name:'Load practice examples',exact:true}).click();
