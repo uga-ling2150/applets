@@ -1,5 +1,6 @@
-import { $, node, download, connection, generate } from "./common.mjs?v=20261017-output";
-import { bigrams, distribution, sample } from "./core.mjs?v=20261017-state";
+import { $, node, download, connection, generate } from "./common.mjs?v=20261021-meeting";
+import { sentenceBigrams, distribution, sample } from "./core.mjs?v=20261021-meeting";
+let sentenceWords=[], trace=[], complete=false;
 let model,
   rows = [],
   counts = {},
@@ -22,6 +23,7 @@ function parameters(prefix = "") {
   };
 }
 function render() {
+  renderCharts();
   const tbody = $("distribution");
   tbody.replaceChildren();
   rows.forEach((r) => {
@@ -51,9 +53,10 @@ function render() {
     (lastDraw ? `Sampled “${lastDraw}”. ` : "") + `${total} draws for the current distribution.`;
 }
 function apply() {
+  restartSentence();
   try {
     const nextSettings = parameters();
-    const nextRows = distribution(model.get($("context").value) || new Map(), nextSettings);
+    const nextRows = distribution(model.get("<start>") || new Map(), nextSettings);
     settings = nextSettings;
     rows = nextRows;
     appliedInput = {corpus: $("corpus").value, context: $("context").value};
@@ -75,14 +78,14 @@ function apply() {
   }
 }
 function train() {
-  model = bigrams($("corpus").value);
+  model = sentenceBigrams($("corpus").value);
   modelDirty = false;
-  $("context").disabled = model.size === 0;
+  $("context").disabled = true;
   $("context").replaceChildren();
   for (const word of model.keys()) {
     $("context").append(new Option(word, word));
   }
-  if (model.has("study")) $("context").value = "study";
+  $("context").value = "<start>";
   apply();
 }
 $("train").onclick = train;
@@ -91,6 +94,7 @@ for (const id of ["temperature", "topk", "topp", "nucleus"]) {
   $(id).addEventListener("input", () => { if (!modelDirty) apply(); });
 }
 $("corpus").addEventListener("input", () => {
+  restartSentence();
   modelDirty = true;
   dirty = true;
   $("probability-panel").hidden = true;
@@ -98,24 +102,65 @@ $("corpus").addEventListener("input", () => {
   for (const id of ["sample", "many", "clear", "context"]) $(id).disabled = true;
   $("status").textContent = "Corpus changed. Build the model to update the distribution.";
 });
-function draw(n) {
-  lastDraw = "";
-  for (let i = 0; i < n; i++) {
-    const word = sample(rows);
-    if (n === 1) lastDraw = word;
-    counts[word] = (counts[word] || 0) + 1;
-    total++;
-  }
-  render();
+function restartSentence() {
+  sentenceWords=[]; trace=[]; complete=false;
+  $("sentence-output").textContent="Sentence not started.";
+  $("inspect-step").replaceChildren(); $("inspect-step").disabled=true;
+  rows=[]; counts={}; total=0; lastDraw="";
+  $("live-activity").disabled=true;
+  $("unlock-status").textContent="Complete a sentence in part 1 to unlock part 2.";
+  if(model?.has('<start>')) $("context").value='<start>';
 }
-$("sample").onclick = () => draw(1);
-$("many").onclick = () => draw(100);
-$("clear").onclick = () => {
-  counts = {};
-  total = 0;
-  lastDraw = "";
-  render();
-};
+function draw(n) {
+  try {
+    if(complete || trace.length>=40) { restartSentence(); }
+    let remaining=n===1 ? 1 : 40-trace.length;
+    while(remaining-- > 0 && !complete) {
+      const context=sentenceWords.at(-1)||'<start>';
+      const stepRows=distribution(model.get(context)||new Map(),settings);
+      const word=sample(stepRows);
+      trace.push({context,word,rows:stepRows});
+      if(word==='<end>') complete=true; else sentenceWords.push(word);
+      if(trace.length>=40) break;
+    }
+    $("sentence-output").textContent=sentenceWords.join(' ')+(complete?'.':' …')+(trace.length>=40&&!complete?' (Stopped at 40 steps; restart or adjust the corpus/settings.)':'');
+    $("inspect-step").replaceChildren();
+    trace.forEach((t,i)=>$("inspect-step").append(new Option(`${i+1}. ${t.context} → ${t.word}`,i)));
+    $("inspect-step").disabled=false; $("inspect-step").value=trace.length-1;
+    inspect();
+    if(complete) { $("live-activity").disabled=false; $("unlock-status").textContent='Sentence complete: part 2 is unlocked. Changing part 1 settings or rebuilding starts a new exploration.'; }
+  } catch(e) { $("error").textContent=e.message; }
+}
+function inspect() {
+  const t=trace[Number($("inspect-step").value)]; if(!t)return;
+  rows=t.rows; counts={[t.word]:1}; total=1; lastDraw=t.word;
+  $("context").value=t.context; render();
+  $("status").textContent=`Step ${Number($("inspect-step").value)+1}: context “${t.context}”; sampled “${t.word}”. The charts show this step only.`;
+}
+$("inspect-step").onchange=inspect;
+$("sample").onclick=()=>draw(1);
+$("many").onclick=()=>draw(40);
+$("clear").onclick=()=>{restartSentence();apply();};
+function renderCharts() {
+  const host=$("probability-charts"); host.replaceChildren();
+  host.append(node('p','Shared scale: 0% to 100%. Orange: retained; red: added; striped outline: removed.','field-hint'));
+  const grid=node('div',undefined,'lab-grid');
+  for(const phase of ['base','prob']) {
+    const panel=node('section');panel.append(node('h4',phase==='base'?'Base probabilities':'Final probabilities and changes'));
+    const k=Number(settings?.topk||0);
+    rows.forEach((r,i)=>{
+      if(k>0 && i===k) panel.append(node('p',`Top-k cutoff: candidates ranked below ${k} are excluded.`, 'cutoff-line'));
+      const row=node('div',undefined,'probability-row');
+      const name=r.word==='<end>'?'End sentence':r.word==='<start>'?'Start sentence':r.word;
+      row.append(node('span',`${name}: ${(100*r[phase]).toFixed(1)}%${!r.kept && phase==='prob'?' (excluded)':''}`));
+      const track=node('div',undefined,'probability-track');track.setAttribute('aria-hidden','true');
+      const segment=(val,cls)=>{const el=node('span',undefined,cls);el.style.width=`${100*val}%`;track.append(el);};
+      if(phase==='base')segment(r.base,'prob-retained');
+      else {segment(Math.min(r.base,r.prob),'prob-retained');segment(Math.max(0,r.prob-r.base),'prob-added');segment(Math.max(0,r.base-r.prob),'prob-removed');}
+      row.append(track);panel.append(row);
+    });grid.append(panel);
+  }host.append(grid);
+}
 $("generate").onclick = async () => {
   if (busy) return;
   const prompt = $("prompt").value.trim(),
@@ -175,12 +220,24 @@ $("download").onclick = () =>
     counts,
     total,
     generations,
+    sentenceTrace: trace,
+    sentenceWords,
+    languageEvidence: $("language-evidence").value,
   });
 for (const prefix of ["", "live-"]) {
   $(prefix + "nucleus").addEventListener("change", () => {
     const name = $(prefix + "nucleus").value === "topq" ? "Top-q" : "Top-p";
-    $(prefix + "cutoff-label").textContent = prefix ? "LLM " + name.toLowerCase() : name + " cumulative probability";
+    const label=$(prefix + "cutoff-label");
+    const text=prefix ? "LLM " + name.toLowerCase() : name + " cumulative probability ";
+    if(label.firstChild?.nodeType===Node.TEXT_NODE)label.firstChild.nodeValue=text;else label.textContent=text;
   });
 }
 connection();
 train();
+
+// Help remains keyboard accessible and can be dismissed without moving focus.
+for (const help of document.querySelectorAll('.term-help')) {
+ help.addEventListener('keydown', e => {if(e.key==='Escape'){help.classList.add('help-dismissed');e.preventDefault();}});
+ help.addEventListener('blur',()=>help.classList.remove('help-dismissed'));
+ help.addEventListener('mouseleave',()=>help.classList.remove('help-dismissed'));
+}
