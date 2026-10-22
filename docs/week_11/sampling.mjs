@@ -74,7 +74,7 @@ function render() {
 function apply() {
   $("inspection-area").hidden = trace.length === 0;
   $("inspect-choice").hidden = trace.length === 0;
-  $("word-options").hidden = trace.length === 0;
+  if (trace.length) $("word-options").hidden = false;
   const savedStep=trace[Number($("inspect-step").value)];
   const context=savedStep?.context || '<start>';
   try {
