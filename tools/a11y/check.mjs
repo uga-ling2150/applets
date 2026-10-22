@@ -12,11 +12,28 @@ try {
   const states=[['initial',async()=>{}]];
   if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
    if(!await page.locator('#save-pair').isDisabled())throw Error('Keep comparison should require an answer.');
+   if(!await page.locator('#save-panel #save-pair').count())throw Error('Snapshot button is not in saving step.');
+   if(!await page.locator('.app-wrapper details').filter({has:page.locator('#example')}).count())throw Error('Offline practice is not in the activity.');
+   const order=await page.evaluate(()=>['example','log-a','evidence-panel','annotation-panel','save-pair'].map(id=>Array.from(document.querySelectorAll('*')).indexOf(document.getElementById(id))));
+   if(order.some((n,i)=>i&&n<=order[i-1]))throw Error('Offline entry, evidence or saving controls break the teaching sequence.');
    await page.getByText('Offline comparison',{exact:true}).click();await page.getByRole('button',{name:'Load practice examples',exact:true}).click();
    if(!await page.getByText('Worked example: from phrase to annotation',{exact:true}).isVisible())throw Error('Worked example is missing.');
    if(!(await page.locator('#selected-phrase').innerText()).includes('No phrase selected'))throw Error('Empty selection guidance missing.');
+  }],['native-selection-feature',async()=>{
+   const output=page.locator('#log-a .chat-turn__text');await output.scrollIntoViewIfNeeded();const box=await output.boundingBox();
+   await page.mouse.move(box.x+2,box.y+8);await page.mouse.down();await page.mouse.move(box.x+105,box.y+8,{steps:8});await page.mouse.up();
+   if(!(await page.locator('#quote').inputValue()).trim())throw Error('Native drag selection was not captured.');
+   await page.locator('#category').focus();
+   if(!await page.locator('#log-a .current-phrase').count())throw Error('First focus on Feature did not highlight the current phrase green.');
+   for(const [value,word] of [['address','relationship'],['certainty','strongly'],['register','formal'],['evaluation','feelings'],['politeness','request'],['other','language feature']]){
+    await page.locator('#category').selectOption(value);
+    if(!(await page.locator('#feature-help').innerText()).toLowerCase().includes(word))throw Error('Missing feature definition: '+value);
+   }
+   if(!await page.locator('#quote').isVisible())await page.locator('#quote-entry summary').click();
+   await page.locator('#quote').fill('');
   }],['invalid-quote',async()=>{
    await page.getByRole('button',{name:'Add annotation',exact:true}).click();
+   if(!(await page.locator('#annotation-error').innerText()).includes('Select a phrase'))throw Error('Error was not placed beside the annotation form.');
    if(!await page.locator('#quote-entry').getAttribute('open') && !await page.locator('#quote').isVisible())throw Error('Keyboard quote fallback was not opened.');
    await page.locator('#quote').fill('not present in this answer');
    if(!(await page.locator('#selected-phrase').innerText()).includes('does not match'))throw Error('Invalid quote feedback missing.');
@@ -35,6 +52,8 @@ try {
    await page.locator('#annotate').click();await page.locator('#save-pair').click();
    if(await page.locator('#annotations li').count()!==2)throw Error('Both outputs were not annotated.');
    if(await page.locator('#history details').count()!==1)throw Error('Snapshot missing.');
+   await page.locator('#history summary').click();
+   if(!(await page.locator('#history').innerText()).includes('Certainty and hedging')||!(await page.locator('#history').innerText()).includes('Evaluation and affect'))throw Error('Saved history omitted feature categories.');
    await page.locator('#system-a').fill('You are a concise tutor.');
    const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
    const data=JSON.parse(await readFile(await file.path(),'utf8'));
@@ -56,6 +75,16 @@ try {
    const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
    const data=JSON.parse(await readFile(await file.path(),'utf8'));
    if(data.comparisons.length!==2||data.comparisons[0].annotations.length!==1||data.comparisons[1].annotations.length!==0)throw Error('Export mixed comparisons.');
+  }],['scrollable-evidence',async()=>{
+   if(!await page.locator('#quote').isVisible())await page.locator('#quote-entry summary').click();
+   for(let n=0;n<8;n++){
+    await page.locator('#side').selectOption('a');await page.locator('#quote').fill('You could');
+    await page.locator('#interpretation').fill('Could frames this advice as a cautious suggestion rather than a command, which supports a careful tutor interpretation.');
+    await page.locator('#annotate').click();
+   }
+   const dims=await page.locator('#annotations').evaluate(n=>({height:n.clientHeight,scroll:n.scrollHeight}));
+   if(dims.scroll<=dims.height||dims.height>300)throw Error('Evidence list is not constrained to a compact scrollable box.');
+   if(!await page.locator('#log-a mark:not(.current-phrase)').count())throw Error('Saved evidence is not highlighted.');
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
@@ -121,6 +150,12 @@ try {
    await page.setViewportSize({width,height:844});
    const sizes=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
    if(sizes.scroll>sizes.viewport+1){failed=true;summary.push({page:pathname,error:`Page overflows at ${width}px`,sizes});}
+   if(pathname.includes('11A_')){
+    const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
+    await writeFile(`a11y-results/11A-mobile-${width}.json`,JSON.stringify(result,null,2));
+    summary.push({page:pathname,state:`mobile-${width}`,violations:result.violations,manualReview:result.incomplete.map(x=>({id:x.id,description:x.description})),errors});
+    if(result.violations.length||errors.length)failed=true;
+   }
    await page.screenshot({path:`a11y-results/${pathname.split('/').pop()}-${width}px.png`,fullPage:true});
   }
   await context.close();

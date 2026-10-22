@@ -14,10 +14,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../style.css?v=20261021-clear-flow" />
+    <link rel="stylesheet" href="../style.css?v=20261022-first-use" />
     <link rel="stylesheet" href="lab.css" />
-    <link rel="stylesheet" href="persona-meeting.css?v=20261021-clear-flow" />
-    <script type="module" src="persona.mjs?v=20261021-clear-flow"></script>
+    <link rel="stylesheet" href="persona-meeting.css?v=20261022-first-use" />
+    <script type="module" src="persona.mjs?v=20261022-first-use"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -40,7 +40,7 @@
         <p>A persona is the social identity a speaker projects through language, such as a careful tutor or an enthusiastic peer. A system prompt gives the model a role and speaking instructions; the user question is the task both personas answer. Look beyond whether the advice is correct: forms of address, hedges (such as “could”), vocabulary and expressions of enthusiasm can index a relationship, authority or attitude. These are interpretations supported by language evidence, not fixed personality measurements.</p>
         <h4 class="uga-accent">Instructions</h4>
         <ol>
-          <li><strong>Generate:</strong> start with the question and two roles already filled in. Predict how a careful tutor and an enthusiastic peer might sound, then click “Generate both outputs”.</li>
+          <li><strong>Generate:</strong> start with the question and two roles already filled in. Predict how a careful tutor and an enthusiastic peer might sound, then click “Generate both outputs”. To practise with the worked example, open “Offline comparison” in step 1 and load the practice examples.</li>
           <li><strong>Annotate:</strong> compare the wording. Select a short phrase in either answer, choose a language feature, explain how that phrase suggests a persona, then click “Add annotation”. See the worked example above the form.</li>
           <li><strong>Compare and save:</strong> with a partner, annotate evidence from both answers. Keep the question fixed, change one system prompt and generate again. Discuss whether the wording changed, then download your comparisons and reflection notes before closing.</li>
         </ol>
@@ -62,6 +62,29 @@
 In 1–2 sentences, how can I prepare for a difficult exam next week?</textarea
           >
         </div>
+        <div class="btn-row">
+          <button id="generate" type="button" class="btn-uga">
+            Generate both outputs</button
+          >
+        </div>
+        <p id="status" class="field-hint" role="status" aria-live="polite"></p>
+        <p id="prompt-notice" class="field-hint" role="status"></p>
+        <p id="error" class="error-text" role="alert"></p>
+        <p class="field-hint">
+          Same model and settings; different system prompts. Prompts go to the
+          model service. Your annotations stay here.
+        </p>
+      <details class="glossary-box mx-auto week11-support">
+          <summary>Offline comparison</summary>
+          <p>
+            These are authored practice examples, not live model output. They do
+            not change when you edit the system prompts. Generate live outputs
+            to test your edits.
+          </p>
+          <div class="btn-row"><button id="example" type="button" class="btn-uga-outline">
+            Load practice examples
+          </button></div>
+        </details>
         <div class="lab-grid">
           <section aria-labelledby="persona-a">
             <h3 id="persona-a" class="h5">Persona A</h3>
@@ -94,20 +117,6 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
             ></ol>
           </section>
         </div>
-        <div class="btn-row">
-          <button id="generate" type="button" class="btn-uga">
-            Generate both outputs</button
-          ><button id="save-pair" type="button" class="btn-uga-outline">
-            Keep this comparison on this page
-          </button>
-        </div>
-        <p id="status" class="field-hint" role="status" aria-live="polite"></p>
-        <p id="prompt-notice" class="field-hint" role="status"></p>
-        <p id="error" class="error-text" role="alert"></p>
-        <p class="field-hint">
-          Same model and settings; different system prompts. Prompts go to the
-          model service. Your annotations stay here.
-        </p>
         <section id="evidence-panel" hidden aria-labelledby="evidence-title">
           <h3 id="evidence-title" class="h5">Saved language evidence</h3>
           <p class="field-hint">Yellow = saved evidence. Green outline = the phrase you are annotating now. Saved annotations appear here, directly below the answers. Use the trash button to remove one.</p>
@@ -135,7 +144,7 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
             </div>
             <div class="field">
               <label for="category">Feature</label
-              ><select id="category">
+              ><select id="category" aria-describedby="feature-help">
                 <option value="address">Address and relationship</option>
                 <option value="certainty">Certainty and hedging</option>
                 <option value="register">Register and vocabulary</option>
@@ -145,18 +154,20 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
               </select>
             </div>
           </div>
+          <p id="feature-help" class="field-hint" role="status" aria-live="polite"></p>
           <details id="quote-entry" class="quote-entry">
             <summary>Enter or edit an exact quote</summary>
             <div class="field">
               <label for="quote">Exact quote</label>
-              <textarea id="quote" rows="1" maxlength="1600"></textarea>
+              <textarea id="quote" rows="1" maxlength="1600" aria-describedby="annotation-error"></textarea>
             </div>
           </details>
           <div class="field">
             <label for="interpretation">How does this phrase suggest a persona?</label>
             <p id="interpretation-help" class="field-hint">Explain the wording, then link it to a role, attitude or relationship. For example: “Could” makes the advice sound cautious, fitting a careful tutor.</p>
-            <textarea id="interpretation" rows="2" maxlength="1600" aria-describedby="interpretation-help"></textarea>
+            <textarea id="interpretation" rows="2" maxlength="1600" aria-describedby="interpretation-help annotation-error"></textarea>
           </div>
+          <p id="annotation-error" class="error-text" role="alert"></p>
           <div class="btn-row">
             <button id="annotate" type="button" class="btn-uga">
               Add annotation</button
@@ -168,7 +179,7 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
           <h3 id="save-title" class="h5 flow-step">3. Compare again and download</h3>
           <p class="field-hint">Keep the question fixed. Change one system prompt and generate again to test its effect. The previous comparison and its annotations are kept on this page automatically when a new comparison loads.</p>
           <p class="field-hint">“Keep this comparison on this page” keeps a snapshot without generating again. It does not save a file or submit work. After further annotations, click it again to update that snapshot.</p>
-          <div class="btn-row"><button id="download" type="button" class="btn-uga-outline">Download comparisons and annotations</button></div>
+          <div class="btn-row"><button id="save-pair" type="button" class="btn-uga-outline">Keep this comparison on this page</button><button id="download" type="button" class="btn-uga-outline">Download comparisons and annotations</button></div>
           <p class="field-hint">Downloads a JSON file with the current and saved comparisons, prompts, answers and annotations. Reflection notes have their own download below. Download both before closing or reloading; comparisons are only held on this page.</p>
         </section>
         <div id="history-panel" hidden>
@@ -178,17 +189,6 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
 
 
       </section>
-      <details class="glossary-box mx-auto week11-support">
-          <summary>Offline comparison</summary>
-          <p>
-            These are authored practice examples, not live model output. They do
-            not change when you edit the system prompts. Generate live outputs
-            to test your edits.
-          </p>
-          <div class="btn-row"><button id="example" type="button" class="btn-uga-outline">
-            Load practice examples
-          </button></div>
-        </details>
 <details class="glossary-box mx-auto week11-support">
           <summary>Instructor connection settings</summary>
           <div class="field">
