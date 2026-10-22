@@ -133,7 +133,7 @@ function updateSelectedPhrase() {
   const side = $("side").value;
   $("selected-phrase").textContent = quote
     ? `Selected from Persona ${side.toUpperCase()}: “${quote}”${pair && !exactSpans(pair.outputs[side], quote).length ? " — this quote does not match that answer. Check the output or exact wording." : " — choose a feature, write an explanation, then Add annotation."}`
-    : "No phrase selected. Select words in an answer, or enter an exact quote below.";
+    : `No phrase selected. ${annotations.length ? `${annotations.length} annotation${annotations.length === 1 ? "" : "s"} saved above on this page. ` : ""}Select words in an answer, or enter an exact quote below.`;
 }
 // Capture text selections without a second button; keep exact quote entry for keyboard users.
 document.addEventListener("selectionchange", () => {
