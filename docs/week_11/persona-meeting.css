@@ -20,3 +20,11 @@
  #annotation-panel .lab-grid .field {display:block;}
  #annotation-panel .lab-grid select {width:100%;}
 }
+
+/* Short, local guidance keeps the evidence and compact form together. */
+.flow-step {margin-top:20px;}
+.worked-example {font-family:"Merriweather Sans",sans-serif;font-size:14px;line-height:1.6;margin:10px 0;}
+.worked-example summary {cursor:pointer;min-height:44px;padding:10px 0;font-weight:700;}
+.worked-example p {margin:6px 0;}
+.selected-phrase {font-family:"Merriweather Sans",sans-serif;font-size:14px;line-height:1.6;overflow-wrap:anywhere;padding:10px 12px;border-left:3px solid #236b37;background:#f3f8f4;color:#1a1a1a;}
+#save-panel {margin-top:20px;}
