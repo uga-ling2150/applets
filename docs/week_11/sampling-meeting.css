@@ -21,3 +21,6 @@
 
 /* Avoid a low-contrast intermediate opacity when stage 2 unlocks. */
 #live-activity .btn-uga {transition:none;}
+
+/* Re-enabled controls must not fade through insufficient text contrast. */
+#sample, #many, #clear, #generate {transition:none;}
