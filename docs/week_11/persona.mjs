@@ -84,6 +84,7 @@ function render() {
   $("save-panel").hidden = !pair;
   $("save-pair").disabled = !pair || busy;
   updateSelectedPhrase();
+  updateFeatureHint();
   $("evidence-panel").hidden = !pair;
   promptNotice();
   renderOutput("a");
@@ -121,12 +122,23 @@ function renderHistory() {
       details.append(
         node(
           "p",
-          `“${a.quote}” (${a.side.toUpperCase()}): ${a.interpretation}`,
+          `Persona ${a.side.toUpperCase()}: “${a.quote}” — ${a.category}: ${a.interpretation}`,
         ),
       ),
     );
     $("history").append(details);
   });
+}
+const featureHints = {
+  address: 'Address and relationship: how the speaker refers to you or includes you, such as “you” or “let’s”. Explain the relationship suggested by those words.',
+  certainty: 'Certainty and hedging: how strongly a claim or suggestion is stated, such as cautious “could” versus direct “will”.',
+  register: 'Register and vocabulary: formal, technical or conversational word choices, such as “retrieve” versus “bring back”.',
+  evaluation: 'Evaluation and affect: words or punctuation that convey judgments or feelings, such as “great” or an exclamation mark.',
+  politeness: 'Politeness and directness: how a request or instruction is softened or made direct, such as “please consider” versus “do this”.',
+  other: 'Other: name a language feature you notice and explain it using the exact phrase. More than one interpretation may be reasonable.',
+};
+function updateFeatureHint() {
+  $("feature-help").textContent = featureHints[$("category").value];
 }
 function updateSelectedPhrase() {
   const quote = $("quote").value;
@@ -144,13 +156,16 @@ document.addEventListener("selectionchange", () => {
   if (!pair || !quote || !anchor || anchor !== focus) return;
   $("side").value = anchor.dataset.side;
   $("quote").value = quote;
-  $("error").textContent = "";
+  $("annotation-error").textContent = "";
   $("status").textContent = `Phrase from Persona ${anchor.dataset.side.toUpperCase()} selected. Choose a feature and explain its effect.`;
   updateSelectedPhrase();
   // Native selection remains visible until the student moves into the form.
 });
 function showCurrentPhrase() { updateSelectedPhrase(); renderOutput("a"); renderOutput("b"); }
-$("interpretation").addEventListener("focus", showCurrentPhrase);
+// Any form control can be the first stop after a native text selection.
+$("annotation-panel").addEventListener("focusin", showCurrentPhrase);
+$("category").addEventListener("change", () => { updateFeatureHint(); showCurrentPhrase(); });
+for (const id of ["quote", "interpretation"]) $(id).addEventListener("input", () => { $("annotation-error").textContent = ""; });
 $("quote").addEventListener("input", showCurrentPhrase);
 $("side").addEventListener("change", showCurrentPhrase);
 $("annotate").onclick = () => {
@@ -163,7 +178,7 @@ $("annotate").onclick = () => {
     !exactSpans(pair.outputs[side], quote).length ||
     !interpretation
   ) {
-    $("error").textContent =
+    $("annotation-error").textContent =
       "Select a phrase or enter an exact quote from the chosen output, then add an interpretation.";
     if(!pair || !quote || !exactSpans(pair.outputs[side],quote).length){
       $("quote-entry").open=true; $("quote").focus();
@@ -176,7 +191,7 @@ $("annotate").onclick = () => {
     interpretation,
     category: $("category").selectedOptions[0].textContent,
   });
-  $("error").textContent = "";
+  $("annotation-error").textContent = "";
   $("quote").value = "";
   $("interpretation").value = "";
   render();
@@ -219,6 +234,7 @@ $("generate").onclick = async () => {
       settings: { temperature: 0.7, topk: 50, topp: 1 },
     };
     annotations = [];
+    $("annotation-error").textContent = "";
     $("quote").value=""; $("interpretation").value="";
     render();
     $("status").textContent =
@@ -254,6 +270,7 @@ $("example").onclick = () => {
     model: { a: "authored example", b: "authored example" },
   };
   annotations = [];
+  $("annotation-error").textContent = "";
   $("quote").value=""; $("interpretation").value="";
   render();
   $("status").textContent =
