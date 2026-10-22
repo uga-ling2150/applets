@@ -16,6 +16,7 @@ try {
    }
   }]];
   if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
+   if(await page.locator('.reflection-container > ol > li > p.mb-0').count()!==3)throw Error('Reflection questions must retain explicit paragraph semantics within their numbered list.');
    if(await page.locator('.lesson-container ol li').count()!==3)throw Error('11A introduction must retain three clear steps.');
    if(!(await page.locator('.lesson-container').innerText()).includes('Use exact phrases to support your interpretation.'))throw Error('11A intro lost its language-evidence guidance.');
    const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
