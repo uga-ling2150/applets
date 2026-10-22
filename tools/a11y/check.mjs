@@ -90,6 +90,8 @@ try {
    if(!await page.locator('#log-a mark:not(.current-phrase)').count())throw Error('Saved evidence is not highlighted.');
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
+   const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
+   if(subtitle.height>subtitle.line+1)throw Error('11B subtitle wraps prematurely on desktop.');
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
    if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
    await page.locator('#corpus').fill('we study language\nwe study language\nwe study language\nwe study speech');

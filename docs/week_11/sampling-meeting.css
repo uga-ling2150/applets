@@ -24,3 +24,6 @@
 
 /* Re-enabled controls must not fade through insufficient text contrast. */
 #sample, #many, #clear, #generate {transition:none;}
+/* Match 11A: let the short subtitle use the available width. */
+.app-wrapper .hero-text {width:100%;min-width:0;}
+.app-wrapper .hero-text p {max-width:none;}
