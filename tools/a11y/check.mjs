@@ -113,7 +113,7 @@ try {
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
    if(!await page.locator('#inspection-area').isVisible()||!await page.locator('#temperature').isVisible())throw Error('Inspection and temperature were not revealed after generation.');
    if(await page.locator('#context').isVisible()||(await page.locator('#context-view').innerText())!=='study')throw Error('Context should be read-only text for the chosen step.');
-   if(await page.locator('#topk').isVisible())throw Error('Optional filters should start collapsed.');
+   for(const id of ['topk','nucleus','topp','sample','clear'])if(!await page.locator('#'+id).isVisible())throw Error('Routine controls require unnecessary expansion: '+id);
    await page.locator('#training-options summary').click();
    if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
    await page.locator('#corpus').fill('we study language\nwe study language\nwe study language\nwe study speech');
@@ -144,7 +144,6 @@ try {
    if(saved.settings.temperature!==0.5||saved.rows[0].prob===exported.distribution[0].prob)throw Error('Export rewrote the original sampled step with the preview condition.');
   }]);
   if(pathname.includes('11B_'))states.push(['top-k-cutoff',async()=>{
-   if(!await page.locator('#topk').isVisible())await page.locator('#filter-options summary').click();
    await page.locator('#topk').fill('1');
    const probs=await page.locator('#distribution tr').evaluateAll(ns=>ns.map(n=>Number(n.children[5].textContent.replace('%',''))));
    if(probs[0]!==100||probs.slice(1).some(n=>n!==0))throw Error('Top-k=1 failed to exclude lower candidates.');
@@ -170,7 +169,7 @@ try {
    await page.locator('#train').click();await page.locator('#many').click();
    if(await page.locator('#generate').isDisabled())throw Error('Rebuilt model could not unlock part 2.');
   }],['optional-step-and-recovery',async()=>{
-   await page.locator('#word-options summary').click();await page.locator('#clear').click();
+   await page.locator('#clear').click();
    if(!await page.locator('#inspection-area').isHidden())throw Error('Restart did not return to the first step.');
    await page.locator('#sample').click();
    if(!await page.locator('#inspection-area').isVisible())throw Error('Optional word stepping did not reveal inspection.');

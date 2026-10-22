@@ -81,11 +81,10 @@ we study together</textarea
         </button></div>
         </details>
         <div class="btn-row"><button id="many" type="button" class="btn-uga">Generate a whole sentence</button></div>
-        <details id="word-options" class="glossary-box flow-options">
-          <summary>Word-by-word generation and restart (optional)</summary>
-          <p class="field-hint">To follow each choice yourself, use Generate next word. Restart sentence clears the current sentence; your saved real-model results remain available.</p>
+        <div id="word-options" hidden>
+          <p class="field-hint">You can also follow one word at a time or restart the sentence. Saved real-model results remain available.</p>
           <div class="btn-row"><button id="sample" type="button" class="btn-uga-outline">Generate next word</button><button id="clear" type="button" class="btn-reset">Restart sentence</button></div>
-        </details>
+        </div>
         <p id="status" class="field-hint" role="status" aria-live="polite"></p>
         <p id="error" class="error-text" role="alert"></p>
         <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p>
@@ -115,8 +114,7 @@ we study together</textarea
               value="1"
             />
           </div>
-            <details id="filter-options" class="glossary-box flow-options">
-              <summary>More settings: Top-k and Top-p / Top-q</summary>
+            <div id="filter-options">
               <div class="lab-grid sampling-controls sampling-filters">
           <div class="field">
             <label for="topk">Top-k (0 keeps all candidates) <span class="term-help" tabindex="0" role="note" aria-label="Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.">?<span class="term-definition">Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.</span></span></label
@@ -141,7 +139,7 @@ we study together</textarea
         <p class="field-hint">
           Temperature → top-k → nucleus cutoff → normalize. Use one setting change at a time. A greater probability does not guarantee that a word is sampled.
         </p>
-            </details>
+            </div>
           </section>
 <div id="probability-panel"><div id="probability-charts"></div><details class="glossary-box"><summary>Exact probabilities and observed counts for this context</summary>
         <div

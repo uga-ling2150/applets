@@ -74,8 +74,7 @@ function render() {
 function apply() {
   $("inspection-area").hidden = trace.length === 0;
   $("inspect-choice").hidden = trace.length === 0;
-  const currentParameters = parameters();
-  $("filter-options").querySelector("summary").textContent = `More settings · Top-k ${$("topk").value || "—"} · ${currentParameters.topq !== undefined ? "Top-q" : "Top-p"} ${$("topp").value || "—"}`;
+  $("word-options").hidden = trace.length === 0;
   const savedStep=trace[Number($("inspect-step").value)];
   const context=savedStep?.context || '<start>';
   try {
