@@ -31,9 +31,9 @@ try {
     await page.locator('#category').selectOption(value);
     if(!(await page.locator('#feature-help').innerText()).toLowerCase().includes(word))throw Error('Missing feature definition: '+value);
    }
+  }],['invalid-quote',async()=>{
    if(!await page.locator('#quote').isVisible())await page.locator('#quote-entry summary').click();
    await page.locator('#quote').fill('');
-  }],['invalid-quote',async()=>{
    await page.getByRole('button',{name:'Add annotation',exact:true}).click();
    if(!(await page.locator('#annotation-error').innerText()).includes('Select a phrase'))throw Error('Error was not placed beside the annotation form.');
    if(!await page.locator('#quote-entry').getAttribute('open') && !await page.locator('#quote').isVisible())throw Error('Keyboard quote fallback was not opened.');
