@@ -90,6 +90,8 @@ try {
    if(!await page.locator('#log-a mark:not(.current-phrase)').count())throw Error('Saved evidence is not highlighted.');
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
+   const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
+   if(subtitle.height>subtitle.line+1)throw Error('11B subtitle wraps prematurely on desktop.');
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
    if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
    await page.locator('#corpus').fill('we study language\nwe study language\nwe study language\nwe study speech');
@@ -118,6 +120,32 @@ try {
    const saved=exported.sentenceTrace[2];
    if(exported.context!=='study'||exported.settings.temperature!==1||exported.total!==0)throw Error('Export did not describe the current comparison condition.');
    if(saved.settings.temperature!==0.5||saved.rows[0].prob===exported.distribution[0].prob)throw Error('Export rewrote the original sampled step with the preview condition.');
+  }]);
+  if(pathname.includes('11B_'))states.push(['top-k-cutoff',async()=>{
+   await page.locator('#topk').fill('1');
+   const probs=await page.locator('#distribution tr').evaluateAll(ns=>ns.map(n=>Number(n.children[5].textContent.replace('%',''))));
+   if(probs[0]!==100||probs.slice(1).some(n=>n!==0))throw Error('Top-k=1 failed to exclude lower candidates.');
+   if(!(await page.locator('#probability-charts').innerText()).includes('Top-k cutoff'))throw Error('Top-k cutoff line lacks its label.');
+  }],['nucleus-and-greedy',async()=>{
+   await page.locator('#topk').fill('0');await page.locator('#topp').fill('0.7');
+   const before=await page.locator('#distribution').innerText();
+   await page.locator('#nucleus').selectOption('topq');
+   if(await page.locator('#distribution').innerText()!==before)throw Error('Equivalent top-q notation changed the distribution.');
+   await page.locator('#temperature').fill('0');
+   const probs=await page.locator('#distribution tr').evaluateAll(ns=>ns.map(n=>Number(n.children[5].textContent.replace('%',''))));
+   if(probs[0]!==100||probs.slice(1).some(n=>n!==0))throw Error('Greedy temperature failed.');
+  }],['invalid-recovery',async()=>{
+   const sentence=await page.locator('#sentence-output').innerText();
+   await page.locator('#temperature').fill('-1');
+   if(!await page.locator('#sample').isDisabled()||!await page.locator('#probability-panel').isHidden())throw Error('Invalid settings retained a usable stale distribution.');
+   if(await page.locator('#sentence-output').innerText()!==sentence)throw Error('Invalid settings erased the saved sentence.');
+   await page.locator('#temperature').fill('1');
+   if(await page.locator('#sample').isDisabled()||!await page.locator('#probability-panel').isVisible())throw Error('Valid settings did not recover.');
+  }],['corpus-rebuild',async()=>{
+   await page.locator('#corpus').fill('we study words\nwe study sounds');
+   if(!await page.locator('#generate').isDisabled()||!await page.locator('#sample').isDisabled())throw Error('Corpus edit failed to relock stale activities.');
+   await page.locator('#train').click();await page.locator('#many').click();
+   if(await page.locator('#generate').isDisabled())throw Error('Rebuilt model could not unlock part 2.');
   }]);
   if(pathname.includes('Keyword'))states.push(['second-call',async()=>{
    await page.locator('#step').click();await page.locator('#step').click();
@@ -153,9 +181,9 @@ try {
    await page.setViewportSize({width,height:844});
    const sizes=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
    if(sizes.scroll>sizes.viewport+1){failed=true;summary.push({page:pathname,error:`Page overflows at ${width}px`,sizes});}
-   if(pathname.includes('11A_')){
+   if(pathname.includes('11A_')||pathname.includes('11B_')){
     const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
-    await writeFile(`a11y-results/11A-mobile-${width}.json`,JSON.stringify(result,null,2));
+    await writeFile(`a11y-results/${pathname.includes('11B_')?'11B':'11A'}-mobile-${width}.json`,JSON.stringify(result,null,2));
     summary.push({page:pathname,state:`mobile-${width}`,violations:result.violations,manualReview:result.incomplete.map(x=>({id:x.id,description:x.description})),errors});
     if(result.violations.length||errors.length)failed=true;
    }
