@@ -14,9 +14,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../style.css?v=20261017-review" />
-    <link rel="stylesheet" href="lab.css?v=20261017-review" />
-    <script type="module" src="sampling.mjs?v=20261017-final"></script>
+    <link rel="stylesheet" href="../style.css?v=20261021-meeting-final" />
+    <link rel="stylesheet" href="lab.css" />
+    <link rel="stylesheet" href="sampling-meeting.css?v=20261021-meeting-final" />
+    <script type="module" src="sampling.mjs?v=20261021-meeting-final"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -39,13 +40,12 @@
         </ul>
         <h4 class="uga-accent">Background</h4>
         <p>
-          Sampling settings reshape probabilities or restrict the next-word
-          candidates.
+          A language model predicts what can come next from its context: the words already generated. Here, a tiny bigram model uses only the previous word. It counts word pairs in your training sentences to build a base probability distribution. Temperature reshapes that distribution; top-k and top-p/top-q restrict the candidates. Sampling selects a word randomly according to the final probabilities, then that word becomes the next context. Repeating this process makes a whole sentence. This teaching model samples words; a real LLM usually samples tokens and uses a much longer context.
         </p>
-        <h4 class="uga-accent">Instructions</h4>
+        <dl class="sampling-definitions"><dt>Context</dt><dd>Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.</dd><dt>Temperature</dt><dd>Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.</dd><dt>Top-k</dt><dd>Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.</dd><dt>Top-p and top-q notation</dt><dd>Top-p and top-q are two names for the same nucleus-mass rule in this activity.</dd><dt>Top-p</dt><dd>Top-p keeps the smallest probability-ranked prefix reaching the chosen cumulative mass, after top-k normalization.</dd></dl><h4 class="uga-accent">Instructions</h4>
         <ol>
-          <li>With a partner, predict a change, adjust one setting, then sample.</li>
-          <li>Keep the LLM prompt fixed, repeat each setting, then swap roles and compare phrases.</li>
+          <li>Read the definitions beside the controls. Build the model, predict how changing one setting will affect the words, then generate a sentence.</li>
+          <li>Inspect each generation step and compare its base and final probability bars. Whole-sentence generation selects the first step with multiple candidates, when available, so parameter effects are visible. Orange is retained probability, red is an increase, and stripes show a decrease. After a complete sentence unlocks part 2, keep the LLM prompt fixed, repeat each setting and write down language evidence.</li>
         </ol>
       </section>
       <section class="app-wrapper" aria-labelledby="applet-title">
@@ -57,7 +57,7 @@
             </p>
           </div>
         </div>
-        <h3 class="h5">1. Inspect a tiny bigram model</h3>
+        <h3 class="stage-title"><span class="stage-num">1</span> Inspect a tiny bigram model</h3>
         <div class="field">
           <label for="corpus">Training sentences (one per line)</label
           ><textarea id="corpus" rows="5" maxlength="8000">
@@ -75,13 +75,13 @@ we study together</textarea
           Build bigram model
         </button></div>
         <div class="field">
-          <label for="context">Previous word</label
+          <label for="context">Context for the next generation step <span class="term-help" tabindex="0" role="note" aria-label="Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.">?<span class="term-definition">Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.</span></span></label
           ><select id="context"></select>
         </div>
-        <div class="lab-grid">
+        <div class="lab-grid sampling-controls">
           <div class="field">
             <label for="temperature"
-              >Temperature (0 selects the most likely word)</label
+              >Temperature (0 selects the most likely word) <span class="term-help" tabindex="0" role="note" aria-label="Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.">?<span class="term-definition">Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.</span></span></label
             ><input
               id="temperature"
               type="number"
@@ -92,15 +92,15 @@ we study together</textarea
             />
           </div>
           <div class="field">
-            <label for="topk">Top-k (0 keeps all candidates)</label
+            <label for="topk">Top-k (0 keeps all candidates) <span class="term-help" tabindex="0" role="note" aria-label="Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.">?<span class="term-definition">Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.</span></span></label
             ><input id="topk" type="number" min="0" max="50" value="0" />
           </div>
           <div class="field">
-            <label for="nucleus">Nucleus notation</label>
+            <label for="nucleus">Nucleus notation <span class="term-help" tabindex="0" role="note" aria-label="Top-p and top-q are two names for the same nucleus-mass rule in this activity.">?<span class="term-definition">Top-p and top-q are two names for the same nucleus-mass rule in this activity.</span></span></label>
             <select id="nucleus"><option value="topp">Top-p</option><option value="topq">Top-q</option></select>
           </div>
           <div class="field">
-            <label for="topp" id="cutoff-label">Top-p cumulative probability</label
+            <label for="topp" id="cutoff-label">Top-p cumulative probability <span class="term-help" tabindex="0" role="note" aria-label="Top-p keeps the smallest probability-ranked prefix reaching the chosen cumulative mass, after top-k normalization.">?<span class="term-definition">Top-p keeps the smallest probability-ranked prefix reaching the chosen cumulative mass, after top-k normalization.</span></span></label
             ><input
               id="topp"
               type="number"
@@ -112,21 +112,18 @@ we study together</textarea
           </div>
         </div>
         <p class="field-hint">
-          Temperature → top-k → nucleus cutoff → normalize. Lower temperature concentrates probability. This table samples words;
-          LLMs usually sample tokens.
+          Temperature → top-k → nucleus cutoff → normalize. Use one setting change at a time. A greater probability does not guarantee that a word is sampled.
         </p>
         <div class="btn-row">
           <button id="sample" type="button" class="btn-uga-outline">
-            Sample one word</button
-          ><button id="many" type="button" class="btn-uga-outline">
-            Sample 100 words</button
-          ><button id="clear" type="button" class="btn-reset">
-            Clear samples
+            Generate next word</button><button id="many" type="button" class="btn-uga-outline">
+            Generate a whole sentence</button><button id="clear" type="button" class="btn-reset">
+            Restart sentence
           </button>
         </div>
         <p id="status" class="field-hint" role="status" aria-live="polite"></p>
         <p id="error" class="error-text" role="alert"></p>
-        <div id="probability-panel">
+        <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p><div class="field"><label for="inspect-step">Inspect a generation step</label><select id="inspect-step" disabled></select></div><div id="probability-panel"><div id="probability-charts"></div><details class="glossary-box"><summary>Exact probabilities and observed counts for this step</summary>
         <div
           class="table-scroll"
           role="region"
@@ -152,7 +149,7 @@ we study together</textarea
           </table>
         </div>
         <p id="sample-status" class="field-hint" role="status"></p>
-        </div>
+        </details></div>
         <details class="glossary-box">
           <summary>How the probabilities are calculated</summary>
           <p>
@@ -166,14 +163,14 @@ we study together</textarea
             teaching simulation; provider implementations may differ.
           </p>
         </details>
-        <h3 class="h5">2. Compare real LLM generations</h3>
+        <h3 class="stage-title"><span class="stage-num">2</span> Compare real LLM generations</h3><p id="unlock-status" class="field-hint" role="status">Complete a sentence in part 1 to unlock this part. The end marker counts as completion.</p><fieldset id="live-activity" disabled><legend class="visually-hidden">Real LLM comparison</legend>
         <div class="field">
           <label for="prompt">Prompt held constant across runs</label
           ><textarea id="prompt" rows="3" maxlength="1200">
 Suggest a short opening sentence for a story about a student who finds an unfamiliar notebook.</textarea
           >
         </div>
-        <div class="lab-grid">
+        <div class="lab-grid sampling-controls">
           <div class="field">
             <label for="live-temperature">LLM temperature</label
             ><input
@@ -207,10 +204,7 @@ Suggest a short opening sentence for a story about a student who finds an unfami
         </div>
         <div class="btn-row">
           <button id="generate" type="button" class="btn-uga">
-            Generate and keep result</button
-          ><button id="download" type="button" class="btn-uga-outline">
-            Download my work
-          </button>
+            Generate and keep result</button>
         </div>
         <p id="live-status" class="field-hint" role="status"></p>
         <p id="live-error" class="error-text" role="alert"></p>
@@ -218,7 +212,9 @@ Suggest a short opening sentence for a story about a student who finds an unfami
           Your prompt and settings go to the model service. Repeat each
           condition before comparing.
         </p>
-        <div id="generations"></div>
+        <div id="generations"></div><div class="field"><label for="language-evidence">Compare the language: quote a phrase and explain whether it sounds generic, predictable or distinctive. Use several outputs as evidence.</label><textarea id="language-evidence" rows="3" maxlength="4000"></textarea></div></fieldset><div class="btn-row"><button id="download" type="button" class="btn-uga-outline">
+            Download my work
+          </button></div>
 
       </section>
       <details class="glossary-box mx-auto week11-support">
