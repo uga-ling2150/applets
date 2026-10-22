@@ -392,7 +392,7 @@ An **API address** is the address a page uses to reach its backend. Replace the 
 | `docs/week_7/7a/classroom.js` | `API` → new 7A address |
 | `docs/week_7/7b/applet.js` | `API` → new 7B address |
 | `docs/week_10/10a/applet.js` | `API` → new 10A address |
-| `docs/week_11/common.mjs` | Replace **both** default endpoint strings with the new shared 11A/11B address. |
+| `docs/week_11/11a/live.js` | `DEFAULT` → new shared 11A/11B address (11B loads the same file). |
 
 Leave the student GitHub Pages URLs unchanged. The existing allowed website settings still apply because the pages remain on `https://uga-ling2150.github.io`.
 
@@ -409,7 +409,7 @@ npx wrangler deploy
 cd ../..
 ```
 
-Before publishing the frontend changes, run the health checks in Section 6 against the new addresses. For 11A/11B, version the `common.mjs` import in both entry modules when changing the endpoint, and version the entry-module URLs in both HTML pages so browsers fetch the update. Teacher connection settings can test a new address temporarily; reset any saved override before testing the default. Then save the changed frontend files and five changed `wrangler.jsonc` files to this repository's `main` branch. You can use GitHub's file editor or **Add file → Upload files** in the correct folder. Preserve the paths in the tables above. Upload only those intended files, not the whole local folder, installed packages or secret files.
+Before publishing the frontend changes, run the health checks in Section 6 against the new addresses. Teacher connection settings can test a new address temporarily; reset any saved override before testing the default. Then save the changed frontend files and five changed `wrangler.jsonc` files to this repository's `main` branch. You can use GitHub's file editor or **Add file → Upload files** in the correct folder. Preserve the paths in the tables above. Upload only those intended files, not the whole local folder, installed packages or secret files.
 
 Wait for GitHub Pages to finish publishing. Complete the activity checks in Section 6, including your own GitHub sign-in. If a check fails, restore the previous frontend API addresses and publish them while you fix the new service. This reconnects the pages to the old services if they are still available.
 

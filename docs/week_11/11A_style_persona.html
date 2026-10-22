@@ -1,278 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Activity 11A: Style and Persona</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="../style.css?v=20261022-first-use" />
-    <link rel="stylesheet" href="lab.css" />
-    <link rel="stylesheet" href="persona-meeting.css?v=20261022-reflection-body" />
-    <script type="module" src="persona.mjs?v=20261022-first-use"></script>
-    <script src="../reflection-notes.js" defer></script>
-  </head>
-  <body class="iv-lab">
-    <a class="skip-link" href="#main">Skip to activity</a>
-    <header class="page-header">
-      <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-      <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
-    </header>
-    <main id="main" tabindex="-1">
-      <section class="lesson-container" aria-labelledby="activity-title">
-        <h3 id="activity-title" class="h3 mb-4">
-          Activity 11A: Style and Persona
-        </h3>
-        <h4 class="uga-accent">Learning Objectives</h4>
-        <ul>
-          <li><strong>Identify</strong> language cues to persona.</li>
-          <li><strong>Compare</strong> the effects of system prompts.</li>
-        </ul>
-        <h4 class="uga-accent">Background</h4>
-        <p>A persona is the identity a speaker presents through language—for example, a careful tutor or an enthusiastic peer. A system prompt tells the model how to speak.</p>
-        <p>Here, both personas answer the same question. Look for differences in wording, such as cautious suggestions (“you could”) or enthusiastic expressions (“let’s!”). Use exact phrases to support your interpretation.</p>
-        <h4 class="uga-accent">Instructions</h4>
-        <ol>
-          <li><strong>Generate two answers.</strong> Keep the default question and system prompts, then click <strong>Generate both outputs</strong>.</li>
-          <li><strong>Annotate a phrase.</strong> Select words in either answer, choose a language feature, and explain what the wording suggests. Click <strong>Add annotation</strong>.</li>
-          <li><strong>Compare and save.</strong> Keep the question fixed, change one system prompt, and generate again. Compare the wording, then download your comparisons and reflection notes.</li>
-        </ol>
-      </section>
-      <section class="app-wrapper" aria-labelledby="applet-title">
-        <div class="hero">
-          <div class="hero-text">
-            <h2 id="applet-title">Language <span>makes a persona</span></h2>
-            <p>
-              Change the prompt. Compare the language. Explain the evidence.
-            </p>
-          </div>
-        </div>
-        <h3 class="h5 flow-step">1. Generate two answers</h3>
-        <p class="field-hint">Start with the defaults below. The question stays the same; the system prompts give the model different roles. Read both answers after generating.</p>
-        <div class="field">
-          <label for="prompt">Same user question for both personas</label
-          ><textarea id="prompt" rows="3" maxlength="1200">
-In 1–2 sentences, how can I prepare for a difficult exam next week?</textarea
-          >
-        </div>
-        <div class="btn-row">
-          <button id="generate" type="button" class="btn-uga">
-            Generate both outputs</button
-          >
-        </div>
-        <p id="status" class="field-hint" role="status" aria-live="polite"></p>
-        <p id="prompt-notice" class="field-hint" role="status"></p>
-        <p id="error" class="error-text" role="alert"></p>
-        <p class="field-hint">
-          Same model and settings; different system prompts. Prompts go to the
-          model service. Your annotations stay here.
-        </p>
-      <details class="glossary-box mx-auto week11-support">
-          <summary>Offline comparison</summary>
-          <p>
-            These are authored practice examples, not live model output. They do
-            not change when you edit the system prompts. Generate live outputs
-            to test your edits.
-          </p>
-          <div class="btn-row"><button id="example" type="button" class="btn-uga-outline">
-            Load practice examples
-          </button></div>
-        </details>
-        <div class="lab-grid">
-          <section aria-labelledby="persona-a">
-            <h3 id="persona-a" class="h5">Persona A</h3>
-            <div class="field">
-              <label for="system-a">System prompt A</label
-              ><textarea id="system-a" rows="4" maxlength="1600">
-You are a careful university tutor. Explain clearly, use measured language, and support the learner without overstating certainty.</textarea
-              >
-            </div>
-            <ol
-              class="chat-log chat-log--static"
-              id="log-a"
-              tabindex="0"
-              aria-label="Output A"
-            ></ol>
-          </section>
-          <section aria-labelledby="persona-b">
-            <h3 id="persona-b" class="h5">Persona B</h3>
-            <div class="field">
-              <label for="system-b">System prompt B</label
-              ><textarea id="system-b" rows="4" maxlength="1600">
-You are an enthusiastic peer study partner. Use a relaxed conversational style and encourage the learner while still being accurate.</textarea
-              >
-            </div>
-            <ol
-              class="chat-log chat-log--static"
-              id="log-b"
-              tabindex="0"
-              aria-label="Output B"
-            ></ol>
-          </section>
-        </div>
-        <section id="evidence-panel" hidden aria-labelledby="evidence-title">
-          <h3 id="evidence-title" class="h5">Saved language evidence</h3>
-          <p class="field-hint">Yellow = saved evidence. Green outline = the phrase you are annotating now. Saved annotations appear here, directly below the answers. Use the trash button to remove one.</p>
-          <p id="evidence-empty" class="field-hint">No annotations yet. Start with step 2 below.</p>
-          <ol id="annotations" tabindex="0" class="annotation-list" aria-label="Saved language evidence"></ol>
-        </section>
-        <div id="annotation-panel" hidden>
-          <h3 class="h5 flow-step">2. Explain a phrase</h3>
-          <p class="field-hint">Drag across a few words in either answer. The output and selected phrase below update automatically. Using a keyboard? Choose Output, then open “Enter or edit an exact quote” and type words exactly as they appear in that answer.</p>
-          <details class="worked-example" open>
-            <summary>Worked example: from phrase to annotation</summary>
-            <p><strong>Example phrase:</strong> “You could” in the offline Persona A answer.<br />
-              <strong>Feature:</strong> Certainty and hedging.<br />
-              <strong>Explanation:</strong> “Could” offers a suggestion instead of a command. This cautious wording supports the careful tutor persona.</p>
-            <p class="field-hint">This is a teaching example, not a claim about your generated answer. Use a phrase that actually appears in your answer. If you see no clear difference between the personas, explain that using language evidence.</p>
-          </details>
-          <p id="selected-phrase" class="selected-phrase" role="status" aria-live="polite" aria-atomic="true">No phrase selected. Select words in an answer, or enter an exact quote below.</p>
-          <div class="lab-grid">
-            <div class="field">
-              <label for="side">Output</label
-              ><select id="side">
-                <option value="a">Persona A</option>
-                <option value="b">Persona B</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="category">Feature</label
-              ><select id="category" aria-describedby="feature-help">
-                <option value="address">Address and relationship</option>
-                <option value="certainty">Certainty and hedging</option>
-                <option value="register">Register and vocabulary</option>
-                <option value="evaluation">Evaluation and affect</option>
-                <option value="politeness">Politeness and directness</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
-          <p id="feature-help" class="field-hint" role="status" aria-live="polite"></p>
-          <details id="quote-entry" class="quote-entry">
-            <summary>Enter or edit an exact quote</summary>
-            <div class="field">
-              <label for="quote">Exact quote</label>
-              <textarea id="quote" rows="1" maxlength="1600" aria-describedby="annotation-error"></textarea>
-            </div>
-          </details>
-          <div class="field">
-            <label for="interpretation">How does this phrase suggest a persona?</label>
-            <p id="interpretation-help" class="field-hint">Explain the wording, then link it to a role, attitude or relationship. For example: “Could” makes the advice sound cautious, fitting a careful tutor.</p>
-            <textarea id="interpretation" rows="2" maxlength="1600" aria-describedby="interpretation-help annotation-error"></textarea>
-          </div>
-          <p id="annotation-error" class="error-text" role="alert"></p>
-          <div class="btn-row">
-            <button id="annotate" type="button" class="btn-uga">
-              Add annotation</button
-            >
-          </div>
-          <p class="field-hint">“Add annotation” adds your phrase, feature and explanation to Saved language evidence above. Repeat for the other answer.</p>
-        </div>
-        <section id="save-panel" hidden aria-labelledby="save-title">
-          <h3 id="save-title" class="h5 flow-step">3. Compare again and download</h3>
-          <p class="field-hint">Keep the question fixed. Change one system prompt and generate again to test its effect. The previous comparison and its annotations are kept on this page automatically when a new comparison loads.</p>
-          <p class="field-hint">“Keep this comparison on this page” keeps a snapshot without generating again. It does not save a file or submit work. After further annotations, click it again to update that snapshot.</p>
-          <div class="btn-row"><button id="save-pair" type="button" class="btn-uga-outline">Keep this comparison on this page</button><button id="download" type="button" class="btn-uga-outline">Download comparisons and annotations</button></div>
-          <p class="field-hint">Downloads a JSON file with the current and saved comparisons, prompts, answers and annotations. Reflection notes have their own download below. Download both before closing or reloading; comparisons are only held on this page.</p>
-        </section>
-        <div id="history-panel" hidden>
-          <h3 class="h5">Saved comparisons</h3>
-          <div id="history"></div>
-        </div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity 11A: Style and Persona</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="11a/applet.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main id="main" tabindex="-1">
+  <section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 11A: Style and Persona</h3>
+    <h4 class="uga-accent">Learning Objectives</h4>
+    <ul>
+      <li><strong>Identify</strong> the language cues (word choice, hedging, pronouns, punctuation) that make a speaker sound like a particular kind of person.</li>
+      <li><strong>Compare</strong> how two system prompts change the style of a model's answer to the same question.</li>
+      <li><strong>Support</strong> an interpretation of persona with exact phrases, and test whether it holds across generations.</li>
+    </ul>
+    <h4 class="uga-accent">Background</h4>
+    <p>A persona is the identity a speaker presents through language: a careful tutor, an enthusiastic friend, a brisk customer-service agent. We recognise personas from small choices, such as “you could” versus “you should”, “let’s” versus “you”, or an exclamation mark at the end of a sentence.</p>
+    <p>Chat models are given a persona through a <em>system prompt</em>: an instruction, usually hidden from the user, that tells the model who to be and how to talk. In this activity you will give two personas the same question and examine how the system prompt shows up in the wording of their answers. Use exact phrases to support your interpretation.</p>
+    <h4 class="uga-accent">Instructions</h4>
+    <ol>
+      <li><strong>Generate two answers.</strong> Keep the default question and system prompts for your first try, and click <strong>Generate both answers</strong>.</li>
+      <li><strong>Annotate the language.</strong> Select a phrase in either answer, say what kind of feature it is, and explain what it suggests about the persona. Collect evidence from both answers.</li>
+      <li><strong>Change one thing and compare again.</strong> Edit one system prompt, generate again, and see whether your evidence still holds. Download your work before you leave.</li>
+    </ol>
+  </section>
 
-
-      </section>
-<details class="glossary-box mx-auto week11-support">
-          <summary>Instructor connection settings</summary>
-          <div class="field">
-            <label for="endpoint">Course service URL</label
-            ><input
-              id="endpoint"
-              type="url"
-              placeholder="https://your-course-service.workers.dev"
-            />
-          </div>
-          <div class="btn-row"><button id="connect" type="button" class="btn-uga-outline">
-            Connect
-          </button><button id="disconnect" type="button" class="btn-uga-outline">Disconnect</button></div>
-          <p id="connection" class="field-hint" role="status"></p>
-        </details>
-<section class="reflection-container" aria-labelledby="reflection-title">
-        <h3 id="reflection-title" class="uga-accent mb-3">
-          Reflection &amp; Discussion Guide
-        </h3>
-        <ol class="reflection-questions">
-          <li><p class="mb-0">Which phrases suggest each persona?</p></li>
-          <li><p class="mb-0">Did changing the prompt change the language? Cite an example.</p></li>
-          <li><p class="mb-0">Would another generation support the same interpretation?</p></li>
-        </ol>
-        <p>Use an exact phrase from your comparisons in your reflection. “Download reflection notes” saves only the text below as a separate file; use “Download comparisons and annotations” above for your language evidence.</p>
-        <div class="reflection-notes field">
-          <label for="reflection">Write down your thoughts</label
-          ><textarea id="reflection" rows="5" maxlength="4000"></textarea>
-          <div class="btn-row">
-            <button class="btn-uga" type="button" data-download-notes>
-              Download reflection notes</button
-            ><span class="field-hint" role="status" data-download-status></span>
-          </div>
-          <p class="field-hint">
-            Your notes stay in this browser and are not submitted to your
-            instructor. Download them before you close this page.
-          </p>
-        </div>
-      </section>
-    </main>
-    <section
-      class="applet-feedback-card applet-feedback-card--followed"
-      aria-labelledby="applet-feedback-heading"
-    >
-      <div class="applet-feedback-card__content">
-        <div>
-          <h2 id="applet-feedback-heading">Help us improve this applet</h2>
-          <a
-            class="applet-feedback-card__tutorial"
-            href="https://kaltura.uga.edu/media/t/1_bhor4qfq"
-            target="_blank"
-            rel="noopener noreferrer"
-            >New to GitHub? Watch the one-minute account setup guide
-            <span class="visually-hidden">(opens in a new tab)</span></a
-          >
-        </div>
-        <a
-          class="applet-feedback-card__button"
-          href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2011A%3A%20Style%20and%20Persona&amp;applet=Activity%2011A%3A%20Style%20and%20Persona&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_11%2F11A_style_persona.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Report a problem or give feedback
-          <span class="visually-hidden">(opens in a new tab)</span></a
-        >
+  <section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero">
+      <div class="hero-text">
+        <h2 id="applet-title">Language <span>makes a persona</span></h2>
+        <p>Change the prompt. Compare the language. Explain the evidence.</p>
       </div>
-    </section>
-    <footer class="source-card" aria-labelledby="sources-title">
-      <h3 id="sources-title">Sources &amp; permissions</h3>
-      <p>
-        Live generation uses the model identified beside each output, hosted
-        through
-        <a href="https://developers.cloudflare.com/workers-ai/"
-          >Cloudflare Workers AI</a
-        >. The service is configured for
-        <a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct"
-          >Meta Llama 3.1 8B Instruct</a
-        >, subject to its
-        <a
-          href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/LICENSE"
-          >community license</a
-        >. Classroom prompts and practice examples were authored for this
-        activity. Generated responses may not follow a persona consistently.
-      </p>
-    </footer>
-  </body>
+    </div>
+
+    <div class="rack">
+      <!-- STAGE 1 -->
+      <section id="stage1" class="stage active" aria-labelledby="stage1-title">
+        <div class="stage-num" aria-hidden="true">1</div>
+        <div class="stage-body">
+          <h3 id="stage1-title" class="stage-title" tabindex="-1">Give two personas the same question</h3>
+          <div class="stage-content">
+            <p>Before a chat model writes anything, it reads two kinds of instruction. The <strong>user prompt</strong> is the question you type. The <strong>system prompt</strong> is set up in advance by whoever deploys the model, and tells it who it is supposed to be and how it should talk. Users rarely see the system prompt, but it shapes every reply.</p>
+            <p>Here you write both system prompts yourself. Persona A and Persona B get exactly the same question, from the same model, with the same sampling settings. The only thing that differs is the system prompt, so if the two answers sound different, the system prompt is the most likely reason. (Step 3 shows that some of the difference is also down to chance.)</p>
+            <p>For your first try, keep the defaults and click <strong>Generate both answers</strong>. The two defaults are deliberately close: both personas are asked to be helpful and accurate, but one is a careful tutor and the other an enthusiastic study partner. Notice that neither prompt lists any words to use. The model has to turn a description of a social role into word choices by itself.</p>
+            <div class="explanation">
+              <strong>Persona is built from language.</strong> You can't see the tutor's office or hear the study partner's tone of voice. Everything that tells you who is speaking, such as how formal the words are, how sure the speaker sounds and whether they say “you” or “we”, is in the text. That text is the evidence you'll collect in Step 2.
+            </div>
+            <details class="glossary-box">
+              <summary>Technical glossary</summary>
+              <ul>
+                <li><strong>System prompt:</strong> An instruction given to a chat model before the conversation starts. It sets the model's role, tone and rules. In deployed chatbots it is written by the company, not the user.</li>
+                <li><strong>User prompt:</strong> The message the user types. Here it is the same question for both personas.</li>
+                <li><strong>Persona:</strong> The identity a speaker presents through their way of speaking. A persona is a performance, not a fact about the speaker: the same model can perform many.</li>
+                <li><strong>Style:</strong> The pattern of linguistic choices (vocabulary, sentence length, punctuation, how direct or hedged a claim is) that we use to recognise a persona.</li>
+              </ul>
+            </details>
+
+            <div class="field">
+              <label for="prompt">Same user question for both personas</label>
+              <textarea id="prompt" rows="2" maxlength="1200">In 1–2 sentences, how can I prepare for a difficult exam next week?</textarea>
+            </div>
+            <div class="persona-grid">
+              <div class="field">
+                <label for="system-a">System prompt for Persona A</label>
+                <textarea id="system-a" rows="4" maxlength="1600">You are a careful university tutor. Explain clearly, use measured language, and support the learner without overstating certainty.</textarea>
+              </div>
+              <div class="field">
+                <label for="system-b">System prompt for Persona B</label>
+                <textarea id="system-b" rows="4" maxlength="1600">You are an enthusiastic peer study partner. Use a relaxed conversational style and encourage the learner while still being accurate.</textarea>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button id="generate" type="button" class="btn-uga">Generate both answers</button>
+              <button id="example" type="button" class="btn-uga-outline">Use practice answers</button>
+            </div>
+            <p class="field-hint">Your question and system prompts are sent to the model service; your annotations stay on this page. Practice answers were written by the course team for when the service can't be reached. They don't change when you edit the prompts.</p>
+            <p id="status" class="field-hint" role="status" aria-live="polite"></p>
+            <p id="error" class="error-text" role="alert"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 2 -->
+      <section id="stage2" class="stage" aria-labelledby="stage2-title">
+        <div class="stage-num" aria-hidden="true">2</div>
+        <div class="stage-body">
+          <h3 id="stage2-title" class="stage-title" tabindex="-1">Annotate the language</h3>
+          <div class="stage-content">
+            <p id="stage2-lock" class="lock-note"><span aria-hidden="true">🔒</span> Locked. This step opens when you generate two answers (or use the practice answers) in Step 1.</p>
+            <div id="stage2-content" hidden>
+              <p>Read the two answers side by side, the way a linguist would. The question isn't which answer is better, but <em>how</em> each one makes the speaker sound like a particular kind of person. Look for small, specific choices: a modal verb such as <em>could</em> or <em>should</em>, an exclamation mark, a pronoun, a casual word where a formal one was possible.</p>
+              <p>To annotate, <strong>drag across a few words</strong> in either answer. A small window opens with your phrase filled in. Choose the kind of feature it shows, then write a sentence or two linking the wording to the persona: what does this choice suggest about the speaker's role, attitude, or relationship with you? Your annotations are listed under each answer and highlighted in yellow in the text. On a touchscreen or keyboard, use the <strong>Annotate</strong> button under an answer and type the exact words.</p>
+              <div class="explanation">
+                <strong>Five kinds of feature to look for</strong>
+                <ul class="feature-list">
+                  <li><strong>Address and relationship:</strong> how the speaker refers to you or includes you (“you”, “we”, “let’s”). Does it sound like an expert advising you, or a friend alongside you?</li>
+                  <li><strong>Certainty and hedging:</strong> how strongly a claim or suggestion is made (cautious “could”, “might”, “it may help” versus direct “will” or a bare command).</li>
+                  <li><strong>Register and vocabulary:</strong> formal, technical or conversational word choices (“retrieval practice” versus “quiz yourself”).</li>
+                  <li><strong>Evaluation and affect:</strong> words and punctuation that show judgement or feeling (“great”, “tricky”, an exclamation mark).</li>
+                  <li><strong>Politeness and directness:</strong> how an instruction is softened or made direct (“you might consider” versus “do this”).</li>
+                </ul>
+              </div>
+              <details class="glossary-box">
+                <summary>Worked example: from phrase to annotation</summary>
+                <p><strong>Phrase:</strong> “You could” in the Persona A practice answer.<br>
+                  <strong>Feature:</strong> Certainty and hedging.<br>
+                  <strong>Explanation:</strong> “Could” offers a suggestion instead of a command. This cautious wording leaves the decision to the learner, which fits a careful tutor who doesn't want to overstate what will work.</p>
+                <p>This is a teaching example, not a claim about your own generated answer. Use phrases that actually appear in your answers. If you see no clear difference between the personas, that is a finding too: explain it with language evidence.</p>
+              </details>
+
+              <div class="persona-grid">
+                <section class="persona-column" aria-labelledby="persona-a-title">
+                  <h4 id="persona-a-title" class="persona-heading">Persona A</h4>
+                  <ol class="chat-log chat-log--static" id="log-a" tabindex="0" aria-label="Persona A answer"></ol>
+                  <div class="btn-row"><button id="annotate-a" type="button" class="btn-uga-outline" data-annotate="a">Annotate a phrase in A</button></div>
+                  <h5 class="evidence-heading">Evidence from Persona A</h5>
+                  <ol id="annotations-a" class="evidence-list" aria-label="Evidence from Persona A"></ol>
+                </section>
+                <section class="persona-column" aria-labelledby="persona-b-title">
+                  <h4 id="persona-b-title" class="persona-heading">Persona B</h4>
+                  <ol class="chat-log chat-log--static" id="log-b" tabindex="0" aria-label="Persona B answer"></ol>
+                  <div class="btn-row"><button id="annotate-b" type="button" class="btn-uga-outline" data-annotate="b">Annotate a phrase in B</button></div>
+                  <h5 class="evidence-heading">Evidence from Persona B</h5>
+                  <ol id="annotations-b" class="evidence-list" aria-label="Evidence from Persona B"></ol>
+                </section>
+              </div>
+              <p id="annotate-status" class="field-hint" role="status" aria-live="polite"></p>
+
+              <div class="discussion-box">
+                <h4>💬 Discussion question (group activity)</h4>
+                <p>Compare your annotations with a neighbour's. Did you pick out the same phrases? When you picked the same phrase, did you read it the same way? Which kinds of feature changed most between the two personas, and which stayed the same?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 3 -->
+      <section id="stage3" class="stage" aria-labelledby="stage3-title">
+        <div class="stage-num" aria-hidden="true">3</div>
+        <div class="stage-body">
+          <h3 id="stage3-title" class="stage-title" tabindex="-1">Change one thing and compare again</h3>
+          <div class="stage-content">
+            <p id="stage3-lock" class="lock-note"><span aria-hidden="true">🔒</span> Locked. This step opens when you have two answers to compare in Step 2.</p>
+            <div id="stage3-content" hidden>
+              <p>One pair of answers is a single observation. To find out what the system prompt is really doing, change <strong>one</strong> thing in Step 1 and generate again. Keep the question the same. For example, remove “use measured language” from Persona A, make Persona B “a strict coach”, or swap the two prompts. Then look for your Step 2 features in the new answers: did the hedges disappear? Did “let’s” move to the other persona?</p>
+              <p>Also try generating again <em>without changing anything</em>. The model picks each word by sampling from a probability distribution (Activity 11B shows how), so the same prompts can give different wording on each run. A feature that appears every time for one persona is probably coming from the system prompt. A feature that comes and goes may just be chance.</p>
+              <p>When a new pair of answers loads, the previous pair and its annotations move to <strong>Saved comparisons</strong> below. Annotate the new pair too, so you can compare evidence across runs.</p>
+              <div class="explanation">
+                <strong>A fair test changes one thing.</strong> If you edit both system prompts and the question at the same time, you can't tell which edit caused which change in the wording. Change one variable, keep the rest fixed, and repeat the run before drawing a conclusion.
+              </div>
+              <div class="btn-row">
+                <button id="save-pair" type="button" class="btn-uga-outline">Keep this comparison</button>
+                <button id="download" type="button" class="btn-uga">Download my work</button>
+              </div>
+              <p class="field-hint">“Keep this comparison” saves a snapshot of the current answers and annotations below without generating again; click it again after more annotating to update the snapshot. “Download my work” saves every comparison, prompt, answer and annotation as one file. Nothing is submitted, and comparisons are lost if you close or reload the page.</p>
+              <p id="save-status" class="field-hint" role="status" aria-live="polite"></p>
+              <div id="history-panel" hidden>
+                <h4 class="persona-heading">Saved comparisons</h4>
+                <div id="history"></div>
+              </div>
+              <div class="discussion-box">
+                <h4>💬 Discussion question (group activity)</h4>
+                <p>Which of your Step 2 features came back when you generated again, and which disappeared? Share the system prompt edit that made the biggest difference to the wording. Was it the edit you expected?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <dialog id="annotation-dialog" class="annotation-dialog" aria-labelledby="dialog-title">
+      <form id="annotation-form" method="dialog" novalidate>
+        <h3 id="dialog-title" class="dialog-title">Annotate Persona A</h3>
+        <div class="field">
+          <label for="quote">Exact phrase</label>
+          <textarea id="quote" rows="2" maxlength="1600" aria-describedby="quote-check"></textarea>
+          <p id="quote-check" class="field-hint" role="status"></p>
+        </div>
+        <div class="field">
+          <label for="category">Feature</label>
+          <select id="category" aria-describedby="feature-help">
+            <option value="address">Address and relationship</option>
+            <option value="certainty">Certainty and hedging</option>
+            <option value="register">Register and vocabulary</option>
+            <option value="evaluation">Evaluation and affect</option>
+            <option value="politeness">Politeness and directness</option>
+            <option value="other">Other</option>
+          </select>
+          <p id="feature-help" class="field-hint"></p>
+        </div>
+        <div class="field">
+          <label for="interpretation">How does this phrase suggest a persona?</label>
+          <p id="interpretation-help" class="field-hint">Explain the wording, then link it to a role, attitude or relationship. For example: “Could” makes the advice sound cautious, fitting a careful tutor.</p>
+          <textarea id="interpretation" rows="3" maxlength="1600" aria-describedby="interpretation-help annotation-error"></textarea>
+        </div>
+        <p id="annotation-error" class="error-text" role="alert"></p>
+        <div class="btn-row">
+          <button id="annotate" type="submit" class="btn-uga">Add annotation</button>
+          <button id="cancel-annotation" type="button" class="btn-reset">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+  </section>
+
+  <details class="glossary-box mx-auto week11-support">
+    <summary>Instructor connection settings</summary>
+    <div class="field">
+      <label for="endpoint">Course service URL</label>
+      <input id="endpoint" type="url" placeholder="https://your-course-service.workers.dev">
+    </div>
+    <div class="btn-row">
+      <button id="connect" type="button" class="btn-uga-outline">Connect</button>
+      <button id="disconnect" type="button" class="btn-uga-outline">Disconnect</button>
+    </div>
+    <p id="connection" class="field-hint" role="status"></p>
+  </details>
+
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <ol>
+      <li>Which phrases suggest each persona? Quote at least one from each answer.</li>
+      <li>Did changing a system prompt change the language? Cite an example of a feature that changed and one that stayed the same.</li>
+      <li>Would another generation support the same interpretation? What does that tell you about how reliably a system prompt controls a persona?</li>
+    </ol>
+    <div class="reflection-notes field">
+      <label for="reflection">Write down your thoughts</label>
+      <textarea id="reflection" rows="5" maxlength="4000"></textarea>
+      <div class="btn-row">
+        <button class="btn-uga" type="button" data-download-notes>Download my notes</button>
+        <span class="field-hint" role="status" data-download-status></span>
+      </div>
+      <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
+  </section>
+</main>
+
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading">
+  <div class="applet-feedback-card__content">
+    <div>
+      <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+      <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a>
+    </div>
+    <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2011A%3A%20Style%20and%20Persona&amp;applet=Activity%2011A%3A%20Style%20and%20Persona&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_11%2F11A_style_persona.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a>
+  </div>
+</section>
+<footer class="source-card" aria-labelledby="sources-title">
+  <h3 id="sources-title">Sources &amp; permissions</h3>
+  <p>Live generation uses the model identified beside each output, hosted through <a href="https://developers.cloudflare.com/workers-ai/">Cloudflare Workers AI</a>. The service is configured for <a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct">Meta Llama 3.1 8B Instruct</a>, subject to its <a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/LICENSE">community license</a>. Classroom prompts and practice examples were authored for this activity. Generated responses may not follow a persona consistently.</p>
+</footer>
+<script src="../reflection-notes.js" defer></script><script src="11a/live.js" defer></script><script src="11a/applet.js" defer></script>
+</body>
 </html>

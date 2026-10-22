@@ -15,7 +15,7 @@ Run `npm test` in this directory. The suite covers probability transformations, 
 3. With the account owner's approval, deploy using `wrangler deploy`.
 4. Create a fresh random session secret through `wrangler secret put SESSION_SECRET` using stdin. Never commit it or copy it into a page.
 5. Verify `/api/health`, then make bounded test calls for both modes.
-6. Set the deployed origin as the default endpoint in `docs/week_11/common.mjs` so students need not configure it. Instructor connection settings can override it for testing.
+6. Set the deployed origin as the default endpoint in `docs/week_11/11a/live.js` (`DEFAULT`) so students need not configure it. Instructor connection settings can override it for testing.
 7. Repeat browser checks using the real service, then publish the static pages through the normal course review process.
 
 Defaults: no app-level daily or per-session cumulative request cap (DAILY_REQUEST_LIMIT=0 and SESSION_REQUEST_LIMIT=0). The account owner requested removing those extra limits on 2026-10-17. Transient capacity protection remains: 120 requests per minute, 30 concurrent requests and 1,024 maximum output tokens per request. Positive daily/session values can optionally re-enable a cap. The health endpoint reports effective limits; zero means unlimited for daily/session only. A comparison in 11A uses two requests. Quotas bound requests, not currency or provider neuron consumption; they are not a monetary spending cap. Existing provider quotas and account billing still apply. Set `ENABLED=false` to pause inference. No billing configuration is changed by this code.

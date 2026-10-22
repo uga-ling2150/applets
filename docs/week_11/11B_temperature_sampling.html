@@ -1,331 +1,284 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Activity 11B: Temperature Sampling</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="../style.css?v=20261022-ordered-flow" />
-    <link rel="stylesheet" href="lab.css" />
-    <link rel="stylesheet" href="sampling-meeting.css?v=20261022-ordered-flow" />
-    <script type="module" src="sampling.mjs?v=20261022-ordered-flow"></script>
-    <script src="../reflection-notes.js" defer></script>
-  </head>
-  <body class="iv-lab">
-    <a class="skip-link" href="#main">Skip to activity</a>
-    <header class="page-header">
-      <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
-      <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
-    </header>
-    <main id="main" tabindex="-1">
-      <section class="lesson-container" aria-labelledby="activity-title">
-        <h3 id="activity-title" class="h3 mb-4">
-          Activity 11B: Temperature Sampling
-        </h3>
-        <h4 class="uga-accent">Learning Objectives</h4>
-        <ul>
-          <li><strong>Explain</strong> how sampling settings affect word choice.</li>
-          <li><strong>Compare</strong> repeated outputs using language evidence.</li>
-        </ul>
-        <h4 class="uga-accent">Background</h4>
-        <p>Language models choose what comes next from a set of possibilities. This activity shows how sampling settings change those possibilities.</p>
-        <p>First, use a small model that predicts from just the previous word. Then compare repeated outputs from a real language model.</p>
-        <h4 class="uga-accent">Instructions</h4>
-        <ol>
-          <li><strong>Generate a sentence.</strong> Keep the default training sentences and click <strong>Generate a whole sentence</strong>.</li>
-          <li><strong>Explore one step.</strong> Select a generation step, change one setting, and compare the probability bars.</li>
-          <li><strong>Compare real outputs.</strong> Complete part 1 to unlock part 2. Keep the prompt fixed, generate twice per setting, and quote examples of wording differences.</li>
-        </ol>
-      </section>
-      <section class="app-wrapper" aria-labelledby="applet-title">
-        <div class="hero">
-          <div class="hero-text">
-            <h2 id="applet-title">Explore <span>the next word</span></h2>
-            <p>
-              Connect probability distributions to repeated language choices.
-            </p>
-          </div>
-        </div>
-        <h3 class="stage-title"><span class="stage-num">1</span> Inspect a tiny bigram model</h3>
-        <h4 class="flow-substep">A. Generate a sentence</h4>
-        <p class="field-hint">For your first try, use the ready-made examples. Generate a sentence, then inspect one word choice.</p>
-        <details id="training-options" class="glossary-box flow-options">
-          <summary>View or edit training examples (optional)</summary>
-        <p id="corpus-help" class="field-hint">These sentences are examples the model learns from. It counts which words follow each other; repeated sentences count again.</p>
-        <p id="corpus-example" class="field-hint"><strong>Default example:</strong> “study” is followed by “language” 3 out of 8 times → <strong>37.5% base probability</strong>.</p>
-        <div class="field">
-          <label for="corpus">Training sentences (one per line)</label
-          ><textarea id="corpus" rows="5" maxlength="8000" aria-describedby="corpus-help corpus-example corpus-actions">
-we study language
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity 11B: Temperature Sampling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="11b/applet.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main id="main" tabindex="-1">
+  <section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 11B: Temperature Sampling</h3>
+    <h4 class="uga-accent">Learning Objectives</h4>
+    <ul>
+      <li><strong>Explain</strong> how a language model turns counts from its training data into next-word probabilities, and how it chooses a word from them.</li>
+      <li><strong>Distinguish</strong> settings that reshape the probabilities (temperature) from settings that remove candidates (top-k and top-p).</li>
+      <li><strong>Compare</strong> repeated outputs from a real language model, using quoted language as evidence of how predictable or distinctive the wording is.</li>
+    </ul>
+    <h4 class="uga-accent">Background</h4>
+    <p>Language models write one piece at a time. At each step they give every possible next word a probability, choose one, and repeat. How they make that choice is controlled by <em>sampling settings</em>, of which <em>temperature</em> is the best known. The same model with the same prompt can sound careful and repetitive, or varied and surprising, depending on these settings.</p>
+    <p>You'll start with a tiny model that you can see inside completely, and finish by testing the same settings on a real language model.</p>
+    <h4 class="uga-accent">Instructions</h4>
+    <ol>
+      <li><strong>Generate a sentence.</strong> Keep the default training sentences and click <strong>Generate a whole sentence</strong>. Try it a few times.</li>
+      <li><strong>Inspect a word choice.</strong> Pick one step of your sentence, change one setting at a time, and compare the probability charts.</li>
+      <li><strong>Compare real outputs.</strong> This step unlocks after you finish a sentence in step 1. Keep the prompt fixed, generate at least twice per setting, and quote examples of how the wording changes.</li>
+    </ol>
+  </section>
+
+  <section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero">
+      <div class="hero-text">
+        <h2 id="applet-title">Explore <span>the next word</span></h2>
+        <p>Connect probability distributions to repeated language choices.</p>
+      </div>
+    </div>
+
+    <div class="rack">
+      <!-- STAGE 1 -->
+      <section id="stage1" class="stage active" aria-labelledby="stage1-title">
+        <div class="stage-num" aria-hidden="true">1</div>
+        <div class="stage-body">
+          <h3 id="stage1-title" class="stage-title" tabindex="-1">Generate a sentence with a tiny model</h3>
+          <div class="stage-content">
+            <p>Every language model, from this tiny one to the model behind a chatbot, does the same basic job: given the text so far, predict what comes next. It doesn't commit to one answer. It gives every possible next word a probability, picks one, adds it to the text, and repeats.</p>
+            <p>This is a <strong>bigram model</strong>, the simplest kind: it only looks at the one previous word, called the <em>context</em>. It learns by counting. In the eight training sentences, “study” is followed by “language” 3 times out of 8, so after “study” the model gives “language” a 3 ÷ 8 = 37.5% probability, and “speech”, “syntax”, “meaning”, “conversation” and “together” 12.5% each. Every sentence starts from an invisible <code>&lt;start&gt;</code> marker and ends when the model picks the <code>&lt;end&gt;</code> marker.</p>
+            <p>Click <strong>Generate a whole sentence</strong>. The model begins at <code>&lt;start&gt;</code>, draws a word, makes that word the new context, draws again, and stops when it draws <code>&lt;end&gt;</code>. Generate a few times. The model never changes, but the sentences do, because each step is a weighted random draw: like rolling a die whose sides are sized by probability.</p>
+            <div class="explanation">
+              <strong>Probability isn't destiny.</strong> “Language” is the single most likely word after “study”, but at 37.5% it will be chosen less than half the time. The other 62.5% of the time, a less likely word wins. That is why the same model gives different sentences.
+            </div>
+            <details id="training-options" class="glossary-box">
+              <summary>View or edit the training sentences (optional)</summary>
+              <p id="corpus-help">These are all the model knows. It counts which word follows which; repeating a sentence counts its word pairs again and makes them more likely. If you edit them, click <strong>Build bigram model</strong> before generating.</p>
+              <div class="field">
+                <label for="corpus">Training sentences (one per line)</label>
+                <textarea id="corpus" rows="8" maxlength="8000" aria-describedby="corpus-help">we study language
 we study language
 we study language
 we study speech
 we study syntax
 we study meaning
 we study conversation
-we study together</textarea
-          >
-        </div>
-        <p id="corpus-actions" class="field-hint">For your first try, keep these examples and choose <strong>Generate a whole sentence</strong>. If you edit them, choose <strong>Build bigram model</strong> first.</p>
-        <div class="btn-row"><button id="train" type="button" class="btn-uga-outline">
-          Build bigram model
-        </button></div>
-        </details>
-        <div class="btn-row"><button id="many" type="button" class="btn-uga">Generate a whole sentence</button></div>
-        <div id="word-options" hidden>
-          <p class="field-hint">You can also follow one word at a time or restart the sentence. Saved real-model results remain available.</p>
-          <div class="btn-row"><button id="sample" type="button" class="btn-uga-outline">Generate next word</button><button id="clear" type="button" class="btn-reset">Restart sentence</button></div>
-        </div>
-        <p id="status" class="field-hint" role="status" aria-live="polite"></p>
-        <p id="error" class="error-text" role="alert"></p>
-        <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p>
-        <div id="inspection-area" hidden>
-          <section id="inspect-choice" aria-labelledby="inspect-title">
-            <h4 id="inspect-title" class="flow-substep">B. Inspect a word choice</h4>
-            <p class="field-hint">Choose a saved step. Its previous word is the context used to predict the next word.</p>
-<div class="field"><label for="inspect-step">Inspect a generation step</label><select id="inspect-step" disabled></select></div>
-        <div class="field">
-          <label for="context-view">Previous word (context) <span class="term-help" tabindex="0" role="note" aria-label="Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.">?<span class="term-definition">Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.</span></span></label
-          ><output id="context-view" aria-describedby="context-example">&lt;start&gt;</output><select id="context" hidden aria-hidden="true" tabindex="-1"></select>
-          <p id="context-example" class="field-hint">The last word becomes the context: “we study” → context “study” → choose the next word.</p>
-        </div>
-          </section>
-          <section aria-labelledby="settings-title">
-            <h4 id="settings-title" class="flow-substep">C. Change one setting and compare</h4>
-            <p class="field-hint">Start with Temperature. The charts update for the same step; the saved sentence stays unchanged. Generate again to sample with the new settings.</p>
-          <div class="field">
-            <label for="temperature"
-              >Temperature (0 selects the most likely word) <span class="term-help" tabindex="0" role="note" aria-label="Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.">?<span class="term-definition">Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.</span></span></label
-            ><input
-              id="temperature"
-              type="number"
-              min="0"
-              max="2"
-              step="0.1"
-              value="1"
-            />
-          </div>
-            <div id="filter-options">
-              <div class="lab-grid sampling-controls sampling-filters">
-          <div class="field">
-            <label for="topk">Top-k (0 keeps all candidates) <span class="term-help" tabindex="0" role="note" aria-label="Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.">?<span class="term-definition">Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.</span></span></label
-            ><input id="topk" type="number" min="0" max="50" value="0" />
-          </div>
-          <div class="field">
-            <label for="nucleus">Nucleus notation <span class="term-help" tabindex="0" role="note" aria-label="Top-p and top-q are two names for the same nucleus-mass rule in this activity.">?<span class="term-definition">Top-p and top-q are two names for the same nucleus-mass rule in this activity.</span></span></label>
-            <select id="nucleus"><option value="topp">Top-p</option><option value="topq">Top-q</option></select>
-          </div>
-          <div class="field">
-            <label for="topp" id="cutoff-label">Top-p cumulative probability <span class="term-help" tabindex="0" role="note" aria-label="Top-p keeps the smallest probability-ranked prefix reaching the chosen cumulative mass, after top-k normalization.">?<span class="term-definition">Top-p keeps the smallest probability-ranked prefix reaching the chosen cumulative mass, after top-k normalization.</span></span></label
-            ><input
-              id="topp"
-              type="number"
-              min="0.01"
-              max="1"
-              step="0.01"
-              value="1"
-            />
-          </div>
+we study together</textarea>
               </div>
-        <p class="field-hint">
-          Temperature → top-k → nucleus cutoff → normalize. Use one setting change at a time. A greater probability does not guarantee that a word is sampled.
-        </p>
+              <div class="btn-row"><button id="train" type="button" class="btn-uga-outline">Build bigram model</button></div>
+            </details>
+            <details class="glossary-box">
+              <summary>Technical glossary</summary>
+              <ul>
+                <li><strong>Language model:</strong> A system that assigns probabilities to possible next words (or tokens) given the text so far.</li>
+                <li><strong>Bigram:</strong> A pair of adjacent words, such as “study language”. A bigram model predicts each word from the previous word only.</li>
+                <li><strong>Context:</strong> The text a model uses to make its prediction. Here, just the previous word; in a real chatbot, the whole conversation so far.</li>
+                <li><strong>Probability distribution:</strong> The full list of candidate next words with their probabilities, which add up to 100%.</li>
+                <li><strong>Sampling:</strong> Choosing the next word at random, in proportion to its probability.</li>
+                <li><strong>&lt;start&gt; and &lt;end&gt;:</strong> Markers for the beginning and end of a sentence, so the model can learn which words begin sentences and when to stop.</li>
+              </ul>
+            </details>
+            <div class="btn-row">
+              <button id="many" type="button" class="btn-uga">Generate a whole sentence</button>
+              <button id="sample" type="button" class="btn-uga-outline" hidden>Generate next word only</button>
+              <button id="clear" type="button" class="btn-reset" hidden>Restart sentence</button>
             </div>
-          </section>
-<div id="probability-panel"><div id="probability-charts"></div><details class="glossary-box"><summary>Exact probabilities and observed counts for this context</summary>
-        <div
-          class="table-scroll"
-          role="region"
-          aria-label="Scrollable probability table"
-          tabindex="0"
-        >
-          <table class="prob-table">
-            <caption>
-              Current probabilities and actual draws at the selected context
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Word</th>
-                <th scope="col">Count</th>
-                <th scope="col">Base</th>
-                <th scope="col">After temperature</th>
-                <th scope="col">Kept</th>
-                <th scope="col">Final</th>
-                <th scope="col">Observed</th>
-              </tr>
-            </thead>
-            <tbody id="distribution"></tbody>
-          </table>
-        </div>
-        <p id="sample-status" class="field-hint" role="status"></p>
-        </details></div>
-        <details class="glossary-box">
-          <summary>How the probabilities are calculated</summary>
-          <p>
-            Base probability is the bigram count divided by the total count for
-            this context. For temperature T &gt; 0, the new weight is p raised
-            to the power 1/T. Normalize these weights to sum to one. Top-q uses the same cumulative-mass rule as top-p here. Top-k keeps
-            the k highest probabilities; top-p then keeps the smallest prefix
-            whose cumulative probability reaches p, after normalizing the top-k
-            candidates. Finally, normalize the remaining weights again.
-            Temperature zero uses greedy selection. This order describes the
-            teaching simulation; provider implementations may differ. This model samples words; real LLMs usually sample tokens and use longer contexts.
-          </p>
-        </details>
-        </div>
-        <h3 class="stage-title"><span class="stage-num">2</span> Compare real LLM generations</h3><p id="unlock-status" class="field-hint" role="status">Complete a sentence in part 1 to unlock this part. The end marker counts as completion.</p><fieldset id="live-activity" disabled hidden><legend class="visually-hidden">Real LLM comparison</legend>
-        <div class="field">
-          <label for="prompt">Prompt held constant across runs</label
-          ><textarea id="prompt" rows="3" maxlength="1200">
-Suggest a short opening sentence for a story about a student who finds an unfamiliar notebook.</textarea
-          >
-        </div>
-        <div class="lab-grid sampling-controls">
-          <div class="field">
-            <label for="live-temperature">LLM temperature</label
-            ><input
-              id="live-temperature"
-              type="number"
-              min="0"
-              max="2"
-              step="0.1"
-              value="0.7"
-            />
+            <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p>
+            <p id="status" class="field-hint" role="status" aria-live="polite"></p>
+            <p id="error" class="error-text" role="alert"></p>
+            <div class="discussion-box">
+              <h4>💬 Discussion question (group activity)</h4>
+              <p>Generate eight sentences and tally the last word of each. Did you get “language” about 3 times out of 8? Compare your tally with a neighbour's. Why are they different, even though you used the same model?</p>
+            </div>
           </div>
-          <div class="field">
-            <label for="live-topk">LLM top-k</label
-            ><input id="live-topk" type="number" min="1" max="50" value="50" />
-          </div>
-          <div class="field">
-            <label for="live-nucleus">LLM nucleus notation</label>
-            <select id="live-nucleus"><option value="topp">Top-p</option><option value="topq">Top-q</option></select>
-          </div>
-          <div class="field">
-            <label for="live-topp" id="live-cutoff-label">LLM top-p</label
-            ><input
-              id="live-topp"
-              type="number"
-              min="0.01"
-              max="1"
-              step="0.01"
-              value="1"
-            />
-          </div>
-        </div>
-        <div class="btn-row">
-          <button id="generate" type="button" class="btn-uga">
-            Generate and keep result</button>
-        </div>
-        <p id="live-status" class="field-hint" role="status"></p>
-        <p id="live-error" class="error-text" role="alert"></p>
-        <p class="field-hint">
-          Your prompt and settings go to the model service. Repeat each
-          condition before comparing.
-        </p>
-        <div id="generations"></div><div class="field"><label for="language-evidence">Compare the language: quote a phrase and explain whether it sounds generic, predictable or distinctive. Use several outputs as evidence.</label><textarea id="language-evidence" rows="3" maxlength="4000"></textarea></div></fieldset><div class="btn-row"><button id="download" type="button" class="btn-uga-outline">
-            Download my work
-          </button></div>
-
-      </section>
-      <details class="glossary-box mx-auto week11-support">
-          <summary>Instructor connection settings</summary>
-          <div class="field">
-            <label for="endpoint">Course service URL</label
-            ><input
-              id="endpoint"
-              type="url"
-              placeholder="https://your-course-service.workers.dev"
-            />
-          </div>
-          <div class="btn-row"><button id="connect" type="button" class="btn-uga-outline">
-            Connect
-          </button><button id="disconnect" type="button" class="btn-uga-outline">Disconnect</button></div>
-          <p id="connection" class="field-hint" role="status"></p>
-
-        </details>
-<section class="reflection-container" aria-labelledby="reflection-title">
-        <h3 id="reflection-title" class="uga-accent mb-3">
-          Reflection &amp; Discussion Guide
-        </h3>
-        <ol>
-          <li>
-            Which settings remove candidates? Which reshape probabilities?
-          </li>
-          <li>Why do sample counts vary?</li>
-          <li>
-            Does lower temperature produce more predictable or generic wording? Cite repeated outputs and any exceptions.
-          </li>
-        </ol>
-        <div class="reflection-notes field">
-          <label for="reflection">Write down your thoughts</label
-          ><textarea id="reflection" rows="5" maxlength="4000"></textarea>
-          <div class="btn-row">
-            <button class="btn-uga" type="button" data-download-notes>
-              Download my notes</button
-            ><span class="field-hint" role="status" data-download-status></span>
-          </div>
-          <p class="field-hint">
-            Your notes stay in this browser and are not submitted to your
-            instructor. Download them before you close this page.
-          </p>
         </div>
       </section>
-    </main>
-    <section
-      class="applet-feedback-card applet-feedback-card--followed"
-      aria-labelledby="applet-feedback-heading"
-    >
-      <div class="applet-feedback-card__content">
-        <div>
-          <h2 id="applet-feedback-heading">Help us improve this applet</h2>
-          <a
-            class="applet-feedback-card__tutorial"
-            href="https://kaltura.uga.edu/media/t/1_bhor4qfq"
-            target="_blank"
-            rel="noopener noreferrer"
-            >New to GitHub? Watch the one-minute account setup guide
-            <span class="visually-hidden">(opens in a new tab)</span></a
-          >
+
+      <!-- STAGE 2 -->
+      <section id="stage2" class="stage" aria-labelledby="stage2-title">
+        <div class="stage-num" aria-hidden="true">2</div>
+        <div class="stage-body">
+          <h3 id="stage2-title" class="stage-title" tabindex="-1">Inspect a word choice and reshape it</h3>
+          <div class="stage-content">
+            <p id="stage2-lock" class="lock-note"><span aria-hidden="true">🔒</span> Locked. This step opens when you generate a sentence in Step 1.</p>
+            <div id="inspection-area" hidden>
+              <p>Each word in your sentence was one draw from a probability distribution. Choose a step to see the distribution it was drawn from. The <strong>left chart</strong> shows the base probabilities, straight from the training counts. The <strong>right chart</strong> shows the final probabilities after the sampling settings are applied. With the defaults (temperature 1, top-k 0, top-p 1) the two charts are identical.</p>
+              <p>Now change <strong>one setting at a time</strong> and watch the right chart. Your saved sentence doesn't change; the charts show what the model <em>would</em> draw from at this step under the new settings. Generate again in Step 1 to actually sample with them.</p>
+              <div class="explanation">
+                <strong>Two kinds of setting</strong>
+                <ul class="setting-list">
+                  <li><strong>Temperature reshapes</strong> the distribution without removing anything. Below 1, likely words become likelier and unlikely ones rarer: at 0.5, “language” after “study” rises from 37.5% to about 64%. At 0 the model always takes the top word (greedy decoding). Above 1 the distribution flattens: at 2, “language” falls to about 26%, closer to the others.</li>
+                  <li><strong>Top-k removes</strong> candidates by rank. It keeps only the k most likely words and rescales them to add up to 100%. Top-k 1 is the same as greedy decoding; 0 keeps every word.</li>
+                  <li><strong>Top-p removes</strong> candidates by probability mass. It keeps the most likely words until together they reach p, and drops the long tail of unlikely words. At top-p 0.5 after “study”, it keeps “language” (37.5%) and just enough of the next words to reach 50%. Top-q is another name for the same rule, used in some research papers.</li>
+                </ul>
+                <p class="mb-0">The settings are applied in order: temperature, then top-k, then top-p, then the remaining probabilities are rescaled to 100%.</p>
+              </div>
+
+              <div class="field">
+                <label for="inspect-step">Step of your sentence</label>
+                <select id="inspect-step"></select>
+                <p class="field-hint">Context (the previous word): <output id="context-view">&lt;start&gt;</output>. In “we study …”, the context for the third word is “study”.</p>
+                <p id="inspect-status" class="field-hint" role="status"></p>
+              </div>
+              <div class="sampling-controls">
+                <div class="field">
+                  <label for="temperature">Temperature</label>
+                  <input id="temperature" type="number" min="0" max="2" step="0.1" value="1" aria-describedby="settings-hint">
+                </div>
+                <div class="field">
+                  <label for="topk">Top-k</label>
+                  <input id="topk" type="number" min="0" max="50" value="0" aria-describedby="settings-hint">
+                </div>
+                <div class="field">
+                  <label for="nucleus">Nucleus notation</label>
+                  <select id="nucleus"><option value="topp">Top-p</option><option value="topq">Top-q</option></select>
+                </div>
+                <div class="field">
+                  <label for="topp" id="cutoff-label">Top-p</label>
+                  <input id="topp" type="number" min="0.01" max="1" step="0.01" value="1" aria-describedby="settings-hint">
+                </div>
+              </div>
+              <p id="settings-hint" class="field-hint">Temperature 0–2 (0 = always the top word). Top-k 0–50 (0 = keep all). Top-p above 0 up to 1 (1 = keep all).</p>
+              <p id="settings-error" class="error-text" role="alert"></p>
+
+              <div id="probability-panel">
+                <div id="probability-charts"></div>
+                <details class="glossary-box">
+                  <summary>Exact probabilities and observed counts for this context</summary>
+                  <div class="table-scroll" role="region" aria-label="Scrollable probability table" tabindex="0">
+                    <table class="prob-table">
+                      <caption>Current probabilities and actual draws at the selected context</caption>
+                      <thead>
+                        <tr><th scope="col">Word</th><th scope="col">Count</th><th scope="col">Base</th><th scope="col">After temperature</th><th scope="col">Kept</th><th scope="col">Final</th><th scope="col">Observed</th></tr>
+                      </thead>
+                      <tbody id="distribution"></tbody>
+                    </table>
+                  </div>
+                  <p id="sample-status" class="field-hint" role="status"></p>
+                </details>
+              </div>
+              <details class="glossary-box">
+                <summary>How the probabilities are calculated</summary>
+                <p>Base probability is the bigram count divided by the total count for this context. For temperature T &gt; 0, each probability p is raised to the power 1/T and the results are rescaled to sum to one. Top-k keeps the k highest probabilities; top-p then keeps the smallest set of top words whose cumulative probability reaches p, after rescaling the top-k candidates. Finally, the remaining weights are rescaled again. Temperature zero uses greedy selection. This order describes the teaching simulation; provider implementations may differ. This model samples words; real LLMs sample tokens and use much longer contexts.</p>
+              </details>
+              <div class="discussion-box">
+                <h4>💬 Discussion question (group activity)</h4>
+                <p>Which settings remove candidates, and which only reshape the probabilities? Find a setting that makes a word with a non-zero base probability impossible to choose. Then generate a few sentences at temperature 0 and at temperature 2: how do they differ, and why?</p>
+              </div>
+            </div>
+          </div>
         </div>
-        <a
-          class="applet-feedback-card__button"
-          href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2011B%3A%20Temperature%20Sampling&amp;applet=Activity%2011B%3A%20Temperature%20Sampling&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_11%2F11B_temperature_sampling.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Report a problem or give feedback
-          <span class="visually-hidden">(opens in a new tab)</span></a
-        >
+      </section>
+
+      <!-- STAGE 3 -->
+      <section id="stage3" class="stage" aria-labelledby="stage3-title">
+        <div class="stage-num" aria-hidden="true">3</div>
+        <div class="stage-body">
+          <h3 id="stage3-title" class="stage-title" tabindex="-1">Compare real LLM generations</h3>
+          <div class="stage-content">
+            <p id="stage3-lock" class="lock-note"><span aria-hidden="true">🔒</span> Locked. This step opens when you finish a whole sentence in Step 1 (the model has to choose the end marker). Once open, it stays open.</p>
+            <div id="live-activity" hidden>
+              <p>Real chat models work the same way at a much larger scale. Instead of one previous word, their context is everything so far: your prompt and every token they have already written. Instead of a handful of candidates, they score a vocabulary of over 100,000 <em>tokens</em> (words and pieces of words) at every step. The same temperature, top-k and top-p settings are applied to that distribution before each token is drawn.</p>
+              <p>Here you can't see the distribution, only the text it produces, so you have to infer its shape from repeated outputs. Keep the prompt fixed. <strong>Generate at least twice with the same settings</strong>, then change one setting and generate twice more. At low temperature, repeated outputs should be more alike; at high temperature, more varied, and eventually less coherent.</p>
+              <div class="explanation">
+                <strong>Read the outputs as language.</strong> Do low-temperature openings reuse the same familiar phrases? Do high-temperature ones choose rarer words or odd combinations? A model that always takes the most likely continuation tends to sound generic, because the most likely sentence is the one most like everything it has read.
+              </div>
+              <div class="field">
+                <label for="prompt">Prompt held constant across runs</label>
+                <textarea id="prompt" rows="2" maxlength="1200">Suggest a short opening sentence for a story about a student who finds an unfamiliar notebook.</textarea>
+              </div>
+              <div class="sampling-controls">
+                <div class="field">
+                  <label for="live-temperature">LLM temperature</label>
+                  <input id="live-temperature" type="number" min="0" max="2" step="0.1" value="0.7">
+                </div>
+                <div class="field">
+                  <label for="live-topk">LLM top-k</label>
+                  <input id="live-topk" type="number" min="1" max="50" value="50">
+                </div>
+                <div class="field">
+                  <label for="live-nucleus">LLM nucleus notation</label>
+                  <select id="live-nucleus"><option value="topp">Top-p</option><option value="topq">Top-q</option></select>
+                </div>
+                <div class="field">
+                  <label for="live-topp" id="live-cutoff-label">LLM top-p</label>
+                  <input id="live-topp" type="number" min="0.01" max="1" step="0.01" value="1">
+                </div>
+              </div>
+              <div class="btn-row"><button id="generate" type="button" class="btn-uga">Generate and keep result</button></div>
+              <p class="field-hint">Your prompt and settings are sent to the model service. Each result is kept on this page until you close it.</p>
+              <p id="live-status" class="field-hint" role="status"></p>
+              <p id="live-error" class="error-text" role="alert"></p>
+              <ol id="generations" class="generation-list" aria-label="Kept generations"></ol>
+              <div class="field">
+                <label for="language-evidence">Compare the language: quote a phrase and explain whether it sounds generic, predictable or distinctive. Use several outputs as evidence.</label>
+                <textarea id="language-evidence" rows="3" maxlength="4000"></textarea>
+              </div>
+              <div class="discussion-box">
+                <h4>💬 Discussion question (group activity)</h4>
+                <p>Compare your outputs at the lowest and highest temperatures you tried. Quote one phrase that sounds generic and one that sounds distinctive. Did your neighbour's runs at the same settings produce the same phrases?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="btn-row"><button id="download" type="button" class="btn-uga-outline">Download my work</button></div>
+  </section>
+
+  <details class="glossary-box mx-auto week11-support">
+    <summary>Instructor connection settings</summary>
+    <div class="field">
+      <label for="endpoint">Course service URL</label>
+      <input id="endpoint" type="url" placeholder="https://your-course-service.workers.dev">
+    </div>
+    <div class="btn-row">
+      <button id="connect" type="button" class="btn-uga-outline">Connect</button>
+      <button id="disconnect" type="button" class="btn-uga-outline">Disconnect</button>
+    </div>
+    <p id="connection" class="field-hint" role="status"></p>
+  </details>
+
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <ol>
+      <li>Which settings remove candidates? Which reshape probabilities?</li>
+      <li>Why do sample counts vary, even when the probabilities stay the same?</li>
+      <li>Does lower temperature produce more predictable or generic wording? Cite repeated outputs and any exceptions.</li>
+    </ol>
+    <div class="reflection-notes field">
+      <label for="reflection">Write down your thoughts</label>
+      <textarea id="reflection" rows="5" maxlength="4000"></textarea>
+      <div class="btn-row">
+        <button class="btn-uga" type="button" data-download-notes>Download my notes</button>
+        <span class="field-hint" role="status" data-download-status></span>
       </div>
-    </section>
-    <footer class="source-card" aria-labelledby="sources-title">
-      <h3 id="sources-title">Sources &amp; permissions</h3>
-      <p>
-        Live generation uses the model identified beside each output, hosted
-        through
-        <a href="https://developers.cloudflare.com/workers-ai/"
-          >Cloudflare Workers AI</a
-        >. The service is configured for
-        <a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct"
-          >Meta Llama 3.1 8B Instruct</a
-        >, subject to its
-        <a
-          href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/LICENSE"
-          >community license</a
-        >. Classroom prompts and practice examples were authored for this
-        activity. Generated responses may not follow a persona consistently.
-      </p>
-      <p>Top-q follows the nucleus-mass notation in
-        <a href="https://aclanthology.org/2025.naacl-long.469/">Measuring memorization in language models (Appendix F)</a>.
-        The simulation is an original classroom implementation.</p>
-    </footer>
-  </body>
+      <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
+  </section>
+</main>
+
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading">
+  <div class="applet-feedback-card__content">
+    <div>
+      <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+      <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a>
+    </div>
+    <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2011B%3A%20Temperature%20Sampling&amp;applet=Activity%2011B%3A%20Temperature%20Sampling&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_11%2F11B_temperature_sampling.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a>
+  </div>
+</section>
+<footer class="source-card" aria-labelledby="sources-title">
+  <h3 id="sources-title">Sources &amp; permissions</h3>
+  <p>Live generation uses the model identified beside each output, hosted through <a href="https://developers.cloudflare.com/workers-ai/">Cloudflare Workers AI</a>. The service is configured for <a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct">Meta Llama 3.1 8B Instruct</a>, subject to its <a href="https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/blob/main/LICENSE">community license</a>. Classroom prompts were authored for this activity.</p>
+  <p>Top-q follows the nucleus-mass notation in <a href="https://aclanthology.org/2025.naacl-long.469/">Measuring memorization in language models (Appendix F)</a>. The simulation is an original classroom implementation.</p>
+</footer>
+<script src="../reflection-notes.js" defer></script><script src="11a/live.js" defer></script><script src="11b/core.js" defer></script><script src="11b/applet.js" defer></script>
+</body>
 </html>
