@@ -7,3 +7,16 @@
 .chat-turn__text .current-phrase {background:#d2f1d7;outline:2px solid #236b37;}
 #annotation-panel .lab-grid {gap:12px;margin:8px 0;}
 #annotation-panel .field {margin-block:8px;}
+
+/* The phrase highlight is the primary cue; manual quote entry remains available. */
+#annotation-panel .lab-grid {display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px;}
+#annotation-panel .lab-grid .field {display:flex;align-items:center;gap:8px;min-width:0;}
+#annotation-panel .lab-grid label {margin:0;}
+#annotation-panel .lab-grid select {width:auto;max-width:100%;}
+#annotation-panel .quote-entry {margin:8px 0;font-family:"Merriweather Sans",sans-serif;}
+#annotation-panel .quote-entry summary {cursor:pointer;font-size:14px;line-height:1.6;min-height:44px;display:list-item;padding:10px 0;}
+@media(max-width:600px){
+ #annotation-panel .lab-grid {display:grid;grid-template-columns:minmax(0,1fr);}
+ #annotation-panel .lab-grid .field {display:block;}
+ #annotation-panel .lab-grid select {width:100%;}
+}
