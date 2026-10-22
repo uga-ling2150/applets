@@ -90,6 +90,9 @@ try {
    if(!await page.locator('#log-a mark:not(.current-phrase)').count())throw Error('Saved evidence is not highlighted.');
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
+   if(await page.locator('.lesson-container ol li').count()!==3)throw Error('11B introduction must provide three short steps.');
+   if(await page.locator('.lesson-container dl').count())throw Error('Repeated glossary returned to the 11B introduction.');
+   if(await page.locator('.term-help').count()<5)throw Error('Contextual term definitions were removed.');
    const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
    if(subtitle.height>subtitle.line+1)throw Error('11B subtitle wraps prematurely on desktop.');
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
