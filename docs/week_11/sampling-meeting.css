@@ -27,3 +27,14 @@
 /* Match 11A: let the short subtitle use the available width. */
 .app-wrapper .hero-text {width:100%;min-width:0;}
 .app-wrapper .hero-text p {max-width:none;}
+
+/* Reveal existing tools in the order students use them. */
+.flow-substep {margin:20px 0 8px;font-family:"Merriweather Sans",sans-serif;font-size:18px;font-weight:700;}
+.flow-options {margin:12px 0;}
+.flow-options > summary {min-height:44px;padding-block:10px;cursor:pointer;}
+#context-view {display:inline;font-family:"IBM Plex Mono",monospace;font-weight:600;overflow-wrap:anywhere;}
+#context[hidden] {display:none;}
+#inspection-area input#temperature {max-width:220px;}
+.sampling-filters {grid-template-columns:repeat(3,minmax(0,1fr));}
+@media(max-width:800px){.sampling-filters{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:450px){.sampling-filters{grid-template-columns:minmax(0,1fr);}}

@@ -9,7 +9,12 @@ try {
   const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const response=await page.goto(`http://127.0.0.1:8765/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
   if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
-  const states=[['initial',async()=>{}]];
+  const states=[['initial',async()=>{
+   if(pathname.includes('11B_')){
+    if(!await page.locator('#many').isVisible())throw Error('The first generation action is hidden.');
+    for(const id of ['corpus','sample','clear','temperature','topk','live-activity','inspection-area'])if(await page.locator('#'+id).isVisible())throw Error('Too many controls shown before the first sentence: '+id);
+   }
+  }]];
   if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
    const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
    if(subtitle.height>subtitle.line+1)throw Error('Short subtitle wraps early on desktop.');
@@ -102,6 +107,10 @@ try {
    const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
    if(subtitle.height>subtitle.line+1)throw Error('11B subtitle wraps prematurely on desktop.');
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
+   if(!await page.locator('#inspection-area').isVisible()||!await page.locator('#temperature').isVisible())throw Error('Inspection and temperature were not revealed after generation.');
+   if(await page.locator('#context').isVisible()||(await page.locator('#context-view').innerText())!=='study')throw Error('Context should be read-only text for the chosen step.');
+   if(await page.locator('#topk').isVisible())throw Error('Optional filters should start collapsed.');
+   await page.locator('#training-options summary').click();
    if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
    await page.locator('#corpus').fill('we study language\nwe study language\nwe study language\nwe study speech');
    if(!await page.locator('#generate').isDisabled())throw Error('Corpus edit did not relock part 2.');
@@ -131,6 +140,7 @@ try {
    if(saved.settings.temperature!==0.5||saved.rows[0].prob===exported.distribution[0].prob)throw Error('Export rewrote the original sampled step with the preview condition.');
   }]);
   if(pathname.includes('11B_'))states.push(['top-k-cutoff',async()=>{
+   if(!await page.locator('#topk').isVisible())await page.locator('#filter-options summary').click();
    await page.locator('#topk').fill('1');
    const probs=await page.locator('#distribution tr').evaluateAll(ns=>ns.map(n=>Number(n.children[5].textContent.replace('%',''))));
    if(probs[0]!==100||probs.slice(1).some(n=>n!==0))throw Error('Top-k=1 failed to exclude lower candidates.');
@@ -155,6 +165,16 @@ try {
    if(!await page.locator('#generate').isDisabled()||!await page.locator('#sample').isDisabled())throw Error('Corpus edit failed to relock stale activities.');
    await page.locator('#train').click();await page.locator('#many').click();
    if(await page.locator('#generate').isDisabled())throw Error('Rebuilt model could not unlock part 2.');
+  }],['optional-step-and-recovery',async()=>{
+   await page.locator('#word-options summary').click();await page.locator('#clear').click();
+   if(!await page.locator('#inspection-area').isHidden())throw Error('Restart did not return to the first step.');
+   await page.locator('#sample').click();
+   if(!await page.locator('#inspection-area').isVisible())throw Error('Optional word stepping did not reveal inspection.');
+   await page.locator('#temperature').fill('-1');
+   await page.locator('#train').click();
+   if(!await page.locator('#temperature').isVisible())throw Error('Invalid controls were hidden during rebuilding, blocking recovery.');
+   await page.locator('#temperature').fill('1');await page.locator('#many').click();
+   if(await page.locator('#generate').isDisabled())throw Error('Recovered model could not finish a sentence.');
   }]);
   if(pathname.includes('Keyword'))states.push(['second-call',async()=>{
    await page.locator('#step').click();await page.locator('#step').click();

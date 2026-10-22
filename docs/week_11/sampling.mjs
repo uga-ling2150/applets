@@ -72,6 +72,10 @@ function render() {
     'Counts accumulate across generated sentences at this context; changing parameters or rebuilding resets them.';
 }
 function apply() {
+  $("inspection-area").hidden = trace.length === 0;
+  $("inspect-choice").hidden = trace.length === 0;
+  const currentParameters = parameters();
+  $("filter-options").querySelector("summary").textContent = `More settings · Top-k ${$("topk").value || "—"} · ${currentParameters.topq !== undefined ? "Top-q" : "Top-p"} ${$("topp").value || "—"}`;
   const savedStep=trace[Number($("inspect-step").value)];
   const context=savedStep?.context || '<start>';
   try {
@@ -82,6 +86,7 @@ function apply() {
     settings = nextSettings;
     rows = nextRows;
     $("context").value=context;
+    $("context-view").textContent=context;
     appliedInput = {corpus: $("corpus").value, context};
     dirty = false;
     $("probability-panel").hidden = false;
@@ -89,10 +94,11 @@ function apply() {
     $("error").textContent = "";
     $("status").textContent = savedStep
       ? `Saved step ${Number($("inspect-step").value)+1}: context “${context}”; originally sampled “${savedStep.word}” with ${settingsLabel(savedStep.settings)}. Charts use the current controls; the saved sentence is unchanged.`
-      : 'The charts show the sentence-start context. Generate a sentence to inspect later steps.';
+      : 'Generate a sentence to reveal its word choices and probability charts.';
     render();
     for (const id of ["sample", "many", "clear"]) $(id).disabled = false;
   } catch (e) {
+    $("inspection-area").hidden = false;
     $("error").textContent = e.message;
     $("status").textContent = "No current distribution. Fix the settings or rebuild the model. The saved sentence has not changed.";
     $("probability-panel").hidden = true;
@@ -129,6 +135,9 @@ $("corpus").addEventListener("input", () => {
   $("status").textContent = "Corpus changed. Build the model to update the distribution.";
 });
 function restartSentence() {
+  $("inspection-area").hidden = true;
+  $("context-view").textContent = "<start>";
+  $("live-activity").hidden = generations.length === 0;
   sentenceWords=[]; trace=[]; complete=false;
   $("sentence-output").textContent="Sentence not started.";
   $("inspect-step").replaceChildren(); $("inspect-step").disabled=true;
@@ -157,7 +166,7 @@ function draw(n) {
     const branching = n === 1 ? -1 : trace.findIndex(t=>t.rows.length>1);
     $("inspect-step").value=branching>=0?branching:trace.length-1;
     inspect();
-    if(complete) { $("live-activity").disabled=false; $("unlock-status").textContent='Sentence complete: part 2 is unlocked. Change controls to compare this step; rebuild the corpus or restart the sentence to begin again.'; }
+    if(complete) { $("live-activity").hidden=false; $("live-activity").disabled=false; $("unlock-status").textContent='Sentence complete: part 2 is unlocked. Change controls to compare this step; rebuild the corpus or restart the sentence to begin again.'; }
   } catch(e) { $("error").textContent=e.message; }
 }
 function inspect() {
@@ -214,6 +223,7 @@ $("generate").onclick = async () => {
       created: new Date().toISOString(),
     };
     generations.push(record);
+    $("live-activity").hidden = false;
     const article = node("article", undefined, "generation");
     article.append(
       node("h4", `Generation ${generations.length}`),

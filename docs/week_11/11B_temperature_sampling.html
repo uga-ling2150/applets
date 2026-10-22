@@ -14,10 +14,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../style.css?v=20261021-context-fix" />
+    <link rel="stylesheet" href="../style.css?v=20261022-ordered-flow" />
     <link rel="stylesheet" href="lab.css" />
-    <link rel="stylesheet" href="sampling-meeting.css?v=20261022-controls" />
-    <script type="module" src="sampling.mjs?v=20261021-context-fix"></script>
+    <link rel="stylesheet" href="sampling-meeting.css?v=20261022-ordered-flow" />
+    <script type="module" src="sampling.mjs?v=20261022-ordered-flow"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -56,6 +56,10 @@
           </div>
         </div>
         <h3 class="stage-title"><span class="stage-num">1</span> Inspect a tiny bigram model</h3>
+        <h4 class="flow-substep">A. Generate a sentence</h4>
+        <p class="field-hint">For your first try, use the ready-made examples. Generate a sentence, then inspect one word choice.</p>
+        <details id="training-options" class="glossary-box flow-options">
+          <summary>View or edit training examples (optional)</summary>
         <p id="corpus-help" class="field-hint">These sentences are examples the model learns from. It counts which words follow each other; repeated sentences count again.</p>
         <p id="corpus-example" class="field-hint"><strong>Default example:</strong> “study” is followed by “language” 3 out of 8 times → <strong>37.5% base probability</strong>.</p>
         <div class="field">
@@ -75,12 +79,30 @@ we study together</textarea
         <div class="btn-row"><button id="train" type="button" class="btn-uga-outline">
           Build bigram model
         </button></div>
+        </details>
+        <div class="btn-row"><button id="many" type="button" class="btn-uga">Generate a whole sentence</button></div>
+        <details id="word-options" class="glossary-box flow-options">
+          <summary>Word-by-word generation and restart (optional)</summary>
+          <p class="field-hint">To follow each choice yourself, use Generate next word. Restart sentence clears the current sentence; your saved real-model results remain available.</p>
+          <div class="btn-row"><button id="sample" type="button" class="btn-uga-outline">Generate next word</button><button id="clear" type="button" class="btn-reset">Restart sentence</button></div>
+        </details>
+        <p id="status" class="field-hint" role="status" aria-live="polite"></p>
+        <p id="error" class="error-text" role="alert"></p>
+        <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p>
+        <div id="inspection-area" hidden>
+          <section id="inspect-choice" aria-labelledby="inspect-title">
+            <h4 id="inspect-title" class="flow-substep">B. Inspect a word choice</h4>
+            <p class="field-hint">Choose a saved step. Its previous word is the context used to predict the next word.</p>
+<div class="field"><label for="inspect-step">Inspect a generation step</label><select id="inspect-step" disabled></select></div>
         <div class="field">
-          <label for="context">Context for the next generation step <span class="term-help" tabindex="0" role="note" aria-label="Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.">?<span class="term-definition">Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.</span></span></label
-          ><select id="context" aria-describedby="context-example"></select>
+          <label for="context-view">Previous word (context) <span class="term-help" tabindex="0" role="note" aria-label="Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.">?<span class="term-definition">Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.</span></span></label
+          ><output id="context-view" aria-describedby="context-example">&lt;start&gt;</output><select id="context" hidden aria-hidden="true" tabindex="-1"></select>
           <p id="context-example" class="field-hint">The last word becomes the context: “we study” → context “study” → choose the next word.</p>
         </div>
-        <div class="lab-grid sampling-controls">
+          </section>
+          <section aria-labelledby="settings-title">
+            <h4 id="settings-title" class="flow-substep">C. Change one setting and compare</h4>
+            <p class="field-hint">Start with Temperature. The charts update for the same step; the saved sentence stays unchanged. Generate again to sample with the new settings.</p>
           <div class="field">
             <label for="temperature"
               >Temperature (0 selects the most likely word) <span class="term-help" tabindex="0" role="note" aria-label="Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.">?<span class="term-definition">Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.</span></span></label
@@ -93,6 +115,9 @@ we study together</textarea
               value="1"
             />
           </div>
+            <details id="filter-options" class="glossary-box flow-options">
+              <summary>More settings: Top-k and Top-p / Top-q</summary>
+              <div class="lab-grid sampling-controls sampling-filters">
           <div class="field">
             <label for="topk">Top-k (0 keeps all candidates) <span class="term-help" tabindex="0" role="note" aria-label="Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.">?<span class="term-definition">Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.</span></span></label
             ><input id="topk" type="number" min="0" max="50" value="0" />
@@ -112,20 +137,13 @@ we study together</textarea
               value="1"
             />
           </div>
-        </div>
+              </div>
         <p class="field-hint">
           Temperature → top-k → nucleus cutoff → normalize. Use one setting change at a time. A greater probability does not guarantee that a word is sampled.
         </p>
-        <div class="btn-row">
-          <button id="sample" type="button" class="btn-uga-outline">
-            Generate next word</button><button id="many" type="button" class="btn-uga-outline">
-            Generate a whole sentence</button><button id="clear" type="button" class="btn-reset">
-            Restart sentence
-          </button>
-        </div>
-        <p id="status" class="field-hint" role="status" aria-live="polite"></p>
-        <p id="error" class="error-text" role="alert"></p>
-        <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p><div class="field"><label for="inspect-step">Inspect a generation step</label><select id="inspect-step" disabled></select></div><div id="probability-panel"><div id="probability-charts"></div><details class="glossary-box"><summary>Exact probabilities and observed counts for this context</summary>
+            </details>
+          </section>
+<div id="probability-panel"><div id="probability-charts"></div><details class="glossary-box"><summary>Exact probabilities and observed counts for this context</summary>
         <div
           class="table-scroll"
           role="region"
@@ -165,7 +183,8 @@ we study together</textarea
             teaching simulation; provider implementations may differ. This model samples words; real LLMs usually sample tokens and use longer contexts.
           </p>
         </details>
-        <h3 class="stage-title"><span class="stage-num">2</span> Compare real LLM generations</h3><p id="unlock-status" class="field-hint" role="status">Complete a sentence in part 1 to unlock this part. The end marker counts as completion.</p><fieldset id="live-activity" disabled><legend class="visually-hidden">Real LLM comparison</legend>
+        </div>
+        <h3 class="stage-title"><span class="stage-num">2</span> Compare real LLM generations</h3><p id="unlock-status" class="field-hint" role="status">Complete a sentence in part 1 to unlock this part. The end marker counts as completion.</p><fieldset id="live-activity" disabled hidden><legend class="visually-hidden">Real LLM comparison</legend>
         <div class="field">
           <label for="prompt">Prompt held constant across runs</label
           ><textarea id="prompt" rows="3" maxlength="1200">
