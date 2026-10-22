@@ -28,3 +28,6 @@
 .worked-example p {margin:6px 0;}
 .selected-phrase {font-family:"Merriweather Sans",sans-serif;font-size:14px;line-height:1.6;overflow-wrap:anywhere;padding:10px 12px;border-left:3px solid #236b37;background:#f3f8f4;color:#1a1a1a;}
 #save-panel {margin-top:20px;}
+/* Enabling the snapshot button must not fade readable text through low contrast. */
+#save-pair {transition:none;}
+#save-pair:disabled {opacity:1;color:#595959;border-style:dashed;}
