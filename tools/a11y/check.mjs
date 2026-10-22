@@ -9,7 +9,12 @@ try {
   const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const response=await page.goto(`http://127.0.0.1:8765/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
   if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
-  const states=[['initial',async()=>{}]];
+  const states=[['initial',async()=>{
+   if(pathname.includes('11B_')){
+    if(!await page.locator('#many').isVisible())throw Error('The first generation action is hidden.');
+    for(const id of ['corpus','sample','clear','temperature','topk','live-activity','inspection-area'])if(await page.locator('#'+id).isVisible())throw Error('Too many controls shown before the first sentence: '+id);
+   }
+  }]];
   if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
    if(await page.locator('.lesson-container ol li').count()!==3)throw Error('11A introduction must retain three clear steps.');
    if(!(await page.locator('.lesson-container').innerText()).includes('Use exact phrases to support your interpretation.'))throw Error('11A intro lost its language-evidence guidance.');
@@ -95,15 +100,21 @@ try {
    if(await page.locator('.lesson-container ol li').count()!==3)throw Error('11B introduction must provide three short steps.');
    if(await page.locator('.lesson-container dl').count())throw Error('Repeated glossary returned to the 11B introduction.');
    if(await page.locator('.term-help').count()<5)throw Error('Contextual term definitions were removed.');
+   await page.locator('#training-options summary').click();
    if(!(await page.locator('#corpus-help').innerText()).includes('repeated sentences count again'))throw Error('Training examples lack a purpose explanation.');
    if(!(await page.locator('#corpus-example').innerText()).includes('37.5%'))throw Error('Default count-to-probability example is missing.');
    const counts=await page.locator('#corpus').inputValue();const studyPairs=counts.trim().split('\n').map(s=>s.trim().split(/\s+/)).filter(ws=>ws[1]==='study');
    if(studyPairs.length!==8||studyPairs.filter(ws=>ws[2]==='language').length!==3)throw Error('Default example no longer matches training data.');
    if((await page.locator('#corpus').getAttribute('aria-describedby'))!=='corpus-help corpus-example corpus-actions')throw Error('Training guidance is not associated with its input.');
 
+   await page.locator('#training-options summary').click();
    const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
    if(subtitle.height>subtitle.line+1)throw Error('11B subtitle wraps prematurely on desktop.');
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
+   if(!await page.locator('#inspection-area').isVisible()||!await page.locator('#temperature').isVisible())throw Error('Inspection and temperature were not revealed after generation.');
+   if(await page.locator('#context').isVisible()||(await page.locator('#context-view').innerText())!=='study')throw Error('Context should be read-only text for the chosen step.');
+   for(const id of ['topk','nucleus','topp','sample','clear'])if(!await page.locator('#'+id).isVisible())throw Error('Routine controls require unnecessary expansion: '+id);
+   await page.locator('#training-options summary').click();
    if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
    await page.locator('#corpus').fill('we study language\nwe study language\nwe study language\nwe study speech');
    if(!await page.locator('#generate').isDisabled())throw Error('Corpus edit did not relock part 2.');
@@ -157,6 +168,16 @@ try {
    if(!await page.locator('#generate').isDisabled()||!await page.locator('#sample').isDisabled())throw Error('Corpus edit failed to relock stale activities.');
    await page.locator('#train').click();await page.locator('#many').click();
    if(await page.locator('#generate').isDisabled())throw Error('Rebuilt model could not unlock part 2.');
+  }],['optional-step-and-recovery',async()=>{
+   await page.locator('#clear').click();
+   if(!await page.locator('#inspection-area').isHidden())throw Error('Restart did not return to the first step.');
+   await page.locator('#sample').click();
+   if(!await page.locator('#inspection-area').isVisible())throw Error('Optional word stepping did not reveal inspection.');
+   await page.locator('#temperature').fill('-1');
+   await page.locator('#train').click();
+   if(!await page.locator('#temperature').isVisible())throw Error('Invalid controls were hidden during rebuilding, blocking recovery.');
+   await page.locator('#temperature').fill('1');await page.locator('#many').click();
+   if(await page.locator('#generate').isDisabled())throw Error('Recovered model could not finish a sentence.');
   }]);
   if(pathname.includes('Keyword'))states.push(['second-call',async()=>{
    await page.locator('#step').click();await page.locator('#step').click();
