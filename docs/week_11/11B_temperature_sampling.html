@@ -56,9 +56,11 @@
           </div>
         </div>
         <h3 class="stage-title"><span class="stage-num">1</span> Inspect a tiny bigram model</h3>
+        <p id="corpus-help" class="field-hint">These sentences are examples the model learns from. It counts which words follow each other; repeated sentences count again.</p>
+        <p id="corpus-example" class="field-hint"><strong>Default example:</strong> “study” is followed by “language” 3 out of 8 times → <strong>37.5% base probability</strong>.</p>
         <div class="field">
           <label for="corpus">Training sentences (one per line)</label
-          ><textarea id="corpus" rows="5" maxlength="8000">
+          ><textarea id="corpus" rows="5" maxlength="8000" aria-describedby="corpus-help corpus-example corpus-actions">
 we study language
 we study language
 we study language
@@ -69,12 +71,14 @@ we study conversation
 we study together</textarea
           >
         </div>
+        <p id="corpus-actions" class="field-hint">For your first try, keep these examples and choose <strong>Generate a whole sentence</strong>. If you edit them, choose <strong>Build bigram model</strong> first.</p>
         <div class="btn-row"><button id="train" type="button" class="btn-uga-outline">
           Build bigram model
         </button></div>
         <div class="field">
           <label for="context">Context for the next generation step <span class="term-help" tabindex="0" role="note" aria-label="Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.">?<span class="term-definition">Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.</span></span></label
-          ><select id="context"></select>
+          ><select id="context" aria-describedby="context-example"></select>
+          <p id="context-example" class="field-hint">The last word becomes the context: “we study” → context “study” → choose the next word.</p>
         </div>
         <div class="lab-grid sampling-controls">
           <div class="field">
