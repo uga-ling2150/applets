@@ -7,7 +7,7 @@ const browser=await chromium.launch(); let failed=false; const summary=[];
 try {
  for(const pathname of pages){
   const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  const response=await page.goto(`http://127.0.0.1:8765/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
+  const response=await page.goto(`https://uga-ling2150.github.io/applets/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
   if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
   const states=[['initial',async()=>{}]];
   if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
@@ -119,6 +119,32 @@ try {
    if(exported.context!=='study'||exported.settings.temperature!==1||exported.total!==0)throw Error('Export did not describe the current comparison condition.');
    if(saved.settings.temperature!==0.5||saved.rows[0].prob===exported.distribution[0].prob)throw Error('Export rewrote the original sampled step with the preview condition.');
   }]);
+  if(pathname.includes('11B_'))states.push(['top-k-cutoff',async()=>{
+   await page.locator('#topk').fill('1');
+   const probs=await page.locator('#distribution tr').evaluateAll(ns=>ns.map(n=>Number(n.children[5].textContent.replace('%',''))));
+   if(probs[0]!==100||probs.slice(1).some(n=>n!==0))throw Error('Top-k=1 failed to exclude lower candidates.');
+   if(!(await page.locator('#probability-charts').innerText()).includes('Top-k cutoff'))throw Error('Top-k cutoff line lacks its label.');
+  }],['nucleus-and-greedy',async()=>{
+   await page.locator('#topk').fill('0');await page.locator('#topp').fill('0.7');
+   const before=await page.locator('#distribution').innerText();
+   await page.locator('#nucleus').selectOption('topq');
+   if(await page.locator('#distribution').innerText()!==before)throw Error('Equivalent top-q notation changed the distribution.');
+   await page.locator('#temperature').fill('0');
+   const probs=await page.locator('#distribution tr').evaluateAll(ns=>ns.map(n=>Number(n.children[5].textContent.replace('%',''))));
+   if(probs[0]!==100||probs.slice(1).some(n=>n!==0))throw Error('Greedy temperature failed.');
+  }],['invalid-recovery',async()=>{
+   const sentence=await page.locator('#sentence-output').innerText();
+   await page.locator('#temperature').fill('-1');
+   if(!await page.locator('#sample').isDisabled()||!await page.locator('#probability-panel').isHidden())throw Error('Invalid settings retained a usable stale distribution.');
+   if(await page.locator('#sentence-output').innerText()!==sentence)throw Error('Invalid settings erased the saved sentence.');
+   await page.locator('#temperature').fill('1');
+   if(await page.locator('#sample').isDisabled()||!await page.locator('#probability-panel').isVisible())throw Error('Valid settings did not recover.');
+  }],['corpus-rebuild',async()=>{
+   await page.locator('#corpus').fill('we study words\nwe study sounds');
+   if(!await page.locator('#generate').isDisabled()||!await page.locator('#sample').isDisabled())throw Error('Corpus edit failed to relock stale activities.');
+   await page.locator('#train').click();await page.locator('#many').click();
+   if(await page.locator('#generate').isDisabled())throw Error('Rebuilt model could not unlock part 2.');
+  }]);
   if(pathname.includes('Keyword'))states.push(['second-call',async()=>{
    await page.locator('#step').click();await page.locator('#step').click();
    if(await page.locator('#calls li').count()<2)throw Error('Two calls were not shown.');
@@ -153,9 +179,9 @@ try {
    await page.setViewportSize({width,height:844});
    const sizes=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
    if(sizes.scroll>sizes.viewport+1){failed=true;summary.push({page:pathname,error:`Page overflows at ${width}px`,sizes});}
-   if(pathname.includes('11A_')){
+   if(pathname.includes('11A_')||pathname.includes('11B_')){
     const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
-    await writeFile(`a11y-results/11A-mobile-${width}.json`,JSON.stringify(result,null,2));
+    await writeFile(`a11y-results/${pathname.includes('11B_')?'11B':'11A'}-mobile-${width}.json`,JSON.stringify(result,null,2));
     summary.push({page:pathname,state:`mobile-${width}`,violations:result.violations,manualReview:result.incomplete.map(x=>({id:x.id,description:x.description})),errors});
     if(result.violations.length||errors.length)failed=true;
    }
