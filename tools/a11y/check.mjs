@@ -11,17 +11,51 @@ try {
   if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
   const states=[['initial',async()=>{}]];
   if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
+   if(!await page.locator('#save-pair').isDisabled())throw Error('Keep comparison should require an answer.');
    await page.getByText('Offline comparison',{exact:true}).click();await page.getByRole('button',{name:'Load practice examples',exact:true}).click();
+   if(!await page.getByText('Worked example: from phrase to annotation',{exact:true}).isVisible())throw Error('Worked example is missing.');
+   if(!(await page.locator('#selected-phrase').innerText()).includes('No phrase selected'))throw Error('Empty selection guidance missing.');
+  }],['invalid-quote',async()=>{
+   await page.getByRole('button',{name:'Add annotation',exact:true}).click();
+   if(!await page.locator('#quote-entry').getAttribute('open') && !await page.locator('#quote').isVisible())throw Error('Keyboard quote fallback was not opened.');
+   await page.locator('#quote').fill('not present in this answer');
+   if(!(await page.locator('#selected-phrase').innerText()).includes('does not match'))throw Error('Invalid quote feedback missing.');
   }],['annotated',async()=>{
-   const quoteEntry=page.getByText('Enter or edit an exact quote',{exact:true});
-   if(await quoteEntry.count())await quoteEntry.click();
-   await page.locator('#quote').fill('You could');await page.locator('#interpretation').fill('A hedged suggestion invites rather than commands.');
+   await page.locator('#quote').fill('You could');
+   await page.locator('#category').selectOption('certainty');
+   await page.locator('#interpretation').fill('Could offers a suggestion instead of a command, supporting a careful tutor persona.');
+   if(!(await page.locator('#selected-phrase').innerText()).includes('Persona A: “You could”'))throw Error('Selected quote and output were not shown.');
    await page.getByRole('button',{name:'Add annotation',exact:true}).click();
    if(await page.locator('#annotations li').count()!==1)throw Error('Annotation was not added.');
+   if(!await page.locator('#evidence-empty').isHidden())throw Error('Empty evidence message remained.');
+  }],['both-answers-and-snapshot',async()=>{
+   await page.locator('#side').selectOption('b');await page.locator('#quote').fill('Let’s tackle');
+   await page.locator('#category').selectOption('evaluation');
+   await page.locator('#interpretation').fill('Let’s suggests a collaborative peer relationship; the exclamation conveys enthusiasm.');
+   await page.locator('#annotate').click();await page.locator('#save-pair').click();
+   if(await page.locator('#annotations li').count()!==2)throw Error('Both outputs were not annotated.');
+   if(await page.locator('#history details').count()!==1)throw Error('Snapshot missing.');
+   await page.locator('#system-a').fill('You are a concise tutor.');
+   const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
+   const data=JSON.parse(await readFile(await file.path(),'utf8'));
+   if(data.comparisons.length!==1||data.comparisons[0].annotations.length!==2)throw Error('Comparison export omitted annotations or duplicated snapshot.');
+   if(!data.comparisons[0].systems.a.includes('Authored'))throw Error('Export replaced source prompts with ungenerated edits.');
+   await page.locator('#reflection').fill('Could sounds cautious, while Let’s sounds collaborative.');
+   const [notes]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download reflection notes',exact:true}).click()]);
+   if(!(await readFile(await notes.path(),'utf8')).includes('Could sounds cautious'))throw Error('Reflection export lost notes.');
   }],['annotation-removed',async()=>{
    await page.getByRole('button',{name:'Remove annotation 1 for Persona A',exact:true}).click();
-   if(await page.locator('#annotations li').count()!==0)throw Error('Annotation was not removed.');
+   if(await page.locator('#annotations li').count()!==1)throw Error('Annotation was not removed.');
    if(!await page.locator('#annotate').evaluate(n=>n===document.activeElement))throw Error('Deletion lost keyboard focus.');
+   const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
+   const data=JSON.parse(await readFile(await file.path(),'utf8'));
+   if(data.comparisons[0].annotations.length!==1)throw Error('Download retained deleted evidence.');
+  }],['previous-comparison-kept',async()=>{
+   await page.getByRole('button',{name:'Load practice examples',exact:true}).click();
+   if(await page.locator('#annotations li').count()!==0||await page.locator('#history details').count()!==1)throw Error('New comparison lost history or retained old active annotations.');
+   const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
+   const data=JSON.parse(await readFile(await file.path(),'utf8'));
+   if(data.comparisons.length!==2||data.comparisons[0].annotations.length!==1||data.comparisons[1].annotations.length!==0)throw Error('Export mixed comparisons.');
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();

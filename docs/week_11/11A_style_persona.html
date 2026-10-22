@@ -14,10 +14,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../style.css?v=20261021-context-fix" />
+    <link rel="stylesheet" href="../style.css?v=20261021-clear-flow" />
     <link rel="stylesheet" href="lab.css" />
-    <link rel="stylesheet" href="persona-meeting.css?v=20261021-context-fix" />
-    <script type="module" src="persona.mjs?v=20261021-context-fix"></script>
+    <link rel="stylesheet" href="persona-meeting.css?v=20261021-clear-flow" />
+    <script type="module" src="persona.mjs?v=20261021-clear-flow"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -40,10 +40,9 @@
         <p>A persona is the social identity a speaker projects through language, such as a careful tutor or an enthusiastic peer. A system prompt gives the model a role and speaking instructions; the user question is the task both personas answer. Look beyond whether the advice is correct: forms of address, hedges (such as “could”), vocabulary and expressions of enthusiasm can index a relationship, authority or attitude. These are interpretations supported by language evidence, not fixed personality measurements.</p>
         <h4 class="uga-accent">Instructions</h4>
         <ol>
-          <li>With a partner, keep the user question fixed and compare the two system prompts. Predict how their wording might differ, then generate both outputs (or open Offline comparison below).</li>
-          <li>
-            Select a phrase inside one output; the form uses that exact phrase automatically. To enter a phrase with the keyboard, open “Enter or edit an exact quote” below. Choose a feature and explain what the phrase suggests about the speaker and relationship. Add the annotation, compare the evidence below the outputs, then swap roles and change one system prompt.
-          </li>
+          <li><strong>Generate:</strong> start with the question and two roles already filled in. Predict how a careful tutor and an enthusiastic peer might sound, then click “Generate both outputs”.</li>
+          <li><strong>Annotate:</strong> compare the wording. Select a short phrase in either answer, choose a language feature, explain how that phrase suggests a persona, then click “Add annotation”. See the worked example above the form.</li>
+          <li><strong>Compare and save:</strong> with a partner, annotate evidence from both answers. Keep the question fixed, change one system prompt and generate again. Discuss whether the wording changed, then download your comparisons and reflection notes before closing.</li>
         </ol>
       </section>
       <section class="app-wrapper" aria-labelledby="applet-title">
@@ -55,6 +54,8 @@
             </p>
           </div>
         </div>
+        <h3 class="h5 flow-step">1. Generate two answers</h3>
+        <p class="field-hint">Start with the defaults below. The question stays the same; the system prompts give the model different roles. Read both answers after generating.</p>
         <div class="field">
           <label for="prompt">Same user question for both personas</label
           ><textarea id="prompt" rows="3" maxlength="1200">
@@ -97,7 +98,7 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
           <button id="generate" type="button" class="btn-uga">
             Generate both outputs</button
           ><button id="save-pair" type="button" class="btn-uga-outline">
-            Keep this comparison
+            Keep this comparison on this page
           </button>
         </div>
         <p id="status" class="field-hint" role="status" aria-live="polite"></p>
@@ -107,10 +108,23 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
           Same model and settings; different system prompts. Prompts go to the
           model service. Your annotations stay here.
         </p>
-        <section id="evidence-panel" hidden aria-labelledby="evidence-title"><h3 id="evidence-title" class="h5">Evidence beside the outputs</h3><p class="field-hint">Yellow: saved evidence. Green outline: the phrase currently being annotated. Select a phrase in the output. To type or edit it, open “Enter or edit an exact quote” below.</p><ol id="annotations" tabindex="0" class="annotation-list" aria-label="Saved language evidence"></ol></section>
+        <section id="evidence-panel" hidden aria-labelledby="evidence-title">
+          <h3 id="evidence-title" class="h5">Saved language evidence</h3>
+          <p class="field-hint">Yellow = saved evidence. Green outline = the phrase you are annotating now. Saved annotations appear here, directly below the answers. Use the trash button to remove one.</p>
+          <p id="evidence-empty" class="field-hint">No annotations yet. Start with step 2 below.</p>
+          <ol id="annotations" tabindex="0" class="annotation-list" aria-label="Saved language evidence"></ol>
+        </section>
         <div id="annotation-panel" hidden>
-          <h3 class="h5">Annotate language evidence</h3>
-          <p>Select a phrase, choose its feature and explain its effect.</p>
+          <h3 class="h5 flow-step">2. Explain a phrase</h3>
+          <p class="field-hint">Drag across a few words in either answer. The output and selected phrase below update automatically. Using a keyboard? Choose Output, then open “Enter or edit an exact quote” and type words exactly as they appear in that answer.</p>
+          <details class="worked-example" open>
+            <summary>Worked example: from phrase to annotation</summary>
+            <p><strong>Example phrase:</strong> “You could” in the offline Persona A answer.<br />
+              <strong>Feature:</strong> Certainty and hedging.<br />
+              <strong>Explanation:</strong> “Could” offers a suggestion instead of a command. This cautious wording supports the careful tutor persona.</p>
+            <p class="field-hint">This is a teaching example, not a claim about your generated answer. Use a phrase that actually appears in your answer. If you see no clear difference between the personas, explain that using language evidence.</p>
+          </details>
+          <p id="selected-phrase" class="selected-phrase" role="status" aria-live="polite" aria-atomic="true">No phrase selected. Select words in an answer, or enter an exact quote below.</p>
           <div class="lab-grid">
             <div class="field">
               <label for="side">Output</label
@@ -139,19 +153,24 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
             </div>
           </details>
           <div class="field">
-            <label for="interpretation"
-              >What does this suggest about the speaker?</label
-            ><textarea id="interpretation" rows="2" maxlength="1600"></textarea>
+            <label for="interpretation">How does this phrase suggest a persona?</label>
+            <p id="interpretation-help" class="field-hint">Explain the wording, then link it to a role, attitude or relationship. For example: “Could” makes the advice sound cautious, fitting a careful tutor.</p>
+            <textarea id="interpretation" rows="2" maxlength="1600" aria-describedby="interpretation-help"></textarea>
           </div>
           <div class="btn-row">
             <button id="annotate" type="button" class="btn-uga">
               Add annotation</button
-            ><button id="download" type="button" class="btn-uga-outline">
-              Download my work
-            </button>
+            >
           </div>
-
+          <p class="field-hint">“Add annotation” adds your phrase, feature and explanation to Saved language evidence above. Repeat for the other answer.</p>
         </div>
+        <section id="save-panel" hidden aria-labelledby="save-title">
+          <h3 id="save-title" class="h5 flow-step">3. Compare again and download</h3>
+          <p class="field-hint">Keep the question fixed. Change one system prompt and generate again to test its effect. The previous comparison and its annotations are kept on this page automatically when a new comparison loads.</p>
+          <p class="field-hint">“Keep this comparison on this page” keeps a snapshot without generating again. It does not save a file or submit work. After further annotations, click it again to update that snapshot.</p>
+          <div class="btn-row"><button id="download" type="button" class="btn-uga-outline">Download comparisons and annotations</button></div>
+          <p class="field-hint">Downloads a JSON file with the current and saved comparisons, prompts, answers and annotations. Reflection notes have their own download below. Download both before closing or reloading; comparisons are only held on this page.</p>
+        </section>
         <div id="history-panel" hidden>
           <h3 class="h5">Saved comparisons</h3>
           <div id="history"></div>
@@ -194,12 +213,13 @@ You are an enthusiastic peer study partner. Use a relaxed conversational style a
           <li>Did changing the prompt change the language? Cite an example.</li>
           <li>Would another generation support the same interpretation?</li>
         </ol>
+        <p>Use an exact phrase from your comparisons in your reflection. “Download reflection notes” saves only the text below as a separate file; use “Download comparisons and annotations” above for your language evidence.</p>
         <div class="reflection-notes field">
           <label for="reflection">Write down your thoughts</label
           ><textarea id="reflection" rows="5" maxlength="4000"></textarea>
           <div class="btn-row">
             <button class="btn-uga" type="button" data-download-notes>
-              Download my notes</button
+              Download reflection notes</button
             ><span class="field-hint" role="status" data-download-status></span>
           </div>
           <p class="field-hint">
