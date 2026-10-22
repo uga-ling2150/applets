@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
 const pages=process.argv.slice(2);
 await mkdir('a11y-results',{recursive:true});
 const browser=await chromium.launch(); let failed=false; const summary=[];
@@ -47,6 +47,11 @@ try {
    if(await total()!==2)throw Error('Repeated sentence visits did not accumulate two actual observations.');
    await page.locator('#temperature').fill('1');
    if(await total()!==0)throw Error('Counts from different parameter settings were mixed.');
+   const [download]=await Promise.all([page.waitForEvent('download',{timeout:10000}),page.locator('#download').click()]);
+   const exported=JSON.parse(await readFile(await download.path(),'utf8'));
+   const saved=exported.sentenceTrace[2];
+   if(exported.context!=='study'||exported.settings.temperature!==1||exported.total!==0)throw Error('Export did not describe the current comparison condition.');
+   if(saved.settings.temperature!==0.5||saved.rows[0].prob===exported.distribution[0].prob)throw Error('Export rewrote the original sampled step with the preview condition.');
   }]);
   if(pathname.includes('Keyword'))states.push(['second-call',async()=>{
    await page.locator('#step').click();await page.locator('#step').click();
