@@ -100,12 +100,14 @@ try {
    if(await page.locator('.lesson-container ol li').count()!==3)throw Error('11B introduction must provide three short steps.');
    if(await page.locator('.lesson-container dl').count())throw Error('Repeated glossary returned to the 11B introduction.');
    if(await page.locator('.term-help').count()<5)throw Error('Contextual term definitions were removed.');
+   await page.locator('#training-options summary').click();
    if(!(await page.locator('#corpus-help').innerText()).includes('repeated sentences count again'))throw Error('Training examples lack a purpose explanation.');
    if(!(await page.locator('#corpus-example').innerText()).includes('37.5%'))throw Error('Default count-to-probability example is missing.');
    const counts=await page.locator('#corpus').inputValue();const studyPairs=counts.trim().split('\n').map(s=>s.trim().split(/\s+/)).filter(ws=>ws[1]==='study');
    if(studyPairs.length!==8||studyPairs.filter(ws=>ws[2]==='language').length!==3)throw Error('Default example no longer matches training data.');
    if((await page.locator('#corpus').getAttribute('aria-describedby'))!=='corpus-help corpus-example corpus-actions')throw Error('Training guidance is not associated with its input.');
 
+   await page.locator('#training-options summary').click();
    const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
    if(subtitle.height>subtitle.line+1)throw Error('11B subtitle wraps prematurely on desktop.');
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
