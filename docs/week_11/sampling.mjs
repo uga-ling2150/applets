@@ -1,9 +1,26 @@
 import { $, node, download, connection, generate } from "./common.mjs?v=20261021-meeting";
 import { sentenceBigrams, distribution, sample } from "./core.mjs?v=20261021-meeting";
 let sentenceWords=[], trace=[], complete=false;
+// Observations are real generated words, grouped by their preceding context.
+// A parameter change or corpus rebuild starts a new counting condition.
+const observations = new Map();
+let activeCondition = '';
+function conditionKey(p) { return JSON.stringify([p.temperature,p.topk,p.topq ?? p.topp ?? 1]); }
+function showObservations(context) {
+  const observed=observations.get(context);
+  counts=observed?.counts || Object.create(null); total=observed?.total || 0; lastDraw=observed?.lastDraw || '';
+}
+function recordObservation(context,word) {
+  if(!observations.has(context))observations.set(context,{counts:Object.create(null),total:0,lastDraw:''});
+  const observed=observations.get(context);
+  observed.counts[word]=(observed.counts[word]||0)+1; observed.total++; observed.lastDraw=word;
+}
+function settingsLabel(p) {
+ return `temperature ${p.temperature}, top-k ${p.topk}, ${p.topq!==undefined?'top-q':'top-p'} ${p.topq ?? p.topp}`;
+}
 let model,
   rows = [],
-  counts = {},
+  counts = Object.create(null),
   total = 0,
   lastDraw = "",
   generations = [],
@@ -50,34 +67,42 @@ function render() {
     tbody.append(tr);
   });
   $("sample-status").textContent =
-    (lastDraw ? `Sampled “${lastDraw}”. ` : "") + `${total} draws for the current distribution.`;
+    `Observed at context “${$("context").value}” under the current controls: ${total} ${total===1?'draw':'draws'}. ` +
+    (lastDraw ? `Last observed word: “${lastDraw}”. ` : '') +
+    'Counts accumulate across generated sentences at this context; changing parameters or rebuilding resets them.';
 }
 function apply() {
-  restartSentence();
+  const savedStep=trace[Number($("inspect-step").value)];
+  const context=savedStep?.context || '<start>';
   try {
     const nextSettings = parameters();
-    const nextRows = distribution(model.get("<start>") || new Map(), nextSettings);
+    const nextRows = distribution(model.get(context) || new Map(), nextSettings);
+    const nextCondition=conditionKey(nextSettings);
+    if(nextCondition!==activeCondition){observations.clear();activeCondition=nextCondition;}
     settings = nextSettings;
     rows = nextRows;
-    appliedInput = {corpus: $("corpus").value, context: $("context").value};
+    $("context").value=context;
+    appliedInput = {corpus: $("corpus").value, context};
     dirty = false;
     $("probability-panel").hidden = false;
-    counts = {};
-    total = 0;
-    lastDraw = "";
+    showObservations(context);
     $("error").textContent = "";
-    $("status").textContent = "Distribution updated. Sampling counts reset.";
+    $("status").textContent = savedStep
+      ? `Saved step ${Number($("inspect-step").value)+1}: context “${context}”; originally sampled “${savedStep.word}” with ${settingsLabel(savedStep.settings)}. Charts use the current controls; the saved sentence is unchanged.`
+      : 'The charts show the sentence-start context. Generate a sentence to inspect later steps.';
     render();
     for (const id of ["sample", "many", "clear"]) $(id).disabled = false;
   } catch (e) {
     $("error").textContent = e.message;
-    $("status").textContent = "No current distribution. Fix the settings or rebuild with at least one word pair.";
+    $("status").textContent = "No current distribution. Fix the settings or rebuild the model. The saved sentence has not changed.";
     $("probability-panel").hidden = true;
     dirty = true;
     for (const id of ["sample", "many", "clear"]) $(id).disabled = true;
   }
 }
 function train() {
+  restartSentence();
+  observations.clear();
   model = sentenceBigrams($("corpus").value);
   modelDirty = false;
   $("context").disabled = true;
@@ -95,6 +120,7 @@ for (const id of ["temperature", "topk", "topp", "nucleus"]) {
 }
 $("corpus").addEventListener("input", () => {
   restartSentence();
+  observations.clear();
   modelDirty = true;
   dirty = true;
   $("probability-panel").hidden = true;
@@ -106,7 +132,7 @@ function restartSentence() {
   sentenceWords=[]; trace=[]; complete=false;
   $("sentence-output").textContent="Sentence not started.";
   $("inspect-step").replaceChildren(); $("inspect-step").disabled=true;
-  rows=[]; counts={}; total=0; lastDraw="";
+  rows=[]; counts=Object.create(null); total=0; lastDraw="";
   $("live-activity").disabled=true;
   $("unlock-status").textContent="Complete a sentence in part 1 to unlock part 2.";
   if(model?.has('<start>')) $("context").value='<start>';
@@ -119,7 +145,8 @@ function draw(n) {
       const context=sentenceWords.at(-1)||'<start>';
       const stepRows=distribution(model.get(context)||new Map(),settings);
       const word=sample(stepRows);
-      trace.push({context,word,rows:stepRows});
+      trace.push({context,word,rows:stepRows,settings:{...settings}});
+      recordObservation(context,word);
       if(word==='<end>') complete=true; else sentenceWords.push(word);
       if(trace.length>=40) break;
     }
@@ -130,14 +157,12 @@ function draw(n) {
     const branching = n === 1 ? -1 : trace.findIndex(t=>t.rows.length>1);
     $("inspect-step").value=branching>=0?branching:trace.length-1;
     inspect();
-    if(complete) { $("live-activity").disabled=false; $("unlock-status").textContent='Sentence complete: part 2 is unlocked. Changing part 1 settings or rebuilding starts a new exploration.'; }
+    if(complete) { $("live-activity").disabled=false; $("unlock-status").textContent='Sentence complete: part 2 is unlocked. Change controls to compare this step; rebuild the corpus or restart the sentence to begin again.'; }
   } catch(e) { $("error").textContent=e.message; }
 }
 function inspect() {
-  const t=trace[Number($("inspect-step").value)]; if(!t)return;
-  rows=t.rows; counts={[t.word]:1}; total=1; lastDraw=t.word;
-  $("context").value=t.context; render();
-  $("status").textContent=`Step ${Number($("inspect-step").value)+1}: context “${t.context}”; sampled “${t.word}”. The charts show this step only.`;
+  // Recompute only the view. Never replace the saved draw or its original settings.
+  if(!modelDirty)apply();
 }
 $("inspect-step").onchange=inspect;
 $("sample").onclick=()=>draw(1);

@@ -14,10 +14,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../style.css?v=20261021-meeting-final" />
+    <link rel="stylesheet" href="../style.css?v=20261021-context-fix" />
     <link rel="stylesheet" href="lab.css" />
-    <link rel="stylesheet" href="sampling-meeting.css?v=20261021-meeting-final" />
-    <script type="module" src="sampling.mjs?v=20261021-meeting-final"></script>
+    <link rel="stylesheet" href="sampling-meeting.css?v=20261021-context-fix" />
+    <script type="module" src="sampling.mjs?v=20261021-context-fix"></script>
     <script src="../reflection-notes.js" defer></script>
   </head>
   <body class="iv-lab">
@@ -45,7 +45,7 @@
         <dl class="sampling-definitions"><dt>Context</dt><dd>Context is the preceding word used to predict the next word in this bigram model. &lt;start&gt; marks a sentence beginning.</dd><dt>Temperature</dt><dd>Temperature controls how concentrated the probabilities are. Below 1 favors likely words; above 1 flattens the distribution. Zero makes a greedy choice.</dd><dt>Top-k</dt><dd>Top-k keeps the k highest-ranked candidates. Zero keeps all candidates in the teaching model.</dd><dt>Top-p and top-q notation</dt><dd>Top-p and top-q are two names for the same nucleus-mass rule in this activity.</dd><dt>Top-p</dt><dd>Top-p keeps the smallest probability-ranked prefix reaching the chosen cumulative mass, after top-k normalization.</dd></dl><h4 class="uga-accent">Instructions</h4>
         <ol>
           <li>Read the definitions beside the controls. Build the model, predict how changing one setting will affect the words, then generate a sentence.</li>
-          <li>Inspect each generation step and compare its base and final probability bars. Whole-sentence generation selects the first step with multiple candidates, when available, so parameter effects are visible. Orange is retained probability, red is an increase, and stripes show a decrease. After a complete sentence unlocks part 2, keep the LLM prompt fixed, repeat each setting and write down language evidence.</li>
+          <li>Inspect each generation step and compare its base and final probability bars. Whole-sentence generation selects the first step with multiple candidates, when available, so parameter effects are visible. Orange is retained probability, red is an increase, and stripes show a decrease. Change a parameter while inspecting a step: the context and saved sentence stay fixed, so you can compare the same candidates. Actual observed counts accumulate across generated sentences at the same context and reset when parameters or the corpus change. After a complete sentence unlocks part 2, keep the LLM prompt fixed, repeat each setting and write down language evidence.</li>
         </ol>
       </section>
       <section class="app-wrapper" aria-labelledby="applet-title">
@@ -123,7 +123,7 @@ we study together</textarea
         </div>
         <p id="status" class="field-hint" role="status" aria-live="polite"></p>
         <p id="error" class="error-text" role="alert"></p>
-        <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p><div class="field"><label for="inspect-step">Inspect a generation step</label><select id="inspect-step" disabled></select></div><div id="probability-panel"><div id="probability-charts"></div><details class="glossary-box"><summary>Exact probabilities and observed counts for this step</summary>
+        <p id="sentence-output" class="generation" aria-live="polite">Sentence not started.</p><div class="field"><label for="inspect-step">Inspect a generation step</label><select id="inspect-step" disabled></select></div><div id="probability-panel"><div id="probability-charts"></div><details class="glossary-box"><summary>Exact probabilities and observed counts for this context</summary>
         <div
           class="table-scroll"
           role="region"
@@ -132,7 +132,7 @@ we study together</textarea
         >
           <table class="prob-table">
             <caption>
-              Next-word probabilities and observed counts
+              Current probabilities and actual draws at the selected context
             </caption>
             <thead>
               <tr>
