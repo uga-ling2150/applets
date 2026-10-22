@@ -11,6 +11,8 @@ try {
   if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
   const states=[['initial',async()=>{}]];
   if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
+   const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
+   if(subtitle.height>subtitle.line+1)throw Error('Short subtitle wraps early on desktop.');
    if(!await page.locator('#save-pair').isDisabled())throw Error('Keep comparison should require an answer.');
    if(!await page.locator('#save-panel #save-pair').count())throw Error('Snapshot button is not in saving step.');
    if(!await page.locator('.app-wrapper details').filter({has:page.locator('#example')}).count())throw Error('Offline practice is not in the activity.');

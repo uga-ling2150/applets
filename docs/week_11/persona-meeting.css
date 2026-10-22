@@ -31,3 +31,6 @@
 /* Enabling the snapshot button must not fade readable text through low contrast. */
 #save-pair {transition:none;}
 #save-pair:disabled {opacity:1;color:#595959;border-style:dashed;}
+/* This short subtitle can use the available width; narrow screens still wrap. */
+.app-wrapper .hero-text {width:100%;min-width:0;}
+.app-wrapper .hero-text p {max-width:none;}
