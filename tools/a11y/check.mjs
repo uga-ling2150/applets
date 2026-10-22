@@ -19,11 +19,27 @@ try {
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
    if(await page.locator('#generate').isDisabled())throw Error('Part 2 was not unlocked.');
-   await page.locator('#corpus').fill('we study language\nwe study speech');
+   await page.locator('#corpus').fill('we study language\nwe study language\nwe study language\nwe study speech');
    if(!await page.locator('#generate').isDisabled())throw Error('Corpus edit did not relock part 2.');
    if((await page.locator('#sentence-output').innerText())!=='Sentence not started.')throw Error('Stale sentence remained.');
    await page.getByRole('button',{name:'Build bigram model',exact:true}).click();
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
+  }]);
+  if(pathname.includes('11B_'))states.push(['same-step-comparison',async()=>{
+   const before=await page.evaluate(()=>({context:document.getElementById('context').value,step:document.getElementById('inspect-step').value,sentence:document.getElementById('sentence-output').textContent,base:Array.from(document.querySelectorAll('#distribution tr')).map(n=>n.children[2].textContent),final:Array.from(document.querySelectorAll('#distribution tr')).map(n=>n.children[5].textContent)}));
+   await page.locator('#temperature').fill('0.5');
+   const after=await page.evaluate(()=>({context:document.getElementById('context').value,step:document.getElementById('inspect-step').value,sentence:document.getElementById('sentence-output').textContent,base:Array.from(document.querySelectorAll('#distribution tr')).map(n=>n.children[2].textContent),final:Array.from(document.querySelectorAll('#distribution tr')).map(n=>n.children[5].textContent)}));
+   if(before.context!==after.context||before.step!==after.step||before.sentence!==after.sentence)throw Error('Parameter edit changed the saved step or sentence.');
+   if(JSON.stringify(before.base)!==JSON.stringify(after.base))throw Error('Parameter edit replaced the comparison baseline.');
+   if(JSON.stringify(before.final)===JSON.stringify(after.final))throw Error('Changing temperature did not update the probabilities.');
+  }],['repeated-observations',async()=>{
+   const total=()=>page.locator('#distribution tr').evaluateAll(nodes=>nodes.reduce((sum,n)=>sum+Number(n.children[6].textContent),0));
+   if(await total()!==0)throw Error('Old-condition counts leaked into the new controls.');
+   await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
+   await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();
+   if(await total()!==2)throw Error('Repeated sentence visits did not accumulate two actual observations.');
+   await page.locator('#temperature').fill('1');
+   if(await total()!==0)throw Error('Counts from different parameter settings were mixed.');
   }]);
   if(pathname.includes('Keyword'))states.push(['second-call',async()=>{
    await page.locator('#step').click();await page.locator('#step').click();
