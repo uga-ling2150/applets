@@ -10,11 +10,18 @@ try {
   const response=await page.goto(`http://127.0.0.1:8765/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
   if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
   const states=[['initial',async()=>{}]];
-  if(pathname.includes('11A_'))states.push(['annotated',async()=>{
+  if(pathname.includes('11A_'))states.push(['annotation-controls',async()=>{
    await page.getByText('Offline comparison',{exact:true}).click();await page.getByRole('button',{name:'Load practice examples',exact:true}).click();
+  }],['annotated',async()=>{
+   const quoteEntry=page.getByText('Enter or edit an exact quote',{exact:true});
+   if(await quoteEntry.count())await quoteEntry.click();
    await page.locator('#quote').fill('You could');await page.locator('#interpretation').fill('A hedged suggestion invites rather than commands.');
    await page.getByRole('button',{name:'Add annotation',exact:true}).click();
    if(await page.locator('#annotations li').count()!==1)throw Error('Annotation was not added.');
+  }],['annotation-removed',async()=>{
+   await page.getByRole('button',{name:'Remove annotation 1 for Persona A',exact:true}).click();
+   if(await page.locator('#annotations li').count()!==0)throw Error('Annotation was not removed.');
+   if(!await page.locator('#annotate').evaluate(n=>n===document.activeElement))throw Error('Deletion lost keyboard focus.');
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
    await page.getByRole('button',{name:'Generate a whole sentence',exact:true}).click();

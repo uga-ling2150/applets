@@ -134,6 +134,7 @@ document.addEventListener("selectionchange", () => {
   $("side").value = anchor.dataset.side;
   $("quote").value = quote;
   $("error").textContent = "";
+  $("status").textContent = `Phrase from Persona ${anchor.dataset.side.toUpperCase()} selected. Choose a feature and explain its effect.`;
   // Native selection remains visible until the student moves into the form.
 });
 function showCurrentPhrase() { renderOutput("a"); renderOutput("b"); }
@@ -151,7 +152,10 @@ $("annotate").onclick = () => {
     !interpretation
   ) {
     $("error").textContent =
-      "Enter an exact quote from the chosen output and an interpretation.";
+      "Select a phrase or enter an exact quote from the chosen output, then add an interpretation.";
+    if(!pair || !quote || !exactSpans(pair.outputs[side],quote).length){
+      $("quote-entry").open=true; $("quote").focus();
+    } else { $("interpretation").focus(); }
     return;
   }
   annotations.push({
