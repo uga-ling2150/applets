@@ -34,3 +34,6 @@
 /* This short subtitle can use the available width; narrow screens still wrap. */
 .app-wrapper .hero-text {width:100%;min-width:0;}
 .app-wrapper .hero-text p {max-width:none;}
+
+/* Reflection questions are body prompts, visually distinct from section headings. */
+.reflection-questions {font-family:"Merriweather Sans",sans-serif;font-size:1rem;font-weight:400;line-height:1.7;}
