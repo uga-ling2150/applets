@@ -20,9 +20,10 @@ try {
    if(!await page.getByText('Worked example: from phrase to annotation',{exact:true}).isVisible())throw Error('Worked example is missing.');
    if(!(await page.locator('#selected-phrase').innerText()).includes('No phrase selected'))throw Error('Empty selection guidance missing.');
   }],['native-selection-feature',async()=>{
-   const output=page.locator('#log-a .chat-turn__text');await output.scrollIntoViewIfNeeded();const box=await output.boundingBox();
-   await page.mouse.move(box.x+2,box.y+8);await page.mouse.down();await page.mouse.move(box.x+105,box.y+8,{steps:8});await page.mouse.up();
-   if(!(await page.locator('#quote').inputValue()).trim())throw Error('Native drag selection was not captured.');
+   const output=page.locator('#log-a .chat-turn__text');await output.scrollIntoViewIfNeeded();
+   const box=await output.evaluate(n=>{const text=n.querySelector('span').firstChild;const range=document.createRange();range.setStart(text,0);range.setEnd(text,12);const r=range.getClientRects()[0];return {x:r.x,y:r.y,width:r.width,height:r.height};});
+   await page.mouse.move(box.x+1,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width-1,box.y+box.height/2,{steps:8});await page.mouse.up();
+   await page.waitForFunction(()=>document.getElementById('quote').value.trim().length>0);
    await page.locator('#category').focus();
    if(!await page.locator('#log-a .current-phrase').count())throw Error('First focus on Feature did not highlight the current phrase green.');
    for(const [value,word] of [['address','relationship'],['certainty','strongly'],['register','formal'],['evaluation','feelings'],['politeness','request'],['other','language feature']]){
