@@ -22,7 +22,7 @@ try {
     for(const id of ['corpus','sample','clear','temperature','topk','generate','inspection-area'])if(await page.locator('#'+id).isVisible())throw Error('Too many controls shown before the first sentence: '+id);
    }
    if(pathname.includes('11A_')){
-    if(await page.locator('#save-pair').isVisible()||await page.locator('#log-a').isVisible())throw Error('Later steps are open before any answers exist.');
+    if(await page.locator('#generate-base').isVisible()||await page.locator('#log-a').isVisible())throw Error('Later steps are open before any answers exist.');
     if(!(await page.locator('.lesson-container').innerText()).includes('Use exact phrases to support your interpretation.'))throw Error('11A intro lost its language-evidence guidance.');
    }
   }]];
@@ -61,21 +61,35 @@ try {
    if(await page.locator('#annotations-a .evidence-item').count()!==1||await page.locator('#annotations-b .evidence-item').count()!==0)throw Error('Annotation was not filed under Persona A only.');
    const row=await page.locator('#annotations-a .evidence-item').first().evaluate(li=>{const t=li.querySelector('.evidence-text').getBoundingClientRect(),b=li.querySelector('button').getBoundingClientRect();return {sameLine:b.top<t.bottom&&b.bottom>t.top,right:b.left>=t.right-1};});
    if(!row.sameLine||!row.right)throw Error('Delete button is not on the right of its annotation.');
-  }],['both-answers-and-snapshot',async()=>{
+  }],['both-answers-annotated',async()=>{
    await page.getByRole('button',{name:'Annotate a phrase in B',exact:true}).click();
    await page.locator('#quote').fill('Let’s tackle');
    await page.locator('#category').selectOption('evaluation');
    await page.locator('#interpretation').fill('Let’s suggests a collaborative peer relationship; the exclamation conveys enthusiasm.');
-   await page.locator('#annotate').click();await page.locator('#save-pair').click();
+   await page.locator('#annotate').click();
    if(await page.locator('#annotations-b .evidence-item').count()!==1)throw Error('Persona B annotation missing.');
-   if(await page.locator('#history details').count()!==1)throw Error('Snapshot missing.');
-   await page.locator('#history summary').click();
-   if(!(await page.locator('#history').innerText()).includes('Certainty and hedging')||!(await page.locator('#history').innerText()).includes('Evaluation and affect'))throw Error('Saved history omitted feature categories.');
+   if(await page.locator('#baseline-panel').isVisible())throw Error('Baseline comparison shown before a baseline answer exists.');
+  }],['baseline-compared',async()=>{
+   if(!(await page.locator('#stage3').innerText()).toLowerCase().includes('no system prompt'))throw Error('Step 3 does not explain the no-system-prompt comparison.');
+   await page.getByRole('button',{name:'Use practice answer',exact:true}).click();
+   for(const id of ['log-base','recap-a','recap-b'])if(!(await page.locator('#'+id).innerText()).trim())throw Error('Three-way comparison is missing an answer: '+id);
+   if(await page.locator('#recap-a [data-side]').count())throw Error('Recap copies should not start new annotations.');
+   if(!await page.locator('#recap-a mark').count())throw Error('Recap does not show saved evidence highlights.');
+   await page.getByRole('button',{name:'Annotate a phrase',exact:true}).click();
+   if((await page.locator('#dialog-title').innerText())!=='Annotate the answer with no system prompt')throw Error('Baseline popup is mislabelled.');
+   await page.locator('#quote').fill('review your notes');
+   await page.locator('#category').selectOption('politeness');
+   await page.locator('#interpretation').fill('A bare instruction with no hedging: the default assistant is direct.');
+   await page.locator('#annotate').click();
+   if(await page.locator('#annotations-base .evidence-item').count()!==1)throw Error('Baseline annotation missing.');
+   await page.locator('#baseline-comparison').fill('Neither “You could” nor “Let’s” appears without a system prompt.');
    await page.locator('#system-a').fill('You are a concise tutor.');
    const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
    const data=JSON.parse(await readFile(await file.path(),'utf8'));
-   if(data.comparisons.length!==1||data.comparisons[0].annotations.length!==2)throw Error('Comparison export omitted annotations or duplicated snapshot.');
-   if(!data.comparisons[0].systems.a.includes('Authored'))throw Error('Export replaced source prompts with ungenerated edits.');
+   const c=data.comparisons[0];
+   if(data.comparisons.length!==1||c.annotations.length!==3)throw Error('Export omitted annotations or duplicated the comparison.');
+   if(!c.outputs.base||!c.comparison.includes('Neither'))throw Error('Export omitted the baseline answer or written comparison.');
+   if(!c.systems.a.includes('Authored'))throw Error('Export replaced source prompts with ungenerated edits.');
    await page.locator('#reflection').fill('Could sounds cautious, while Let’s sounds collaborative.');
    const [notes]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download my notes',exact:true}).click()]);
    if(!(await readFile(await notes.path(),'utf8')).includes('Could sounds cautious'))throw Error('Reflection export lost notes.');
@@ -85,13 +99,14 @@ try {
    if(!await page.locator('#annotate-a').evaluate(n=>n===document.activeElement))throw Error('Deletion lost keyboard focus.');
    const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
    const data=JSON.parse(await readFile(await file.path(),'utf8'));
-   if(data.comparisons[0].annotations.length!==1)throw Error('Download retained deleted evidence.');
+   if(data.comparisons[0].annotations.length!==2)throw Error('Download retained deleted evidence.');
   }],['previous-comparison-kept',async()=>{
    await page.getByRole('button',{name:'Use practice answers',exact:true}).click();
    if(await page.locator('.evidence-item').count()!==0||await page.locator('#history details').count()!==1)throw Error('New comparison lost history or retained old active annotations.');
+   if(await page.locator('#baseline-panel').isVisible()||await page.locator('#baseline-comparison').inputValue())throw Error('Old baseline carried over to a new comparison.');
    const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
    const data=JSON.parse(await readFile(await file.path(),'utf8'));
-   if(data.comparisons.length!==2||data.comparisons[0].annotations.length!==1||data.comparisons[1].annotations.length!==0)throw Error('Export mixed comparisons.');
+   if(data.comparisons.length!==2||data.comparisons[0].annotations.length!==2||data.comparisons[1].annotations.length!==0)throw Error('Export mixed comparisons.');
   }],['scrollable-evidence',async()=>{
    for(let n=0;n<8;n++){
     await page.locator('#annotate-a').click();await page.locator('#quote').fill('You could');

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity 11C: Personas in Conversation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="11c/applet.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main id="main" tabindex="-1">
+  <section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 11C: Personas in Conversation</h3>
+    <h4 class="uga-accent">Learning Objectives</h4>
+    <ul>
+      <li><strong>Trace</strong> how each speaker brings the facts from their persona into a conversation.</li>
+      <li><strong>Compare</strong> a persona written as a list of facts with a persona expressed through style, as in Activity 11A.</li>
+      <li><strong>Evaluate</strong> what a chatbot trained on conversations like these might learn about what a persona is.</li>
+    </ul>
+    <h4 class="uga-accent">Background</h4>
+    <p>PersonaChat is a collection of conversations written to train chatbots that keep a consistent personality. Two crowdworkers were paired up, and each was given a short persona: four or five sentences such as "i have two dogs ." They were asked to chat as that person and get to know each other. Each worker saw only their own persona, never their partner's. The reader below shows both personas at the top and the conversation underneath, as they appear in the dataset.</p>
+    <h4 class="uga-accent">Instructions</h4>
+    <ol>
+      <li>Open a conversation: use the number your instructor gives you, or press <strong>Random</strong>.</li>
+      <li>Read both personas, then the conversation. For each persona fact, find the turn where it first comes up, if it does. Notice how it gets there: as an answer, offered unprompted, or attached to a reply about something else.</li>
+      <li>Now look at <em>how</em> each speaker talks, not what they say. Is there anything in their word choice, punctuation or politeness that matches the person described in their persona?</li>
+      <li>Read at least two more conversations and compare, then finish with the Reflection &amp; Discussion Guide at the bottom of the page.</li>
+    </ol>
+  </section>
+
+  <section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero"><div class="hero-text"><h2 id="applet-title">PersonaChat <span>reader</span></h2><p>Two strangers, two personas, one conversation.</p></div></div>
+
+    <form id="picker" class="reader-nav">
+      <div class="field">
+        <label for="number">Conversation</label>
+        <div class="reader-nav__row">
+          <input id="number" type="number" min="1" step="1" inputmode="numeric" required aria-describedby="number-total">
+          <span id="number-total" class="reader-nav__total"></span>
+          <button class="btn-uga" type="submit">Go</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="prev" class="btn-uga-outline" type="button">← Previous</button>
+        <button id="next" class="btn-uga-outline" type="button">Next →</button>
+        <button id="random" class="btn-uga-dark" type="button">Random</button>
+      </div>
+    </form>
+    <p id="reader-status" class="visually-hidden" role="status" aria-live="polite"></p>
+
+    <div class="persona-grid">
+      <section class="persona-card persona-card--a" aria-labelledby="persona-a-title">
+        <h3 id="persona-a-title">Speaker A <span class="persona-card__role">opens the conversation</span></h3>
+        <ul id="persona-a" class="persona-card__facts"></ul>
+      </section>
+      <section class="persona-card persona-card--b" aria-labelledby="persona-b-title">
+        <h3 id="persona-b-title">Speaker B <span class="persona-card__role">replies first</span></h3>
+        <ul id="persona-b" class="persona-card__facts"></ul>
+      </section>
+    </div>
+
+    <h3 id="chat-title" class="reader-heading">The conversation</h3>
+    <ol id="log" class="chat-log reader-log" aria-labelledby="chat-title" tabindex="0"></ol>
+    <p id="source-rows" class="reader-source"></p>
+  </section>
+
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <ol>
+      <li>Which persona facts made it into the conversation, and which never came up? How were the ones that did come up introduced?</li>
+      <li>In Activity 11A, personas came through in style. Here each persona is a list of facts. Could you tell anything about who a speaker was meant to be from their wording alone? Quote a turn to support your answer.</li>
+      <li>The workers were told to get to know each other. How did that task shape the conversation? Does it sound like two strangers really meeting?</li>
+      <li>A chatbot trained on PersonaChat learns from conversations like these. What would it learn a persona is, and what would it miss?</li>
+    </ol>
+    <div class="reflection-notes field">
+      <label for="reflection">Write down your thoughts</label>
+      <textarea id="reflection" rows="5" maxlength="4000"></textarea>
+      <div class="btn-row">
+        <button class="btn-uga" type="button" data-download-notes>Download my notes</button>
+        <span class="field-hint" role="status" data-download-status></span>
+      </div>
+      <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
+  </section>
+</main>
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading"><div class="applet-feedback-card__content"><div><h2 id="applet-feedback-heading">Help us improve this applet</h2><a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a></div><a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2011C%3A%20Personas%20in%20Conversation&amp;applet=Activity%2011C%3A%20Personas%20in%20Conversation&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_11%2F11C_personachat_reader.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a></div></section>
+<footer class="source-card" aria-labelledby="sources-title"><h3 id="sources-title">Sources &amp; permissions</h3><p>The personas and conversations come from PersonaChat (Zhang et al., 2018, <a href="https://aclanthology.org/P18-1205/" target="_blank" rel="noopener noreferrer"><em>Personalizing Dialogue Agents: I have a dog, do you have pets too?</em></a>), as copied to Hugging Face in <a href="https://huggingface.co/datasets/AlekseyKorshuk/persona-chat" target="_blank" rel="noopener noreferrer">AlekseyKorshuk/persona-chat</a>. The dataset's authors do not endorse this activity.</p><details><summary>What was changed?</summary><p>That copy stores each conversation twice, once with each speaker's persona. This page joins the two copies so that both personas appear together, and removes the dataset's "__ SILENCE __" placeholder. Text is otherwise shown exactly as in the dataset: lower case, with spaces around punctuation, and with the workers' own spelling. The reader includes 193 of the first 200 training conversations: six were left out because their two copies differ slightly, and one because of a persona line unsuitable for class.</p></details></footer>
+<noscript><p>Enable JavaScript to read the PersonaChat conversations.</p></noscript>
+<script src="../reflection-notes.js" defer></script><script src="11c/dialogues.js" defer></script><script src="11c/applet.js" defer></script>
+</body></html>

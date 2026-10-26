@@ -3,7 +3,9 @@
 const $ = id => document.getElementById(id);
 const live = window.Week11Live;
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const SIDES = ['a', 'b'];
+const PERSONAS = ['a', 'b'];
+const SIDES = ['a', 'b', 'base']; // 'base' is the answer with no system prompt (Step 3)
+const SETTINGS = { temperature: 0.7, topk: 50, topp: 1 };
 
 let pair = null,
   annotations = [],
@@ -15,6 +17,7 @@ let pair = null,
 const examples = {
   a: 'A manageable plan starts with identifying the exam topics. You could then divide the week between reviewing key ideas and practising retrieval.',
   b: 'Let’s tackle the trickiest topics first! Give yourself a small practice challenge each day, and build momentum through the week.',
+  base: 'To prepare for a difficult exam, review your notes and identify the key topics, then practise with past questions or flashcards over several short study sessions.',
 };
 const featureHints = {
   address: 'How the speaker refers to you or includes you, such as “you” or “let’s”. Explain the relationship those words suggest.',
@@ -58,20 +61,24 @@ function setStage(n, status) {
   $(`stage${n}`).classList.remove('active', 'done');
   if (status) $(`stage${n}`).classList.add(status);
 }
-const label = side => 'Persona ' + side.toUpperCase();
+const label = side => (side === 'base' ? 'No system prompt' : 'Persona ' + side.toUpperCase());
+const answerOf = side => (side === 'base' ? 'the answer with no system prompt' : `the ${label(side)} answer`);
+const statusFor = side => (side === 'base' ? 'base-status' : 'annotate-status');
 
 // ---- Answers, with saved evidence in yellow and the phrase being annotated in green ----
-function renderOutput(side) {
-  const log = $('log-' + side);
+// Step 3 repeats A and B as read-only recaps, so those copies can't start a new annotation.
+function renderOutput(side, logId = 'log-' + side, selectable = true) {
+  const log = $(logId);
   log.replaceChildren();
-  if (!pair) return;
+  const text = pair?.outputs[side];
+  if (!text) return;
   const li = node('li', undefined, 'chat-turn ai');
-  li.append(node('span', `${label(side)} (${pair.kind === 'practice' ? 'practice answer' : pair.model[side]})`, 'chat-turn__speaker'));
+  const source = pair.model[side] === 'authored example' ? 'practice answer' : pair.model[side];
+  li.append(node('span', `${label(side)} (${source})`, 'chat-turn__speaker'));
   const p = node('p', undefined, 'chat-turn__text');
-  p.dataset.side = side;
-  const text = pair.outputs[side];
+  if (selectable) p.dataset.side = side;
   const saved = annotations.filter(a => a.side === side).flatMap(a => exactSpans(text, a.quote));
-  const active = dialogSide === side ? exactSpans(text, $('quote').value) : [];
+  const active = selectable && dialogSide === side ? exactSpans(text, $('quote').value) : [];
   const cuts = new Set([0, text.length]);
   for (const [a, b] of [...saved, ...active]) { cuts.add(a); cuts.add(b); }
   const points = [...cuts].sort((a, b) => a - b);
@@ -105,7 +112,7 @@ function renderEvidence(side) {
       annotations.splice(i, 1);
       render();
       $('annotate-' + side).focus();
-      $('annotate-status').textContent = 'Annotation removed.';
+      $(statusFor(side)).textContent = 'Annotation removed.';
     };
     li.append(body, remove);
     list.append(li);
@@ -120,7 +127,10 @@ function renderHistory() {
     details.append(node('summary', `Comparison ${i + 1}: ${p.kind === 'practice' ? 'practice answers' : 'live model'}, ${new Date(p.created).toLocaleTimeString()}`));
     details.append(node('p', 'User question: ' + p.prompt));
     for (const side of SIDES) {
-      details.append(node('h5', label(side)), node('p', 'System prompt: ' + p.systems[side]), node('p', p.outputs[side]));
+      if (!p.outputs[side]) continue;
+      details.append(node('h5', label(side)));
+      if (side !== 'base') details.append(node('p', 'System prompt: ' + p.systems[side]));
+      details.append(node('p', p.outputs[side]));
       const notes = p.annotations.filter(a => a.side === side);
       if (notes.length) {
         const ul = node('ul');
@@ -128,21 +138,24 @@ function renderHistory() {
         details.append(ul);
       }
     }
+    if (p.comparison) details.append(node('h5', 'Your comparison'), node('p', p.comparison));
     $('history').append(details);
   });
 }
 
 function render() {
   const sides = new Set(annotations.map(a => a.side));
+  const hasBase = !!pair?.outputs.base;
   for (const n of [2, 3]) {
     $(`stage${n}-lock`).hidden = !!pair;
     $(`stage${n}-content`).hidden = !pair;
   }
+  $('baseline-panel').hidden = !hasBase;
   setStage(1, pair ? 'done' : 'active');
-  setStage(2, !pair ? null : sides.size === 2 ? 'done' : 'active');
-  setStage(3, !pair ? null : history.length ? 'done' : annotations.length ? 'active' : null);
-  $('save-pair').disabled = !pair || busy;
+  setStage(2, !pair ? null : sides.has('a') && sides.has('b') ? 'done' : 'active');
+  setStage(3, !pair ? null : hasBase && pair.comparison ? 'done' : annotations.length || hasBase ? 'active' : null);
   SIDES.forEach(side => { renderOutput(side); renderEvidence(side); });
+  PERSONAS.forEach(side => renderOutput(side, 'recap-' + side, false));
 }
 
 function save() {
@@ -151,14 +164,16 @@ function save() {
   const existing = history.findIndex(p => p.id === pair.id);
   if (existing >= 0) history[existing] = snapshot;
   else history.push(snapshot);
-  renderHistory();
 }
 
-// A new pair of answers: the previous one (and its annotations) moves to Saved comparisons.
+// A new pair of answers: the previous one (with its baseline and annotations) moves to Earlier comparisons.
 function loadPair(next) {
-  save();
+  if (pair) { save(); renderHistory(); }
   pair = next;
   annotations = [];
+  $('baseline-comparison').value = '';
+  $('base-status').textContent = '';
+  $('base-error').textContent = '';
   render();
   focusHeading('stage2-title');
 }
@@ -167,10 +182,10 @@ function loadPair(next) {
 function updateQuoteCheck() {
   const quote = $('quote').value;
   $('quote-check').textContent = !quote
-    ? `Type words exactly as they appear in the ${label(dialogSide)} answer.`
+    ? `Type words exactly as they appear in ${answerOf(dialogSide)}.`
     : exactSpans(pair.outputs[dialogSide], quote).length
       ? 'Found in the answer (highlighted green).'
-      : `This phrase doesn't match the ${label(dialogSide)} answer. Check the exact wording.`;
+      : `This phrase doesn't match ${answerOf(dialogSide)}. Check the exact wording.`;
 }
 function updateFeatureHint() {
   $('feature-help').textContent = featureHints[$('category').value];
@@ -178,7 +193,7 @@ function updateFeatureHint() {
 function openDialog(side, quote) {
   dialogSide = side;
   pending = null;
-  $('dialog-title').textContent = 'Annotate ' + label(side);
+  $('dialog-title').textContent = side === 'base' ? 'Annotate the answer with no system prompt' : 'Annotate ' + label(side);
   $('quote').value = quote || '';
   $('interpretation').value = '';
   $('annotation-error').textContent = '';
@@ -236,7 +251,7 @@ $('annotation-form').addEventListener('submit', e => {
     quote = $('quote').value,
     interpretation = $('interpretation').value.trim();
   if (!quote || !exactSpans(pair.outputs[side], quote).length) {
-    $('annotation-error').textContent = `Enter a phrase that appears exactly in the ${label(side)} answer.`;
+    $('annotation-error').textContent = `Enter a phrase that appears exactly in ${answerOf(side)}.`;
     $('quote').focus();
     return;
   }
@@ -249,6 +264,10 @@ $('annotation-form').addEventListener('submit', e => {
   closeDialog();
   render();
   $('annotate-' + side).focus({ preventScroll: true });
+  if (side === 'base') {
+    $('base-status').textContent = 'Annotation added to the answer with no system prompt.';
+    return;
+  }
   const other = side === 'a' ? 'b' : 'a';
   $('annotate-status').textContent = annotations.some(a => a.side === other)
     ? `Annotation added to ${label(side)}. When you have evidence from both answers, continue to Step 3.`
@@ -265,7 +284,11 @@ function promptNotice() {
 }
 for (const id of ['prompt', 'system-a', 'system-b']) $(id).addEventListener('input', promptNotice);
 
-const generateControls = ['generate', 'prompt', 'system-a', 'system-b', 'example'];
+const generateControls = ['generate', 'prompt', 'system-a', 'system-b', 'example', 'generate-base', 'example-base'];
+function setBusy(on) {
+  busy = on;
+  generateControls.forEach(id => { $(id).disabled = on; });
+}
 $('generate').onclick = async () => {
   if (busy) return;
   const prompt = $('prompt').value.trim(),
@@ -274,15 +297,12 @@ $('generate').onclick = async () => {
     $('error').textContent = 'Enter a question and both system prompts.';
     return;
   }
-  busy = true;
-  $('save-pair').disabled = true;
-  generateControls.forEach(id => { $(id).disabled = true; });
+  setBusy(true);
   $('error').textContent = '';
   $('status').textContent = 'Generating both personas…';
   try {
-    const settings = { temperature: 0.7, topk: 50, topp: 1 };
     const results = {};
-    for (const side of SIDES) results[side] = await live.generate({ mode: 'persona', prompt, system: systems[side], ...settings });
+    for (const side of PERSONAS) results[side] = await live.generate({ mode: 'persona', prompt, system: systems[side], ...SETTINGS });
     loadPair({
       id: crypto.randomUUID(),
       created: new Date().toISOString(),
@@ -291,16 +311,15 @@ $('generate').onclick = async () => {
       systems,
       outputs: { a: results.a.reply, b: results.b.reply },
       model: { a: results.a.model, b: results.b.model },
-      settings,
+      settings: SETTINGS,
+      comparison: '',
     });
     $('status').textContent = 'Both answers are ready in Step 2.';
   } catch (e) {
     $('error').textContent = e.message;
     $('status').textContent = 'No answers replaced; any existing work is preserved.';
   } finally {
-    busy = false;
-    $('save-pair').disabled = !pair;
-    generateControls.forEach(id => { $(id).disabled = false; });
+    setBusy(false);
   }
 };
 $('example').onclick = () => {
@@ -311,23 +330,53 @@ $('example').onclick = () => {
     kind: 'practice',
     prompt: 'In 1–2 sentences, how can I prepare for a difficult exam next week?',
     systems: { a: 'Authored to illustrate a measured university tutor.', b: 'Authored to illustrate an enthusiastic peer.' },
-    outputs: examples,
+    outputs: { a: examples.a, b: examples.b },
     model: { a: 'authored example', b: 'authored example' },
+    comparison: '',
   });
   $('status').textContent = 'Practice answers loaded in Step 2. Try finding “You could” in Persona A.';
 };
 
-// ---- Saving ----
-$('save-pair').onclick = () => {
-  save();
+// The baseline answers the question the personas answered, even if the Step 1 box has been edited since.
+function setBaseline(text, model) {
+  annotations = annotations.filter(a => a.side !== 'base');
+  pair.outputs.base = text;
+  pair.model.base = model;
   render();
-  $('save-status').textContent = 'Snapshot kept in Saved comparisons, including the current annotations. Download your work to save a file.';
+}
+$('generate-base').onclick = async () => {
+  if (busy || !pair) return;
+  setBusy(true);
+  $('base-error').textContent = '';
+  $('base-status').textContent = 'Generating with no system prompt…';
+  try {
+    const r = await live.generate({ mode: 'baseline', prompt: pair.prompt, ...SETTINGS });
+    setBaseline(r.reply, r.model);
+    $('base-status').textContent = 'The answer with no system prompt is ready. Compare it with both personas below.';
+  } catch (e) {
+    $('base-error').textContent = e.message;
+    $('base-status').textContent = 'Existing answers preserved.';
+  } finally {
+    setBusy(false);
+  }
 };
+$('example-base').onclick = () => {
+  if (!pair) return;
+  $('base-error').textContent = '';
+  setBaseline(examples.base, 'authored example');
+  $('base-status').textContent = 'Practice answer loaded. It was written by the course team to illustrate a typical default assistant style.';
+};
+$('baseline-comparison').addEventListener('input', () => {
+  if (!pair) return;
+  pair.comparison = $('baseline-comparison').value;
+  render();
+});
+
+// ---- Saving ----
 $('download').onclick = () => {
   save();
-  render();
   download('11A-style-persona.json', { activity: '11A', comparisons: history });
-  $('save-status').textContent = 'Download requested: 11A-style-persona.json, with every comparison and its annotations. Download your reflection notes separately below.';
+  $('save-status').textContent = 'Download requested: 11A-style-persona.json, with every comparison, annotation and your written comparison. Download your reflection notes separately below.';
 };
 
 live.connection();

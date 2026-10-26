@@ -4,7 +4,7 @@ export const LIMITS = { output: 1024, perTurn: 12000, inferenceMs: 90000 };
 export function validate(b) {
   if (
     !b ||
-    !["persona", "sampling"].includes(b.mode) ||
+    !["persona", "baseline", "sampling"].includes(b.mode) ||
     typeof b.prompt !== "string" ||
     !b.prompt.trim() ||
     b.prompt.length > 1200
@@ -39,15 +39,20 @@ export function validate(b) {
     nucleusName: Object.hasOwn(b, "topq") ? "top-q" : "top-p",
   };
 }
+// "baseline" is 11A's no-persona comparison: only the shared classroom instruction, nothing added.
 export function messages(b) {
+  const base =
+    "You are participating in an introductory linguistics classroom activity. Reply in English, in plain text. Follow the requested length; otherwise be concise. Do not claim to have taken actions outside the conversation.";
   return [
     {
       role: "system",
       content:
-        "You are participating in an introductory linguistics classroom activity. Reply in English, in plain text. Follow the requested length; otherwise be concise. Do not claim to have taken actions outside the conversation. " +
-        (b.mode === "persona"
-          ? b.system
-          : "Respond to the requested writing task directly. Do not explain your sampling settings."),
+        b.mode === "baseline"
+          ? base
+          : base + " " +
+            (b.mode === "persona"
+              ? b.system
+              : "Respond to the requested writing task directly. Do not explain your sampling settings."),
     },
     { role: "user", content: b.prompt },
   ];

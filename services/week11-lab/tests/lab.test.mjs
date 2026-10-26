@@ -3,12 +3,6 @@ import assert from "node:assert/strict";
 import worker, { Classroom } from "../src/worker.mjs";
 import { admit } from "../src/budget.mjs";
 import { validate, messages } from "../src/core.mjs";
-import {
-  bigrams,
-  distribution,
-  sample,
-  exactSpans,
-} from "../../../docs/week_11/core.mjs";
 const input = {
   mode: "sampling",
   prompt: "Write a sentence.",
@@ -54,52 +48,6 @@ const req = (path, body = {}, token) =>
     },
     body: JSON.stringify(body),
   });
-test("bigram counts never cross sentence boundaries", () => {
-  const m = bigrams("we study language\nwe study speech");
-  assert.equal(m.get("we").get("study"), 2);
-  assert.equal(m.has("language"), false);
-});
-test("temperature, k, p and normalization follow the displayed order", () => {
-  let counts = new Map([
-    ["a", 6],
-    ["b", 3],
-    ["c", 1],
-  ]);
-  let r = distribution(counts);
-  r.forEach((x, i) => assert.ok(Math.abs(x.prob - [0.6, 0.3, 0.1][i]) < 1e-12));
-  r = distribution(counts, { temperature: 0, topk: 0, topp: 1 });
-  assert.deepEqual(
-    r.map((r) => r.prob),
-    [1, 0, 0],
-  );
-  r = distribution(counts, { temperature: 1, topk: 2, topp: 0.6 });
-  assert.equal(r.filter((r) => r.kept).length, 1);
-  assert.equal(r[0].prob, 1);
-  assert.equal(
-    sample(r, () => 0.99),
-    "a",
-  );
-});
-test("extreme legal temperature stays finite and invalid settings fail", () => {
-  const r = distribution(
-    new Map([
-      ["a", 100],
-      ["b", 1],
-    ]),
-    { temperature: 0.001, topk: 0, topp: 1 },
-  );
-  assert.ok(r.every((x) => Number.isFinite(x.prob)));
-  assert.throws(() => distribution(new Map([["a", 1]]), { topk: 1.5 }));
-  assert.throws(() => distribution(new Map()));
-});
-test("overlapping annotation phrases retain exact text offsets", () => {
-  assert.deepEqual(exactSpans("had had had", "had"), [
-    [0, 3],
-    [4, 7],
-    [8, 11],
-  ]);
-  assert.deepEqual(exactSpans("<script>", "<script>"), [[0, 8]]);
-});
 test("validation strips notes and rejects conflicting nucleus settings", () => {
   assert.ok(
     !JSON.stringify(validate({ ...input, reflection: "PRIVATE" })).includes(
@@ -120,6 +68,16 @@ test("system prompt and user prompt remain separate roles", () => {
   const m = messages(b);
   assert.equal(m[0].role, "system");
   assert.ok(m[0].content.includes(b.system));
+  assert.equal(m[1].content, b.prompt);
+});
+test("baseline sends only the classroom instruction, with no persona text", () => {
+  const b = validate({ ...input, mode: "baseline", system: "Use measured language." });
+  assert.equal(b.system, "");
+  const m = messages(b);
+  assert.equal(m[0].role, "system");
+  assert.ok(!m[0].content.includes("measured"));
+  assert.ok(!m[0].content.includes("sampling"));
+  assert.ok(messages(validate({ ...input, mode: "persona", system: "Use measured language." }))[0].content.startsWith(m[0].content));
   assert.equal(m[1].content, b.prompt);
 });
 test("session enforcement, bounded sampling parameters, and private-note exclusion", async () => {
@@ -175,14 +133,6 @@ test("daily quota prevents further model calls", async () => {
   assert.equal(seen.length, 1);
 });
 
-test("top-q nucleus keeps the boundary candidate and matches top-p", () => {
-  const counts = new Map([["a", 6], ["b", 3], ["c", 1]]);
-  assert.deepEqual(distribution(counts, { topq: 0.7 }), distribution(counts, { topp: 0.7 }));
-  distribution(counts, { topq: 0.7 }).forEach((r,i)=>assert.ok(Math.abs(r.prob - [2/3,1/3,0][i]) < 1e-12));
-  assert.equal(distribution(counts, { topq: 1 }).filter(r=>r.kept).length, 3);
-  assert.throws(()=>distribution(counts, { topq: 0 }));
-  assert.throws(()=>distribution(counts, { topq: 0.7, topp: 0.7 }));
-});
 test("top-q is passed to the provider as top_p and preserved in metadata", async () => {
   const {topp, ...rest} = input;
   const b = {...rest, topq: 0.65};

@@ -24,16 +24,16 @@
     <ul>
       <li><strong>Identify</strong> the language cues (word choice, hedging, pronouns, punctuation) that make a speaker sound like a particular kind of person.</li>
       <li><strong>Compare</strong> how two system prompts change the style of a model's answer to the same question.</li>
-      <li><strong>Support</strong> an interpretation of persona with exact phrases, and test whether it holds across generations.</li>
+      <li><strong>Support</strong> an interpretation of persona with exact phrases, and test it against the model's default voice with no system prompt.</li>
     </ul>
     <h4 class="uga-accent">Background</h4>
     <p>A persona is the identity a speaker presents through language: a careful tutor, an enthusiastic friend, a brisk customer-service agent. We recognise personas from small choices, such as “you could” versus “you should”, “let’s” versus “you”, or an exclamation mark at the end of a sentence.</p>
-    <p>Chat models are given a persona through a <em>system prompt</em>: an instruction, usually hidden from the user, that tells the model who to be and how to talk. In this activity you will give two personas the same question and examine how the system prompt shows up in the wording of their answers. Use exact phrases to support your interpretation.</p>
+    <p>Chat models are given a persona through a <em>system prompt</em>: an instruction, usually hidden from the user, that tells the model who to be and how to talk. In this activity you will give two personas the same question, examine how the system prompt shows up in the wording of their answers, and compare both with the model's answer when it has no persona instructions at all. Use exact phrases to support your interpretation.</p>
     <h4 class="uga-accent">Instructions</h4>
     <ol>
       <li><strong>Generate two answers.</strong> Keep the default question and system prompts for your first try, and click <strong>Generate both answers</strong>.</li>
       <li><strong>Annotate the language.</strong> Select a phrase in either answer, say what kind of feature it is, and explain what it suggests about the persona. Collect evidence from both answers.</li>
-      <li><strong>Change one thing and compare again.</strong> Edit one system prompt, generate again, and see whether your evidence still holds. Download your work before you leave.</li>
+      <li><strong>Compare with no system prompt.</strong> Ask the same question with no persona instructions, and compare that answer with both personas to see which features the system prompts really added. Download your work before you leave.</li>
     </ol>
   </section>
 
@@ -53,7 +53,7 @@
           <h3 id="stage1-title" class="stage-title" tabindex="-1">Give two personas the same question</h3>
           <div class="stage-content">
             <p>Before a chat model writes anything, it reads two kinds of instruction. The <strong>user prompt</strong> is the question you type. The <strong>system prompt</strong> is set up in advance by whoever deploys the model, and tells it who it is supposed to be and how it should talk. Users rarely see the system prompt, but it shapes every reply.</p>
-            <p>Here you write both system prompts yourself. Persona A and Persona B get exactly the same question, from the same model, with the same sampling settings. The only thing that differs is the system prompt, so if the two answers sound different, the system prompt is the most likely reason. (Step 3 shows that some of the difference is also down to chance.)</p>
+            <p>Here you write both system prompts yourself. Persona A and Persona B get exactly the same question, from the same model, with the same sampling settings. The only thing that differs is the system prompt, so if the two answers sound different, the system prompt is the most likely reason. (Step 3 checks this by comparing both personas with an answer that has no system prompt.)</p>
             <p>For your first try, keep the defaults and click <strong>Generate both answers</strong>. The two defaults are deliberately close: both personas are asked to be helpful and accurate, but one is a careful tutor and the other an enthusiastic study partner. Notice that neither prompt lists any words to use. The model has to turn a description of a social role into word choices by itself.</p>
             <div class="explanation">
               <strong>Persona is built from language.</strong> You can't see the tutor's office or hear the study partner's tone of voice. Everything that tells you who is speaking, such as how formal the words are, how sure the speaker sounds and whether they say “you” or “we”, is in the text. That text is the evidence you'll collect in Step 2.
@@ -152,29 +152,54 @@
       <section id="stage3" class="stage" aria-labelledby="stage3-title">
         <div class="stage-num" aria-hidden="true">3</div>
         <div class="stage-body">
-          <h3 id="stage3-title" class="stage-title" tabindex="-1">Change one thing and compare again</h3>
+          <h3 id="stage3-title" class="stage-title" tabindex="-1">Compare with no system prompt</h3>
           <div class="stage-content">
             <p id="stage3-lock" class="lock-note"><span aria-hidden="true">🔒</span> Locked. This step opens when you have two answers to compare in Step 2.</p>
             <div id="stage3-content" hidden>
-              <p>One pair of answers is a single observation. To find out what the system prompt is really doing, change <strong>one</strong> thing in Step 1 and generate again. Keep the question the same. For example, remove “use measured language” from Persona A, make Persona B “a strict coach”, or swap the two prompts. Then look for your Step 2 features in the new answers: did the hedges disappear? Did “let’s” move to the other persona?</p>
-              <p>Also try generating again <em>without changing anything</em>. The model picks each word by sampling from a probability distribution (Activity 11B shows how), so the same prompts can give different wording on each run. A feature that appears every time for one persona is probably coming from the system prompt. A feature that comes and goes may just be chance.</p>
-              <p>When a new pair of answers loads, the previous pair and its annotations move to <strong>Saved comparisons</strong> below. Annotate the new pair too, so you can compare evidence across runs.</p>
+              <p>So far you have compared two personas with each other. But how much of what you annotated actually comes from the system prompts? To find out, you need a <strong>baseline</strong>: the same question, from the same model and settings, with no persona at all. Click <strong>Generate with no system prompt</strong> to get one.</p>
+              <p>A chat model with no persona doesn't write in a neutral, styleless way. It falls back on its <em>default voice</em>: the helpful-assistant style it learned during instruction tuning and reinforcement learning from human feedback (the RLHF activity in Week 3). That default is a persona too, just one that nobody wrote down. Comparing against it shows which features the system prompts added, which they removed, and which the model produces whatever you tell it.</p>
+              <p>Read the three answers side by side. For each feature you annotated in Step 2, ask: is it also in the no-persona answer? If Persona A hedges with “could” but so does the baseline, the hedging is the model's habit and not evidence of the tutor persona. If “let’s” appears only in Persona B, the system prompt probably put it there. You can annotate the no-persona answer the same way as in Step 2.</p>
               <div class="explanation">
-                <strong>A fair test changes one thing.</strong> If you edit both system prompts and the question at the same time, you can't tell which edit caused which change in the wording. Change one variable, keep the rest fixed, and repeat the run before drawing a conclusion.
+                <strong>A baseline makes the comparison fair.</strong> Two personas can differ from each other and still share most of their style with the model's default voice. Only by comparing against what the model does without instructions can you say what an instruction changed. Keep in mind that the baseline is a single sample too: run it again and the wording may change.
               </div>
+              <p class="field-hint">“No system prompt” means no persona instructions. The course service still adds its short classroom instruction (reply in plain English and be concise) to every request, including the two personas.</p>
               <div class="btn-row">
-                <button id="save-pair" type="button" class="btn-uga-outline">Keep this comparison</button>
-                <button id="download" type="button" class="btn-uga">Download my work</button>
+                <button id="generate-base" type="button" class="btn-uga">Generate with no system prompt</button>
+                <button id="example-base" type="button" class="btn-uga-outline">Use practice answer</button>
               </div>
-              <p class="field-hint">“Keep this comparison” saves a snapshot of the current answers and annotations below without generating again; click it again after more annotating to update the snapshot. “Download my work” saves every comparison, prompt, answer and annotation as one file. Nothing is submitted, and comparisons are lost if you close or reload the page.</p>
+              <p id="base-status" class="field-hint" role="status" aria-live="polite"></p>
+              <p id="base-error" class="error-text" role="alert"></p>
+
+              <div id="baseline-panel" hidden>
+                <div class="persona-grid persona-grid--three">
+                  <section class="persona-column" aria-labelledby="persona-base-title">
+                    <h4 id="persona-base-title" class="persona-heading">No system prompt</h4>
+                    <ol class="chat-log chat-log--static" id="log-base" tabindex="0" aria-label="Answer with no system prompt"></ol>
+                    <div class="btn-row"><button id="annotate-base" type="button" class="btn-uga-outline" data-annotate="base">Annotate a phrase</button></div>
+                    <h5 class="evidence-heading">Evidence from no system prompt</h5>
+                    <ol id="annotations-base" class="evidence-list" aria-label="Evidence from the answer with no system prompt"></ol>
+                  </section>
+                  <section class="persona-column persona-column--recap" aria-labelledby="recap-a-title">
+                    <h4 id="recap-a-title" class="persona-heading">Persona A <span class="recap-note">(from Step 2)</span></h4>
+                    <ol class="chat-log chat-log--static" id="recap-a" tabindex="0" aria-label="Persona A answer, repeated from Step 2"></ol>
+                  </section>
+                  <section class="persona-column persona-column--recap" aria-labelledby="recap-b-title">
+                    <h4 id="recap-b-title" class="persona-heading">Persona B <span class="recap-note">(from Step 2)</span></h4>
+                    <ol class="chat-log chat-log--static" id="recap-b" tabindex="0" aria-label="Persona B answer, repeated from Step 2"></ol>
+                  </section>
+                </div>
+                <div class="field">
+                  <label for="baseline-comparison">Compare the three answers. Which features from Persona A and B are missing from the no-persona answer, and which appear in all three? Quote exact phrases.</label>
+                  <textarea id="baseline-comparison" rows="4" maxlength="4000"></textarea>
+                </div>
+              </div>
+
+              <div class="btn-row"><button id="download" type="button" class="btn-uga-outline">Download my work</button></div>
+              <p class="field-hint">Saves the prompts, all three answers, your annotations and your comparison as one file. Nothing is submitted. If you generate new answers in Step 1, the current ones are kept under Earlier comparisons and included in the download.</p>
               <p id="save-status" class="field-hint" role="status" aria-live="polite"></p>
               <div id="history-panel" hidden>
-                <h4 class="persona-heading">Saved comparisons</h4>
+                <h4 class="persona-heading">Earlier comparisons</h4>
                 <div id="history"></div>
-              </div>
-              <div class="discussion-box">
-                <h4>💬 Discussion question (group activity)</h4>
-                <p>Which of your Step 2 features came back when you generated again, and which disappeared? Share the system prompt edit that made the biggest difference to the wording. Was it the edit you expected?</p>
               </div>
             </div>
           </div>
@@ -233,8 +258,8 @@
     <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
     <ol>
       <li>Which phrases suggest each persona? Quote at least one from each answer.</li>
-      <li>Did changing a system prompt change the language? Cite an example of a feature that changed and one that stayed the same.</li>
-      <li>Would another generation support the same interpretation? What does that tell you about how reliably a system prompt controls a persona?</li>
+      <li>Which features of the persona answers also appeared in the answer with no system prompt? What does that tell you about the model's default voice?</li>
+      <li>How much did the system prompts actually change? Cite one feature that a system prompt added and one that was there anyway.</li>
     </ol>
     <div class="reflection-notes field">
       <label for="reflection">Write down your thoughts</label>
