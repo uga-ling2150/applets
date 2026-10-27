@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../style.css">
 <link rel="stylesheet" href="12a/applet.css?v=20261026">
 <script src="../highlighter.js" defer></script>
-<script type="module" src="12a/applet.mjs"></script>
+<script type="module" src="12a/applet.mjs?v=20261026-copy"></script>
 <script src="../reflection-notes.js" defer></script>
 </head>
 <body>
@@ -30,7 +30,7 @@
 </section>
 <section class="app-wrapper" aria-labelledby="applet-title">
 <div class="hero"><div class="hero-text"><h2 id="applet-title">Support <span>or agreement?</span></h2><p>Inspect the language. Question the clues. Try another response.</p></div></div>
-<p class="field-hint">Examples below are authored teaching examples, not live AI generations. Your text and notes stay on this page; nothing is submitted.</p>
+<p class="field-hint">Start with a teaching example or enter your own situation and response.</p>
 <div class="rack">
 <section class="stage active" aria-labelledby="read-title"><div class="stage-num" aria-hidden="true">1</div><div class="stage-body"><h3 class="stage-title" id="read-title">Read and predict</h3><div class="stage-content">
 <p>Read the situation first. Predict before revealing so you can compare your interpretation with the tool's clues.</p>
@@ -44,29 +44,26 @@
 <section class="stage" aria-labelledby="inspect-title" id="inspect-stage" hidden><div class="stage-num" aria-hidden="true">2</div><div class="stage-body"><h3 class="stage-title" id="inspect-title" tabindex="-1">Inspect and explain</h3><div class="stage-content">
 <div class="syco-tools"><div class="field"><label for="dimension">Pattern to inspect</label><select id="dimension"><option value="validation">Validation</option><option value="indirectness">Indirectness</option><option value="framing">Framing</option><option value="combined">All three (combined)</option></select></div><div class="field"><label for="show-weights"><input type="checkbox" id="show-weights"> Show word weights</label></div></div>
 <p id="definition"></p><ul id="legend" class="hl-legend" aria-label="Highlight key"></ul>
-<p class="syco-caption">Weight signs show an association, not positive or negative politeness. Stronger colour is not greater certainty.</p>
+<p class="syco-caption">Weight signs indicate association with the selected pattern; positive and negative politeness describe interactional strategies.</p>
 <p class="field-label" id="output-label">Original response, with language clues</p><div id="output" class="hl-output" role="region" aria-labelledby="output-label" tabindex="0"></div>
 <p class="field-hint" id="match-status" role="status"></p>
 <div id="observations-section" class="field" hidden><p class="field-label" id="evidence-label">Your observations</p><ol id="evidence" class="syco-evidence" aria-labelledby="evidence-label" tabindex="0"></ol></div>
 <div class="syco-grid"><div class="field"><label for="quote">Phrase from the original response</label><input id="quote" maxlength="500" aria-describedby="annotation-hint annotation-error"></div><div class="field"><label for="interpretation">What does it do here? Is the clue convincing?</label><textarea id="interpretation" rows="2" maxlength="2000" aria-describedby="annotation-error"></textarea></div></div>
-<p class="field-hint" id="annotation-hint">Copy an exact phrase from the original response; it can be highlighted or unhighlighted.</p>
+<p class="field-hint" id="annotation-hint">Choose a highlighted or unhighlighted phrase from the original response.</p>
 <p class="error-text" id="annotation-error" role="alert"></p>
 <div class="btn-row"><button type="button" class="btn-uga-outline" id="add">Keep this observation</button></div><p id="evidence-status" class="field-hint" role="status"></p>
 <details class="glossary-box"><summary>Inspect matched words and weights</summary><div id="matches" class="table-scroll syco-matches" role="region" aria-label="Matched word weights" tabindex="0"></div></details>
 </div></div></section>
 <section class="stage" aria-labelledby="rewrite-title" id="rewrite-stage" hidden><div class="stage-num" aria-hidden="true">3</div><div class="stage-body"><h3 class="stage-title" id="rewrite-title">Rewrite and compare</h3><div class="stage-content">
-<p>Keep the situation fixed. Preserve helpful support and revise any unwarranted agreement. Compare what each response does, rather than trying to remove highlighted words.</p>
+<p>Keep the situation fixed. Preserve helpful support, revise unwarranted agreement, and compare how the responses address the user.</p>
 <div class="field"><label for="rewrite">Your rewritten response</label><textarea id="rewrite" rows="3" maxlength="6000" aria-describedby="compare-error"></textarea></div><p id="compare-error" class="error-text" role="alert"></p><div class="btn-row"><button type="button" class="btn-uga" id="compare">Compare language clues</button><button type="button" class="btn-uga-outline" id="download">Download my work</button></div>
 <p id="work-status" class="field-hint" role="status"></p>
 <div id="comparison" hidden><p class="syco-caption">Both responses use the selected pattern and the same colour scale.</p><div class="syco-grid"><div class="field"><p class="field-label" id="comparison-original-label">Original response</p><div id="comparison-original" class="hl-output" role="region" aria-labelledby="comparison-original-label" tabindex="0"></div></div><div class="field"><p class="field-label" id="rewrite-output-label">Your rewritten response</p><div id="rewrite-output" class="hl-output" role="region" aria-labelledby="rewrite-output-label" tabindex="0"></div></div></div><p class="field-hint" id="rewrite-status" role="status"></p></div>
 </div></div></section>
 </div>
 </section>
-<details class="lesson-container glossary-box mx-auto"><summary>How to interpret this teaching tool</summary>
-<p>The word weights come from Ryan Lai's analyses of the ELEPHANT data. This is a lexical visualization, not the paper's LLM evaluator and not a calibrated probability or a verdict about a person. Repeated words can create repeated highlights without providing independent evidence.</p>
-<p>All three (combined) uses the supplied <code>6c_lasso_any.csv</code>. Despite that filename, the current training code defines its target with validation AND framing AND indirectness. It is a separately trained set of weights, not an average or an OR of the three displays.</p>
-<p>We preserve the supplied lexical coefficients, including their signs and zeros. Category metadata, punctuation and whitespace features are retained in the conversion audit but not highlighted as words. Zero coefficients produce no highlight. Word matching is case-insensitive and ignores accents/punctuation; it does not lemmatize. This simplifies the research pipeline's spaCy normalization and can miss or combine forms, especially contractions. No IDF multiplier, intercept or prediction threshold is added.</p>
-<p id="data-note" class="field-hint"></p>
+<details class="lesson-container glossary-box mx-auto"><summary>How to read the highlights</summary>
+<p>Highlights show words associated with the selected pattern. Stronger colour indicates a larger word weight. “All three” uses weights learned from examples containing validation, indirectness, and framing together. Use the situation and surrounding language to explain what each phrase does.</p>
 </details>
 <section class="reflection-container" aria-labelledby="reflection-title"><h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
 <ol><li>Which phrase preserves the user's face? Would it be appropriate in a different situation?</li><li>Where did you disagree with the highlighter, or notice an important phrase it missed?</li><li>Did your rewrite change the stance, or just the highlighted words? Explain with evidence.</li></ol>
