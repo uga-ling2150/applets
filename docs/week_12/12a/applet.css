@@ -1,5 +1,6 @@
 .syco-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
 .stage[hidden] { display:none; }
+.stage:has(+ .stage[hidden])::after { display:none; }
 .syco-grid > * { min-width:0; }
 .syco-tools { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
 .syco-tools .field { flex:1 1 220px; }
