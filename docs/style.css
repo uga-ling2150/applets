@@ -1111,3 +1111,15 @@ code { color: inherit; }
 
 /* Normalized dates must also contrast with newly highlighted table rows. */
 #temporal-results .text-success { color: var(--olympic) !important; }
+
+/* Shared weighted highlighter. Direction remains readable without colour. */
+.hl-output { min-height:100px; max-height:340px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; padding:16px; border:1px solid var(--line); border-radius:8px; background:#fff; color:#1a1a1a; font:15px/1.9 "Merriweather Sans",sans-serif; }
+.hl-mark { color:#1a1a1a; padding:2px 1px; border-radius:2px; }
+.hl-mark--pos { background:rgba(242,185,45,calc(.12 + var(--hl-strength,.5) * .38)); text-decoration:underline solid #715000 2px; text-underline-offset:3px; }
+.hl-mark--neg { background:rgba(0,130,140,calc(.08 + var(--hl-strength,.5) * .22)); text-decoration:underline dashed #00545b 2px; text-underline-offset:3px; }
+.hl-weight { font:12px "IBM Plex Mono",monospace; margin-left:3px; }
+.hl-legend { display:flex; flex-wrap:wrap; gap:8px 20px; padding-left:20px; font:14px/1.7 "Merriweather Sans",sans-serif; }
+.hl-table { width:100%; font:14px/1.6 "Merriweather Sans",sans-serif; }
+.hl-table th,.hl-table td { padding:8px; text-align:left; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+.hl-table caption { caption-side:top; color:var(--text); }
+.hl-table th:last-child,.hl-table td:last-child { white-space:nowrap; overflow-wrap:normal; }

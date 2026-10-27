@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity 12A: AI Sycophancy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="12a/applet.css">
+<script src="../highlighter.js" defer></script>
+<script type="module" src="12a/applet.mjs"></script>
+<script src="../reflection-notes.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header"><h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1><h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2></header>
+<main id="main" tabindex="-1">
+<section class="lesson-container" aria-labelledby="activity-title">
+<h3 id="activity-title" class="h3 mb-4">Activity 12A: AI Sycophancy</h3>
+<h4 class="uga-accent">Learning Objectives</h4>
+<ul><li><strong>Identify</strong> language that supports a user's self-image or avoids challenging it.</li><li><strong>Evaluate</strong> word-based clues against the situation and your own interpretation.</li></ul>
+<h4 class="uga-accent">Background</h4>
+<p>In interaction, <strong>face</strong> is the self-image a person wants others to accept. An AI can preserve a user's face by validating their feelings, avoiding direct criticism, or accepting their version of events. This can be supportive; it can also become <strong>social sycophancy</strong> when it protects the user's self-image at the expense of appropriate challenge.</p>
+<p>This activity highlights words associated with three patterns in a research dataset. <strong>Validation</strong> supports the user's emotions or perspective. <strong>Indirectness</strong> gives hedged or vague guidance rather than direct advice. <strong>Framing</strong> accepts the user's premises rather than questioning them. A word alone cannot tell us whether the response is appropriate: read the situation too.</p>
+<h4 class="uga-accent">Instructions</h4>
+<ol><li>With a partner, read the situation and response. Predict which language supports the user's face before revealing clues.</li><li>Switch patterns and explain one phrase. You can disagree with the highlights or identify a missed clue.</li><li>Rewrite the response, compare the same pattern, and discuss what changed. Swap roles with another example.</li></ol>
+</section>
+<section class="app-wrapper" aria-labelledby="applet-title">
+<div class="hero"><div class="hero-text"><h2 id="applet-title">Support <span>or agreement?</span></h2><p>Inspect the language. Question the clues. Try another response.</p></div></div>
+<p class="field-hint">Examples below are authored teaching examples, not live AI generations. Your text and notes stay on this page; nothing is submitted.</p>
+<div class="rack">
+<section class="stage active" aria-labelledby="read-title"><div class="stage-num" aria-hidden="true">1</div><div class="stage-body"><h3 class="stage-title" id="read-title">Read and predict</h3><div class="stage-content">
+<div class="field"><label for="example">Teaching example</label><select id="example"><option value="privacy">A disagreement about privacy</option><option value="support">Support after a setback</option><option value="team">A group project disagreement</option></select></div>
+<p class="field-hint">Choosing another example starts over. Download your work first if you want to keep it.</p>
+<div class="syco-grid"><div class="field"><label for="context">Situation / user message</label><textarea id="context" rows="4" maxlength="4000"></textarea></div><div class="field"><label for="response">Response to inspect</label><textarea id="response" rows="4" maxlength="6000"></textarea></div></div>
+<div class="field"><label for="prediction">Before revealing: which phrase stands out, and why?</label><textarea id="prediction" rows="2" maxlength="2000"></textarea></div>
+<div class="btn-row"><button type="button" class="btn-uga" id="reveal" disabled>Reveal language clues</button></div>
+<p class="field-hint syco-editnotice" id="load-status" role="status">Loading the word lists…</p><p class="error-text" id="error" role="alert"></p>
+</div></div></section>
+<section class="stage" aria-labelledby="inspect-title" id="inspect-stage" hidden><div class="stage-num" aria-hidden="true">2</div><div class="stage-body"><h3 class="stage-title" id="inspect-title" tabindex="-1">Inspect and explain</h3><div class="stage-content">
+<div class="syco-tools"><div class="field"><label for="dimension">Pattern to inspect</label><select id="dimension"><option value="validation">Validation</option><option value="indirectness">Indirectness</option><option value="framing">Framing</option><option value="combined">All three (combined)</option></select></div><div class="field"><label for="show-weights"><input type="checkbox" id="show-weights"> Show word weights</label></div></div>
+<p id="definition"></p><ul id="legend" class="hl-legend" aria-label="Highlight key"></ul>
+<p class="syco-caption">Solid amber: positive association with this pattern. Dashed teal: negative association. Stronger colour means a larger absolute weight; it does not mean certainty.</p>
+<p class="field-label" id="output-label">Original response, with language clues</p><div id="output" class="hl-output" role="region" aria-labelledby="output-label" tabindex="0"></div>
+<p class="field-hint" id="match-status" role="status"></p>
+<details class="glossary-box"><summary>Inspect matched words and weights</summary><div id="matches" class="table-scroll syco-matches" role="region" aria-label="Matched word weights" tabindex="0"></div></details>
+<div class="syco-grid"><div class="field"><label for="quote">Phrase from the original response</label><input id="quote" maxlength="500"></div><div class="field"><label for="interpretation">What does it do here? Is the clue convincing?</label><textarea id="interpretation" rows="2" maxlength="2000"></textarea></div></div>
+<div class="btn-row"><button type="button" class="btn-uga-outline" id="add">Keep this observation</button></div><p id="evidence-status" class="field-hint" role="status"></p>
+<ol id="evidence" class="syco-evidence" aria-label="Your observations"></ol>
+</div></div></section>
+<section class="stage" aria-labelledby="rewrite-title" id="rewrite-stage" hidden><div class="stage-num" aria-hidden="true">3</div><div class="stage-body"><h3 class="stage-title" id="rewrite-title">Rewrite and compare</h3><div class="stage-content">
+<p>Write a response that offers appropriate support while questioning anything that needs questioning. Keep the situation fixed. Removing a highlighted word is not the same as improving the response.</p>
+<div class="field"><label for="rewrite">Your rewritten response</label><textarea id="rewrite" rows="3" maxlength="6000"></textarea></div><div class="btn-row"><button type="button" class="btn-uga" id="compare">Compare language clues</button><button type="button" class="btn-uga-outline" id="download">Download my work</button></div>
+<div id="comparison" hidden><p class="field-label" id="rewrite-output-label">Rewritten response, using the same pattern and colour scale</p><div id="rewrite-output" class="hl-output" role="region" aria-labelledby="rewrite-output-label" tabindex="0"></div><p class="field-hint" id="rewrite-status" role="status"></p></div>
+</div></div></section>
+</div>
+</section>
+<details class="lesson-container glossary-box"><summary>How to interpret this teaching tool</summary>
+<p>The word weights come from Ryan Lai's analyses of the ELEPHANT data. This is a lexical visualization, not the paper's LLM evaluator and not a calibrated probability or a verdict about a person. Repeated words can create repeated highlights without providing independent evidence.</p>
+<p>All three (combined) uses the supplied <code>6c_lasso_any.csv</code>. Despite that filename, the current training code defines its target with validation AND framing AND indirectness. It is a separately trained set of weights, not an average or an OR of the three displays.</p>
+<p>We preserve the supplied lexical coefficients, including their signs and zeros. Category metadata, punctuation and whitespace features are retained in the conversion audit but not highlighted as words. Zero coefficients produce no highlight. Word matching is case-insensitive and ignores accents/punctuation; it does not lemmatize. This simplifies the research pipeline's spaCy normalization and can miss or combine forms, especially contractions. No IDF multiplier, intercept or prediction threshold is added.</p>
+<p id="data-note" class="field-hint"></p>
+</details>
+<section class="reflection-container" aria-labelledby="reflection-title"><h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+<ol><li>Which phrase preserves the user's face? Would it be appropriate in a different situation?</li><li>Where did you disagree with the highlighter, or notice an important phrase it missed?</li><li>Did your rewrite change the stance, or just the highlighted words? Explain with evidence.</li></ol>
+<div class="reflection-notes field"><label for="reflection">Write down your thoughts</label><textarea id="reflection" rows="5" maxlength="4000"></textarea><div class="btn-row"><button class="btn-uga" type="button" data-download-notes>Download my notes</button><span class="field-hint" role="status" data-download-status></span></div><p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p></div>
+</section>
+</main>
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading"><div class="applet-feedback-card__content"><div><h2 id="applet-feedback-heading">Help us improve this applet</h2><a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a></div><a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2012A%3A%20AI%20Sycophancy&amp;applet=Activity%2012A%3A%20AI%20Sycophancy&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_12%2F12A_ai_sycophancy.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a></div></section>
+<footer class="source-card" aria-labelledby="sources-title"><h3 id="sources-title">Sources &amp; permissions</h3><p>Concepts: Cheng et al., <a href="https://proceedings.iclr.cc/paper_files/paper/2026/file/d3362f84979d16cee000f09eef61244c-Paper-Conference.pdf" target="_blank" rel="noopener noreferrer">ELEPHANT (ICLR 2026)<span class="visually-hidden"> (opens in a new tab)</span></a>. Coefficients: Ryan Lai's <a href="https://github.com/kayaulai/syco-feats/tree/main/data/3_6_analyses" target="_blank" rel="noopener noreferrer">syco-feats analyses<span class="visually-hidden"> (opens in a new tab)</span></a>, used for the course activity. Examples are newly authored and are not quotations from the paper or benchmark. The shared course highlighter is adapted for this visualization; no research classifier or benchmark evaluator runs here.</p></footer>
+</body></html>
