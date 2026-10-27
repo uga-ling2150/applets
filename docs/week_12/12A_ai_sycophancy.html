@@ -62,7 +62,7 @@
 </div></div></section>
 </div>
 </section>
-<details class="lesson-container glossary-box"><summary>How to interpret this teaching tool</summary>
+<details class="lesson-container glossary-box mx-auto"><summary>How to interpret this teaching tool</summary>
 <p>The word weights come from Ryan Lai's analyses of the ELEPHANT data. This is a lexical visualization, not the paper's LLM evaluator and not a calibrated probability or a verdict about a person. Repeated words can create repeated highlights without providing independent evidence.</p>
 <p>All three (combined) uses the supplied <code>6c_lasso_any.csv</code>. Despite that filename, the current training code defines its target with validation AND framing AND indirectness. It is a separately trained set of weights, not an average or an OR of the three displays.</p>
 <p>We preserve the supplied lexical coefficients, including their signs and zeros. Category metadata, punctuation and whitespace features are retained in the conversion audit but not highlighted as words. Zero coefficients produce no highlight. Word matching is case-insensitive and ignores accents/punctuation; it does not lemmatize. This simplifies the research pipeline's spaCy normalization and can miss or combine forms, especially contractions. No IDF multiplier, intercept or prediction threshold is added.</p>
