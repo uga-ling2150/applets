@@ -311,6 +311,52 @@ is a different job: use the `.turn-row` / `.turn-stamp` / `.turn-body` row patte
 conversation editor) rather than editing inside bubbles. Prefer that compact row over a boxed
 `<fieldset>`/`<legend>` per item unless the page has a real requirement it can't meet.
 
+## Weighted highlighter (word and phrase weights)
+
+Any applet that shows which words a model weighs, and in which direction, uses the shared
+`docs/highlighter.js` with the `.hl-*` styles in `style.css`. Don't copy the old standalone
+prototype or write a page-local highlighter. `docs/helpers/highlighter.html` is the working demo,
+the full how-to and a tester that checks a weights list before it goes into an applet.
+
+The weights list is JSON, kept in the page inside
+`<script type="application/json" id="...">` (a separate `.json` file also works, but only once
+the page is served, not when opened from disk):
+
+```json
+{
+  "labels": { "positive": "Manager-speak", "negative": "Casual chat" },
+  "minWeight": 0.3,
+  "lemmatize": true,
+  "weights": { "circle back": 5.0, "synergize": 7.5, "lol": -4.8 }
+}
+```
+
+- `weights` (required): `"word or phrase": number`. Positive pushes toward `labels.positive`,
+  negative toward `labels.negative`; distance from zero sets the colour strength (relative to the
+  biggest weight in the whole list, with a 15% floor). 0 is never highlighted.
+- Numbers are plain JSON numbers (no quotes, no `+`, dot for decimals). Straight double quotes, no
+  trailing comma, no comments.
+- Entries are normalized like the text: capitals, accents and punctuation ignored, and (with
+  `lemmatize`, the default, and Compromise loaded) inflections too, so "circling back" = "circle back".
+  Duplicates after normalizing: the first wins. Contractions and slang stay as written
+  ("gonna" is not "going to").
+- Phrases can be any length. Longest match wins, each word joins at most one highlight, and
+  matches never cross a sentence boundary.
+- `labels` (optional) should read well after "the text leans ...". `minWeight` (optional, default 0)
+  hides small weights. Set `lemmatize: false` if the model saw words exactly as written.
+- From scikit-learn, a term's weight is `idf × coefficient` (snippet on the helper page).
+
+To add it: a `.field` with a labelled textarea, an empty `.hl-output` box (labelled with
+`aria-labelledby`), and optionally a `<ul class="hl-legend">`, a `.chat-status` line for the tally and
+a `.table-scroll` box for the match table; then load
+`https://cdn.jsdelivr.net/npm/compromise@14.19.0/builds/compromise.js`, `../highlighter.js`, and call
+`Highlighter.attach({ weights: "#id", input, output, legend, status, matches })`. Copy the exact
+markup from the helper page. Accessibility is built in: direction is shown by underline style as
+well as colour, every highlight carries hidden text with its label and weight, highlighted text
+keeps at least 9:1 contrast, and typed text is never inserted as HTML. If the applet credits
+Compromise, add it to the source card (MIT licence).
+
+
 ## Feedback card (required on every applet)
 
 Every applet page ends with the feedback card, directly after `</main>`. It is how students and
