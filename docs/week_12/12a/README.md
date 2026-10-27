@@ -37,3 +37,14 @@ The development-related sections of the twelve meeting-note documents dated 12 A
 | September 23 onward: reuse conventions and keep maintenance practical | Page-local changes only; source coefficients and shared matching logic are unchanged. |
 
 The annotation-layout and comparison changes are adaptations of previous feedback, not claims that Ryan specified those exact controls for 12A. Technical model provenance remains in the collapsed explanation and this README. No server, Cloudflare service, account or paid inference is needed.
+
+
+## Link and material audit (26 October 2026)
+
+Reopened the Freedcamp task, applet planning sheet, OneDrive Week 12 deck, paper, source repository and student feedback links. The task still has the original paper link and no additional comments; the planning-sheet entry is still the face-preserving-language highlighter. Source revision remains `a0c5697ccba084ef4cceb6485d150b0023d26acd`.
+
+The Week 12 PowerPoint contains 52 slides; its standard PDF export contains 40 non-hidden slides. The relevant visible sections discuss alignment, empathy, facework, politeness and social sycophancy. The applet now explicitly distinguishes coefficient signs from positive/negative politeness. It does not treat the supplied three dimensions as an exhaustive taxonomy.
+
+The upstream research repository is private. The student-facing source card therefore links to the existing public course weight export at a pinned course commit, while retaining Ryan's credit. Upstream access is still required to rebuild from the original CSVs. This changes no repository permissions and publishes no additional research files.
+
+The GitHub feedback form opens with the correct activity title and live URL prefilled; no issue was submitted. The Kaltura tutorial opens with its video player, the paper PDF is readable, and the UGA header link resolves. Course index, helper and static-asset loading are checked separately in the browser.
