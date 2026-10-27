@@ -4,7 +4,7 @@ const definitions = {
   validation: 'Validation supports the user’s feelings or perspective. Ask whether that support is warranted in this situation.',
   indirectness: 'Indirectness gives hedged or vague guidance rather than clear advice. Ask what a more direct response would change.',
   framing: 'Framing accepts the user’s premises rather than questioning them. Ask whose version of events the response takes for granted.',
-  combined: 'Combined weights were trained on all three patterns occurring together (AND), not any one pattern (OR). A word is a clue, not proof that all three occur here.'
+  combined: 'This view highlights words associated with validation, indirectness, and framing occurring together. Which patterns can you identify in this response?'
 };
 const examples = {
   privacy: {context:'I read my roommate’s private messages without asking because I felt left out. Now they are angry. Am I wrong to feel hurt?', response:'It’s understandable to feel conflicted. Your feelings are valid, and you deserve to be heard. You might consider talking about boundaries and explaining your perspective.'},
@@ -35,7 +35,7 @@ function invalidate() {
   shown = false; compared = false;
   $('inspect-stage').hidden = true; $('rewrite-stage').hidden = true; $('comparison').hidden = true;
   notice(''); $('work-status').textContent = '';
-  if (data) $('load-status').textContent = 'Read and predict, then reveal the clues. Changing the text requires a new reveal.';
+  if (data) $('load-status').textContent = 'Text updated. Make a prediction, then reveal the clues.';
 }
 function model() {
   const key = $('dimension').value;
@@ -48,7 +48,7 @@ function update() {
   if (!shown || !ctl) return;
   ctl.setWeights(model()); ctl.setShowWeights($('show-weights').checked);
   $('definition').textContent = definitions[$('dimension').value];
-  $('match-status').textContent = `${ctl.matches.length} word occurrences highlighted for ${titles[$('dimension').value].toLowerCase()}. No highlight does not mean no face-preserving language.`;
+  $('match-status').textContent = `${ctl.matches.length} word occurrences highlighted for ${titles[$('dimension').value].toLowerCase()}.`;
   if (compared) renderRewrite();
 }
 function renderRewrite() {
@@ -57,7 +57,7 @@ function renderRewrite() {
   Highlighter.render($('comparison-original'), snapshot, ctl.matches, ctl.model, $('show-weights').checked);
   Highlighter.render($('rewrite-output'), text, matches, ctl.model, $('show-weights').checked);
   $('comparison').hidden = false;
-  $('rewrite-status').textContent = `${matches.length} word occurrences highlighted, compared with ${ctl.matches.length} in the original. Compare the stance and context, not just the counts.`;
+  $('rewrite-status').textContent = `${matches.length} word occurrences highlighted, compared with ${ctl.matches.length} in the original. Explain how your rewrite changes the stance.`;
 }
 function renderObservations() {
   $('evidence').replaceChildren();
@@ -87,7 +87,7 @@ $('reveal').onclick = () => {
 };
 $('add').onclick = () => {
   const quote = $('quote').value.trim(), interpretation = $('interpretation').value.trim();
-  if (!quote || !snapshot.includes(quote)) { invalid('quote','Copy an exact phrase from the original response. It need not be highlighted.','annotation-error'); return; }
+  if (!quote || !snapshot.includes(quote)) { invalid('quote','Copy an exact phrase from the original response.','annotation-error'); return; }
   if (!interpretation) { invalid('interpretation','Explain what this phrase does in this situation.','annotation-error'); return; }
   notice(''); observations.push({dimension:titles[$('dimension').value], quote, interpretation, context:$('context').value, original:snapshot}); renderObservations();
   $('quote').value = ''; $('interpretation').value = ''; $('evidence-status').textContent = 'Observation kept on this page.';
@@ -99,7 +99,7 @@ $('compare').onclick = () => {
 $('download').onclick = () => {
   const work = {activity:'Activity 12A: AI Sycophancy', sourceCommit:data.sourceCommit, combinedTarget:data.combinedTarget,
     context:$('context').value, original:snapshot, prediction:$('prediction').value, dimension:titles[$('dimension').value],
-    observations, rewrite:$('rewrite').value, rewriteCompared:compared, interpretation:'Lexical teaching clues; not a classifier or probability.'};
+    observations, rewrite:$('rewrite').value, rewriteCompared:compared, interpretation:'Word associations for contextual analysis.'};
   const url = URL.createObjectURL(new Blob([JSON.stringify(work,null,2)],{type:'application/json'}));
   const link = element('a'); link.href = url; link.download = '12A-sycophancy-work.json'; link.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000); $('work-status').textContent = 'Download requested. Reflection notes have their own download below.';
@@ -111,8 +111,6 @@ try {
   data = await response.json();
   ctl = await Highlighter.attach({weights:model(), input:'#response', output:'#output', legend:'#legend', matches:'#matches'});
   // The helper's live rendering stays hidden until students request the clues.
-  const m = data.models.validation;
-  $('data-note').textContent = `Each source list has ${m.sourceRows} rows: ${Object.keys(m.weights).length} lexical entries are retained, with ${m.excluded.length} non-lexical or metadata rows documented separately. Research source revision: ${data.sourceCommit.slice(0,7)}.`;
   $('reveal').disabled = false; $('load-status').textContent = 'Ready. Read the situation and make a prediction first.';
 } catch (error) {
   notice('The word lists could not load. Reload the page while online. Your typed text is still here.');
