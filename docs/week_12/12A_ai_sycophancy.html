@@ -26,16 +26,17 @@
 <p>In interaction, <strong>face</strong> is the self-image a person wants others to accept. An AI can preserve a user's face by validating their feelings, avoiding direct criticism, or accepting their version of events. This can be supportive; it can also become <strong>social sycophancy</strong> when it protects the user's self-image at the expense of appropriate challenge.</p>
 <p>This activity highlights words associated with three patterns in a research dataset. <strong>Validation</strong> supports the user's emotions or perspective. <strong>Indirectness</strong> gives hedged or vague guidance rather than direct advice. <strong>Framing</strong> accepts the user's premises rather than questioning them. A word alone cannot tell us whether the response is appropriate: read the situation too.</p>
 <h4 class="uga-accent">Instructions</h4>
-<ol><li>With a partner, read the situation and response. Predict which language supports the user's face before revealing clues.</li><li>Switch patterns and explain one phrase. You can disagree with the highlights or identify a missed clue.</li><li>Rewrite the response, compare the same pattern, and discuss what changed. Swap roles with another example.</li></ol>
+<ol><li>One partner predicts which phrase supports the user's face; the other asks whether that support fits the situation. Then reveal the clues.</li><li>Choose a pattern and keep an observation about a specific phrase. Explain any disagreement with the highlights or any clue they miss.</li><li>Keep helpful support and revise any unwarranted agreement. Compare the two responses, then swap roles with another example.</li></ol>
 </section>
 <section class="app-wrapper" aria-labelledby="applet-title">
 <div class="hero"><div class="hero-text"><h2 id="applet-title">Support <span>or agreement?</span></h2><p>Inspect the language. Question the clues. Try another response.</p></div></div>
 <p class="field-hint">Examples below are authored teaching examples, not live AI generations. Your text and notes stay on this page; nothing is submitted.</p>
 <div class="rack">
 <section class="stage active" aria-labelledby="read-title"><div class="stage-num" aria-hidden="true">1</div><div class="stage-body"><h3 class="stage-title" id="read-title">Read and predict</h3><div class="stage-content">
+<p>Read the situation first. Predict before revealing so you can compare your interpretation with the tool's clues.</p>
 <div class="field"><label for="example">Teaching example</label><select id="example"><option value="privacy">A disagreement about privacy</option><option value="support">Support after a setback</option><option value="team">A group project disagreement</option></select></div>
 <p class="field-hint">Choosing another example starts over. Download your work first if you want to keep it.</p>
-<div class="syco-grid"><div class="field"><label for="context">Situation / user message</label><textarea id="context" rows="4" maxlength="4000"></textarea></div><div class="field"><label for="response">Response to inspect</label><textarea id="response" rows="4" maxlength="6000"></textarea></div></div>
+<div class="syco-grid"><div class="field"><label for="context">Situation / user message</label><textarea id="context" rows="4" maxlength="4000" aria-describedby="error"></textarea></div><div class="field"><label for="response">Response to inspect</label><textarea id="response" rows="4" maxlength="6000" aria-describedby="error"></textarea></div></div>
 <div class="field"><label for="prediction">Before revealing: which phrase stands out, and why?</label><textarea id="prediction" rows="2" maxlength="2000"></textarea></div>
 <div class="btn-row"><button type="button" class="btn-uga" id="reveal" disabled>Reveal language clues</button></div>
 <p class="field-hint syco-editnotice" id="load-status" role="status">Loading the word lists…</p><p class="error-text" id="error" role="alert"></p>
@@ -43,18 +44,21 @@
 <section class="stage" aria-labelledby="inspect-title" id="inspect-stage" hidden><div class="stage-num" aria-hidden="true">2</div><div class="stage-body"><h3 class="stage-title" id="inspect-title" tabindex="-1">Inspect and explain</h3><div class="stage-content">
 <div class="syco-tools"><div class="field"><label for="dimension">Pattern to inspect</label><select id="dimension"><option value="validation">Validation</option><option value="indirectness">Indirectness</option><option value="framing">Framing</option><option value="combined">All three (combined)</option></select></div><div class="field"><label for="show-weights"><input type="checkbox" id="show-weights"> Show word weights</label></div></div>
 <p id="definition"></p><ul id="legend" class="hl-legend" aria-label="Highlight key"></ul>
-<p class="syco-caption">Solid amber: positive association with this pattern. Dashed teal: negative association. Stronger colour means a larger absolute weight; it does not mean certainty.</p>
+<p class="syco-caption">A larger weight means a stronger word association, not greater certainty about this response.</p>
 <p class="field-label" id="output-label">Original response, with language clues</p><div id="output" class="hl-output" role="region" aria-labelledby="output-label" tabindex="0"></div>
 <p class="field-hint" id="match-status" role="status"></p>
-<details class="glossary-box"><summary>Inspect matched words and weights</summary><div id="matches" class="table-scroll syco-matches" role="region" aria-label="Matched word weights" tabindex="0"></div></details>
-<div class="syco-grid"><div class="field"><label for="quote">Phrase from the original response</label><input id="quote" maxlength="500"></div><div class="field"><label for="interpretation">What does it do here? Is the clue convincing?</label><textarea id="interpretation" rows="2" maxlength="2000"></textarea></div></div>
+<div id="observations-section" class="field" hidden><p class="field-label" id="evidence-label">Your observations</p><ol id="evidence" class="syco-evidence" aria-labelledby="evidence-label" tabindex="0"></ol></div>
+<div class="syco-grid"><div class="field"><label for="quote">Phrase from the original response</label><input id="quote" maxlength="500" aria-describedby="annotation-hint annotation-error"></div><div class="field"><label for="interpretation">What does it do here? Is the clue convincing?</label><textarea id="interpretation" rows="2" maxlength="2000" aria-describedby="annotation-error"></textarea></div></div>
+<p class="field-hint" id="annotation-hint">Copy an exact phrase from the original response; it can be highlighted or unhighlighted.</p>
+<p class="error-text" id="annotation-error" role="alert"></p>
 <div class="btn-row"><button type="button" class="btn-uga-outline" id="add">Keep this observation</button></div><p id="evidence-status" class="field-hint" role="status"></p>
-<ol id="evidence" class="syco-evidence" aria-label="Your observations"></ol>
+<details class="glossary-box"><summary>Inspect matched words and weights</summary><div id="matches" class="table-scroll syco-matches" role="region" aria-label="Matched word weights" tabindex="0"></div></details>
 </div></div></section>
 <section class="stage" aria-labelledby="rewrite-title" id="rewrite-stage" hidden><div class="stage-num" aria-hidden="true">3</div><div class="stage-body"><h3 class="stage-title" id="rewrite-title">Rewrite and compare</h3><div class="stage-content">
-<p>Write a response that offers appropriate support while questioning anything that needs questioning. Keep the situation fixed. Removing a highlighted word is not the same as improving the response.</p>
-<div class="field"><label for="rewrite">Your rewritten response</label><textarea id="rewrite" rows="3" maxlength="6000"></textarea></div><div class="btn-row"><button type="button" class="btn-uga" id="compare">Compare language clues</button><button type="button" class="btn-uga-outline" id="download">Download my work</button></div>
-<div id="comparison" hidden><p class="field-label" id="rewrite-output-label">Rewritten response, using the same pattern and colour scale</p><div id="rewrite-output" class="hl-output" role="region" aria-labelledby="rewrite-output-label" tabindex="0"></div><p class="field-hint" id="rewrite-status" role="status"></p></div>
+<p>Keep the situation fixed. Preserve helpful support and revise any unwarranted agreement. Compare what each response does, rather than trying to remove highlighted words.</p>
+<div class="field"><label for="rewrite">Your rewritten response</label><textarea id="rewrite" rows="3" maxlength="6000" aria-describedby="compare-error"></textarea></div><p id="compare-error" class="error-text" role="alert"></p><div class="btn-row"><button type="button" class="btn-uga" id="compare">Compare language clues</button><button type="button" class="btn-uga-outline" id="download">Download my work</button></div>
+<p id="work-status" class="field-hint" role="status"></p>
+<div id="comparison" hidden><p class="syco-caption">Both responses use the selected pattern and the same colour scale.</p><div class="syco-grid"><div class="field"><p class="field-label" id="comparison-original-label">Original response</p><div id="comparison-original" class="hl-output" role="region" aria-labelledby="comparison-original-label" tabindex="0"></div></div><div class="field"><p class="field-label" id="rewrite-output-label">Your rewritten response</p><div id="rewrite-output" class="hl-output" role="region" aria-labelledby="rewrite-output-label" tabindex="0"></div></div></div><p class="field-hint" id="rewrite-status" role="status"></p></div>
 </div></div></section>
 </div>
 </section>

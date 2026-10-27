@@ -16,16 +16,25 @@ function element(tag, text, cls) {
   const el = document.createElement(tag); if (text !== undefined) el.textContent = text;
   if (cls) el.className = cls; return el;
 }
-function notice(message) { $('error').textContent = message; }
+function notice(message, target = 'error') {
+  for (const id of ['error','annotation-error','compare-error']) $(id).textContent = '';
+  for (const id of ['context','response','quote','interpretation','rewrite']) $(id).removeAttribute('aria-invalid');
+  $(target).textContent = message;
+}
+function invalid(id, message, target) {
+  notice(message, target); $(id).setAttribute('aria-invalid','true'); $(id).focus();
+}
 function loadExample() {
   const e = examples[$('example').value];
   $('context').value = e.context; $('response').value = e.response;
   $('prediction').value = ''; $('rewrite').value = ''; $('quote').value = ''; $('interpretation').value = '';
   observations = []; renderObservations(); invalidate(); notice('');
+  $('evidence-status').textContent = ''; $('work-status').textContent = '';
 }
 function invalidate() {
   shown = false; compared = false;
   $('inspect-stage').hidden = true; $('rewrite-stage').hidden = true; $('comparison').hidden = true;
+  notice(''); $('work-status').textContent = '';
   if (data) $('load-status').textContent = 'Read and predict, then reveal the clues. Changing the text requires a new reveal.';
 }
 function model() {
@@ -45,12 +54,14 @@ function update() {
 function renderRewrite() {
   const text = $('rewrite').value;
   const matches = Highlighter.find(text, ctl.model);
+  Highlighter.render($('comparison-original'), snapshot, ctl.matches, ctl.model, $('show-weights').checked);
   Highlighter.render($('rewrite-output'), text, matches, ctl.model, $('show-weights').checked);
   $('comparison').hidden = false;
   $('rewrite-status').textContent = `${matches.length} word occurrences highlighted, compared with ${ctl.matches.length} in the original. Compare the stance and context, not just the counts.`;
 }
 function renderObservations() {
   $('evidence').replaceChildren();
+  $('observations-section').hidden = observations.length === 0;
   observations.forEach((o, index) => {
     const li = element('li'); li.append(element('strong', `${o.dimension}: “${o.quote}”`), element('p',o.interpretation));
     if (o.original !== snapshot || o.context !== $('context').value) {
@@ -58,7 +69,7 @@ function renderObservations() {
       source.append(element('summary','Observation from an earlier text'),element('p','Situation: '+o.context),element('p','Response: '+o.original));
       li.append(source);
     }
-    const actions = element('div',undefined,'btn-row'); const button = element('button','Remove observation','btn-uga-outline');
+    const actions = element('div',undefined,'btn-row'); const button = element('button','Remove','btn-uga-outline');
     button.type = 'button'; button.setAttribute('aria-label', `Remove observation ${index+1}`);
     button.onclick = () => { observations.splice(index,1); renderObservations(); $('add').focus(); $('evidence-status').textContent = 'Observation removed.'; };
     actions.append(button); li.append(actions); $('evidence').append(li);
@@ -69,19 +80,20 @@ for (const id of ['context','response']) $(id).addEventListener('input',invalida
 $('rewrite').addEventListener('input',()=>{ compared = false; $('comparison').hidden = true; $('rewrite-status').textContent = ''; });
 $('dimension').addEventListener('change',update); $('show-weights').addEventListener('change',update);
 $('reveal').onclick = () => {
-  if (!$('context').value.trim() || !$('response').value.trim()) { notice('Enter a situation and a response before revealing clues.'); return; }
+  if (!$('context').value.trim() || !$('response').value.trim()) { invalid(!$('context').value.trim() ? 'context' : 'response','Enter a situation and a response before revealing clues.','error'); return; }
   notice(''); snapshot = $('response').value; shown = true;
   $('inspect-stage').hidden = false; $('rewrite-stage').hidden = false; update(); renderObservations();
   $('load-status').textContent = 'Clues revealed. Interpret them against the situation.'; $('inspect-title').focus();
 };
 $('add').onclick = () => {
   const quote = $('quote').value.trim(), interpretation = $('interpretation').value.trim();
-  if (!quote || !snapshot.includes(quote) || !interpretation) { notice('Enter an exact phrase from the original response and explain your interpretation. It need not be highlighted.'); return; }
+  if (!quote || !snapshot.includes(quote)) { invalid('quote','Copy an exact phrase from the original response. It need not be highlighted.','annotation-error'); return; }
+  if (!interpretation) { invalid('interpretation','Explain what this phrase does in this situation.','annotation-error'); return; }
   notice(''); observations.push({dimension:titles[$('dimension').value], quote, interpretation, context:$('context').value, original:snapshot}); renderObservations();
   $('quote').value = ''; $('interpretation').value = ''; $('evidence-status').textContent = 'Observation kept on this page.';
 };
 $('compare').onclick = () => {
-  if (!$('rewrite').value.trim()) { notice('Write a response before comparing.'); return; }
+  if (!$('rewrite').value.trim()) { invalid('rewrite','Write a response before comparing.','compare-error'); return; }
   notice(''); compared = true; renderRewrite();
 };
 $('download').onclick = () => {
@@ -90,7 +102,7 @@ $('download').onclick = () => {
     observations, rewrite:$('rewrite').value, rewriteCompared:compared, interpretation:'Lexical teaching clues; not a classifier or probability.'};
   const url = URL.createObjectURL(new Blob([JSON.stringify(work,null,2)],{type:'application/json'}));
   const link = element('a'); link.href = url; link.download = '12A-sycophancy-work.json'; link.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000); $('evidence-status').textContent = 'Work downloaded. Reflection notes have their own download below.';
+  setTimeout(()=>URL.revokeObjectURL(url),1000); $('work-status').textContent = 'Download requested. Reflection notes have their own download below.';
 };
 loadExample();
 try {
