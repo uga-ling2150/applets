@@ -197,7 +197,8 @@
   // ---------- Drawing ----------
 
   function formatWeight(w) {
-    var n = String(Number(Math.abs(w).toFixed(2)));
+    var magnitude = Math.abs(w);
+    var n = magnitude > 0 && magnitude < 0.005 ? String(Number(magnitude.toPrecision(2))) : String(Number(magnitude.toFixed(2)));
     return (w > 0 ? "+" : w < 0 ? "−" : "") + n;
   }
 

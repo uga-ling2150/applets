@@ -40,62 +40,84 @@
   <section class="app-wrapper" aria-labelledby="applet-title">
     <div class="hero"><div class="hero-text"><h2 id="applet-title">Can we <span>wrap up?</span></h2><p>The same completed task. Two ways to respond when the user wants to leave.</p></div></div>
 
-    <section aria-labelledby="fixed-title">
-      <h3 id="fixed-title">1. Read the shared conversation</h3>
-      <p>The user asks for a reminder, supplies the missing details, and receives a draft. Both assistants below start from these exact four turns.</p>
-      <ol class="chat-log chat-log--static" aria-label="Shared conversation so far">
-        <li class="chat-turn human"><span class="chat-turn__speaker">1. You</span><p class="chat-turn__text">Help me write a short reminder to my study group about our meeting.</p></li>
-        <li class="chat-turn ai"><span class="chat-turn__speaker">2. Assistant</span><p class="chat-turn__text">Sure. When and where is the meeting, and what should everyone bring?</p></li>
-        <li class="chat-turn human"><span class="chat-turn__speaker">3. You</span><p class="chat-turn__text">Thursday at 4 p.m. in the library. Everyone should bring their notes for the linguistics quiz.</p></li>
-        <li class="chat-turn ai"><span class="chat-turn__speaker">4. Assistant</span><p class="chat-turn__text">Here is a short reminder: &quot;Hi everyone, our study group meets Thursday at 4 p.m. in the library. Please bring your notes for the linguistics quiz. See you there!&quot;</p></li>
-      </ol>
-      <p class="field-hint">This scenario is fictional. The assistant has drafted a reminder; it has not sent one.</p>
-    </section>
+    <div class="rack">
+      <section id="stage1" class="stage active" aria-labelledby="fixed-title">
+        <div class="stage-num" aria-hidden="true">1</div>
+        <div class="stage-body">
+          <h3 id="fixed-title" class="stage-title" tabindex="-1">Read the shared conversation</h3>
+          <div class="stage-content">
+            <p>The user asks for a reminder, supplies the missing details, and receives a draft. Both assistants below start from these exact four turns.</p>
+            <ol class="chat-log chat-log--static" aria-label="Shared conversation so far">
+              <li class="chat-turn human"><span class="chat-turn__speaker">1. You</span><p class="chat-turn__text">Help me write a short reminder to my study group about our meeting.</p></li>
+              <li class="chat-turn ai"><span class="chat-turn__speaker">2. Assistant</span><p class="chat-turn__text">Sure. When and where is the meeting, and what should everyone bring?</p></li>
+              <li class="chat-turn human"><span class="chat-turn__speaker">3. You</span><p class="chat-turn__text">Thursday at 4 p.m. in the library. Everyone should bring their notes for the linguistics quiz.</p></li>
+              <li class="chat-turn ai"><span class="chat-turn__speaker">4. Assistant</span><p class="chat-turn__text">Here is a short reminder: &quot;Hi everyone, our study group meets Thursday at 4 p.m. in the library. Please bring your notes for the linguistics quiz. See you there!&quot;</p></li>
+            </ol>
+            <p class="field-hint">This scenario is fictional. The assistant has drafted a reminder; it has not sent one.</p>
+          </div>
+        </div>
+      </section>
 
-    <section class="activity-step" aria-labelledby="test-title">
-      <h3 id="test-title">2. Test one ending signal</h3>
-      <p>Because the draft is complete, this is a place where you might try to end the conversation. What will your message make relevant next?</p>
-      <form id="first-form" class="field">
-        <label for="first-message">First, write your ending message to both assistants</label>
-        <textarea id="first-message" rows="2" maxlength="500" required>Thanks, that should do it.</textarea>
-        <div class="field"><label for="prediction">Then, predict each assistant’s reply <span class="field-optional">(optional)</span></label><textarea id="prediction" rows="2" maxlength="500" aria-describedby="prediction-help"></textarea><p id="prediction-help" class="field-hint">Predict what each assistant will do in response to the message you wrote. This note stays in your browser and is not sent to either assistant.</p></div>
-        <div class="btn-row"><button id="start" class="btn-uga" type="submit">Send the same message to both</button><button id="reset" class="btn-reset" type="button">Start a new comparison</button></div>
-      </form>
-      <p id="setup-error" class="error-text" role="alert"></p>
-      <div id="reset-confirm" class="confirm-box" hidden><p>Start over and clear these conversations and observations? Download your work first if you want to keep it.</p><div class="btn-row"><button id="reset-yes" class="btn-uga" type="button">Clear and start over</button><button id="reset-no" class="btn-uga-outline" type="button">Keep my work</button></div></div>
-      <p class="field-hint">Live AI needs an internet connection. Your ending message and the shared conversation are sent to the model service. Later messages are sent with that assistant's history. Predictions, observations and reflection notes stay in this browser tab. Use fictional situations rather than personal information.</p>
-    </section>
+      <section id="stage2" class="stage" aria-labelledby="test-title">
+        <div class="stage-num" aria-hidden="true">2</div>
+        <div class="stage-body">
+          <h3 id="test-title" class="stage-title" tabindex="-1">Test one ending signal</h3>
+          <div class="stage-content">
+            <p>Because the draft is complete, this is a place where you might try to end the conversation. What will your message make relevant next?</p>
+            <form id="first-form" class="field">
+              <label for="first-message">First, write your ending message to both assistants</label>
+              <textarea id="first-message" rows="2" maxlength="500" required>Thanks, that should do it.</textarea>
+              <div class="field"><label for="prediction">Then, predict each assistant’s reply <span class="field-optional">(optional)</span></label><textarea id="prediction" rows="2" maxlength="500" aria-describedby="prediction-help"></textarea><p id="prediction-help" class="field-hint">Predict what each assistant will do in response to the message you wrote. This note stays in your browser and is not sent to either assistant.</p></div>
+              <div class="btn-row"><button id="start" class="btn-uga" type="submit">Send the same message to both</button><button id="reset" class="btn-reset" type="button">Start a new comparison</button></div>
+            </form>
+            <p id="setup-error" class="error-text" role="alert"></p>
+            <div id="reset-confirm" class="confirm-box" hidden><p>Start over and clear these conversations and observations? Download your work first if you want to keep it.</p><div class="btn-row"><button id="reset-yes" class="btn-uga" type="button">Clear and start over</button><button id="reset-no" class="btn-uga-outline" type="button">Keep my work</button></div></div>
+            <p class="field-hint">Live AI needs an internet connection. Your ending message and the shared conversation are sent to the model service. Later messages are sent with that assistant's history. Predictions, observations and reflection notes stay in this browser tab. Use fictional situations rather than personal information.</p>
+          </div>
+        </div>
+      </section>
 
-    <section class="activity-step" aria-labelledby="compare-title">
-      <h3 id="compare-title" tabindex="-1">3. Compare the replies</h3>
-      <p>Read both first replies before sending a follow-up. After that, the conversations can develop differently; use the shared first message for the fairest comparison.</p>
-      <div class="chat-grid">
-        <section class="chat-panel" aria-labelledby="continue-title">
-          <h4 id="continue-title">Assistant A</h4>
-          <ol id="continue-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant A after the shared conversation"></ol>
-          <p id="continue-status" class="chat-status" role="status" aria-live="polite">Ready for your ending message.</p><p id="continue-error" class="error-text" role="alert"></p>
-          <div class="btn-row"><button id="continue-retry" class="btn-uga-outline" type="button" hidden>Retry this reply</button><button id="continue-stop" class="btn-uga-outline" type="button" hidden>Stop waiting</button></div>
-          <form id="continue-form" class="chat-compose field"><label for="continue-input">Your next message to A</label><div class="chat-compose__row"><textarea id="continue-input" rows="2" maxlength="500" required disabled></textarea><button id="continue-send" class="btn-uga" type="submit" disabled>Send to A</button></div><div class="chat-compose__extras"><span id="continue-limit"></span></div></form>
-        </section>
-        <section class="chat-panel" aria-labelledby="close-title">
-          <h4 id="close-title">Assistant B</h4>
-          <ol id="close-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant B after the shared conversation"></ol>
-          <p id="close-status" class="chat-status" role="status" aria-live="polite">Ready for your ending message.</p><p id="close-error" class="error-text" role="alert"></p>
-          <div class="btn-row"><button id="close-retry" class="btn-uga-outline" type="button" hidden>Retry this reply</button><button id="close-stop" class="btn-uga-outline" type="button" hidden>Stop waiting</button></div>
-          <form id="close-form" class="chat-compose field"><label for="close-input">Your next message to B</label><div class="chat-compose__row"><textarea id="close-input" rows="2" maxlength="500" required disabled></textarea><button id="close-send" class="btn-uga" type="submit" disabled>Send to B</button></div><div class="chat-compose__extras"><span id="close-limit"></span></div></form>
-        </section>
-      </div>
-    </section>
+      <section id="stage3" class="stage" aria-labelledby="compare-title">
+        <div class="stage-num" aria-hidden="true">3</div>
+        <div class="stage-body">
+          <h3 id="compare-title" class="stage-title" tabindex="-1">Compare the replies</h3>
+          <div class="stage-content">
+            <p>Read both first replies before sending a follow-up. After that, the conversations can develop differently; use the shared first message for the fairest comparison.</p>
+            <div class="chat-grid">
+              <section class="chat-panel" aria-labelledby="continue-title">
+                <h4 id="continue-title">Assistant A</h4>
+                <ol id="continue-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant A after the shared conversation"></ol>
+                <p id="continue-status" class="chat-status" role="status" aria-live="polite">Ready for your ending message.</p><p id="continue-error" class="error-text" role="alert"></p>
+                <div class="btn-row"><button id="continue-retry" class="btn-uga-outline" type="button" hidden>Retry this reply</button><button id="continue-stop" class="btn-uga-outline" type="button" hidden>Stop waiting</button></div>
+                <form id="continue-form" class="chat-compose field"><label for="continue-input">Your next message to A</label><div class="chat-compose__row"><textarea id="continue-input" rows="2" maxlength="500" required disabled></textarea><button id="continue-send" class="btn-uga" type="submit" disabled>Send to A</button></div><div class="chat-compose__extras"><span id="continue-limit"></span></div></form>
+              </section>
+              <section class="chat-panel" aria-labelledby="close-title">
+                <h4 id="close-title">Assistant B</h4>
+                <ol id="close-transcript" class="chat-log" tabindex="0" aria-label="Conversation with Assistant B after the shared conversation"></ol>
+                <p id="close-status" class="chat-status" role="status" aria-live="polite">Ready for your ending message.</p><p id="close-error" class="error-text" role="alert"></p>
+                <div class="btn-row"><button id="close-retry" class="btn-uga-outline" type="button" hidden>Retry this reply</button><button id="close-stop" class="btn-uga-outline" type="button" hidden>Stop waiting</button></div>
+                <form id="close-form" class="chat-compose field"><label for="close-input">Your next message to B</label><div class="chat-compose__row"><textarea id="close-input" rows="2" maxlength="500" required disabled></textarea><button id="close-send" class="btn-uga" type="submit" disabled>Send to B</button></div><div class="chat-compose__extras"><span id="close-limit"></span></div></form>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <section class="activity-step" aria-labelledby="observe-title">
-      <h3 id="observe-title">4. Record what happened</h3>
-      <p>Use the replies above as evidence. A friendly question can still keep a conversation going; a goodbye can close it without any further question.</p>
-      <div class="observation-grid">
-        <div class="field"><label for="continue-judgment">Assistant A's first reply</label><select id="continue-judgment"><option value="">Choose after reading</option><option value="closing">Moves toward closing</option><option value="continuing">Introduces a new topic or offer</option><option value="mixed">Mixed or uncertain</option><option value="missing">No live reply</option></select><label for="continue-evidence">Words that support your judgment</label><textarea id="continue-evidence" rows="2" maxlength="700"></textarea></div>
-        <div class="field"><label for="close-judgment">Assistant B's first reply</label><select id="close-judgment"><option value="">Choose after reading</option><option value="closing">Moves toward closing</option><option value="continuing">Introduces a new topic or offer</option><option value="mixed">Mixed or uncertain</option><option value="missing">No live reply</option></select><label for="close-evidence">Words that support your judgment</label><textarea id="close-evidence" rows="2" maxlength="700"></textarea></div>
-      </div>
-      <p class="field-hint">The labels are your interpretations, not automatic scores. One run cannot show that either style always behaves this way.</p>
-    </section>
+      <section id="stage4" class="stage" aria-labelledby="observe-title">
+        <div class="stage-num" aria-hidden="true">4</div>
+        <div class="stage-body">
+          <h3 id="observe-title" class="stage-title" tabindex="-1">Record what happened</h3>
+          <div class="stage-content">
+            <p>Use the replies above as evidence. A friendly question can still keep a conversation going; a goodbye can close it without any further question.</p>
+            <div class="observation-grid">
+              <div class="field"><label for="continue-judgment">Assistant A's first reply</label><select id="continue-judgment"><option value="">Choose after reading</option><option value="closing">Moves toward closing</option><option value="continuing">Introduces a new topic or offer</option><option value="mixed">Mixed or uncertain</option><option value="missing">No live reply</option></select><label for="continue-evidence">Words that support your judgment</label><textarea id="continue-evidence" rows="2" maxlength="700"></textarea></div>
+              <div class="field"><label for="close-judgment">Assistant B's first reply</label><select id="close-judgment"><option value="">Choose after reading</option><option value="closing">Moves toward closing</option><option value="continuing">Introduces a new topic or offer</option><option value="mixed">Mixed or uncertain</option><option value="missing">No live reply</option></select><label for="close-evidence">Words that support your judgment</label><textarea id="close-evidence" rows="2" maxlength="700"></textarea></div>
+            </div>
+            <p class="field-hint">The labels are your interpretations, not automatic scores. One run cannot show that either style always behaves this way.</p>
+          </div>
+        </div>
+      </section>
+    </div>
     <div class="btn-row"><button id="download" class="btn-uga-outline" type="button">Download my work</button><span id="download-status" class="field-hint" role="status"></span></div>
     <p id="save-status" class="field-hint" role="status"></p>
     <details class="glossary-box"><summary>How this comparison works</summary><p>Both assistants receive the same fixed four turns and your same first ending message. They use the same model, reply limit and temperature. Assistant A is instructed to keep a useful interaction going when possible; Assistant B is instructed to move toward closing when the task is complete. These are tendencies, not guaranteed results. An explicit goodbye may make both assistants close. Once you continue either conversation separately, their histories may differ.</p></details>

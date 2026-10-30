@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity 13A: Prosody with SSML</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="13a/applet.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main id="main" tabindex="-1">
+  <section class="lesson-container" aria-labelledby="activity-title">
+    <h3 id="activity-title" class="h3 mb-4">Activity 13A: Prosody with SSML</h3>
+    <h4 class="uga-accent">Learning Objectives</h4>
+    <ul>
+      <li><strong>Describe</strong> what the common SSML tags do to a synthetic voice: pauses, emphasis, pitch, rate, volume and pronunciation.</li>
+      <li><strong>Use</strong> SSML to move the prosodic focus of an utterance, and explain how the meaning changes.</li>
+      <li><strong>Predict</strong> where a listener will hear a transition-relevance place (TRP) in synthetic speech, and move one by editing the script.</li>
+    </ul>
+    <h4 class="uga-accent">Background</h4>
+    <p>A voice assistant doesn't only choose <em>what</em> to say. Its text-to-speech (TTS) engine also has to decide <em>how</em> to say it: which word carries the main accent, where to pause, and where the pitch falls to signal that a turn is over. Engines make these choices from punctuation and grammar, and they often get them wrong. <em>Speech Synthesis Markup Language</em> (SSML) is the standard way for a designer to override them. Amazon Alexa, Google Assistant and Microsoft's voices all accept it.</p>
+    <p>Two of the prosodic features from earlier weeks matter most here. <em>Prosodic focus</em> is the word that gets the strongest accent; it marks new or contrastive information (“I said the <strong>red</strong> one”). A <em>transition-relevance place</em> (TRP) is a point where a turn could be complete, so another speaker may come in. In speech, TRPs are signalled by a complete grammatical unit, a falling or rising final pitch, and a pause. A voice assistant that pauses in the wrong place invites the user to talk over it.</p>
+    <h4 class="uga-accent">Instructions</h4>
+    <ol>
+      <li><strong>Meet the tags.</strong> Read the table of common SSML tags and listen to each example.</li>
+      <li><strong>Listen to the sample conversation.</strong> Play the call between a bus-line assistant and a caller, and match what you hear to the tags in the script.</li>
+      <li><strong>Edit the script.</strong> Move the prosodic focus in one line, then move a TRP in an assistant turn. Save each version so you can compare them, and download your work before you leave.</li>
+    </ol>
+  </section>
+
+  <section class="app-wrapper" aria-labelledby="applet-title">
+    <div class="hero">
+      <div class="hero-text">
+        <h2 id="applet-title">Mark up <span>the melody</span></h2>
+        <p>Tell a synthetic voice where to stress, where to pause and where to stop.</p>
+      </div>
+    </div>
+
+    <p id="no-speech" class="error-text" role="alert" hidden>Your browser has no built-in speech voices, so the examples can't be played here. You can still edit the script and read the prosody view. Try Chrome, Edge or Safari on a computer.</p>
+
+    <div class="rack">
+      <!-- STAGE 1 -->
+      <section id="stage1" class="stage active" aria-labelledby="stage1-title">
+        <div class="stage-num" aria-hidden="true">1</div>
+        <div class="stage-body">
+          <h3 id="stage1-title" class="stage-title" tabindex="-1">Meet the tags</h3>
+          <div class="stage-content">
+            <p>SSML looks like HTML: words are wrapped in tags that say how they should sound. Every script starts with <code>&lt;speak&gt;</code> and ends with <code>&lt;/speak&gt;</code>. Most tags come in pairs and wrap the words they affect, such as <code>&lt;emphasis&gt;red&lt;/emphasis&gt;</code>. A few, like <code>&lt;break/&gt;</code>, stand alone and end with <code>/&gt;</code>.</p>
+            <p>Click <strong>Listen</strong> to hear each example. Compare it with how the same words sound with no tags at all.</p>
+            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="tag-table-caption">
+              <table class="tag-table">
+                <caption id="tag-table-caption">Common SSML tags</caption>
+                <thead>
+                  <tr><th scope="col">Tag</th><th scope="col">What it does</th><th scope="col">Example</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row"><code>&lt;speak&gt;</code></th>
+                    <td>Wraps the whole script. Everything to be spoken goes inside.</td>
+                    <td><code class="ex">&lt;speak&gt;Your bus is on its way.&lt;/speak&gt;</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;voice name="…"&gt;</code></th>
+                    <td>Changes the speaker. In this applet, each <code>&lt;voice&gt;</code> is one turn, and you choose which browser voice plays each name.</td>
+                    <td><code class="ex">&lt;voice name="Assistant"&gt;Where to?&lt;/voice&gt; &lt;voice name="Caller"&gt;The library.&lt;/voice&gt;</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;p&gt;</code>, <code>&lt;s&gt;</code></th>
+                    <td>Mark a paragraph and a sentence. The voice gives each sentence its own final intonation; a paragraph adds a longer pause.</td>
+                    <td><code class="ex">&lt;p&gt;&lt;s&gt;Route ten is late&lt;/s&gt;&lt;s&gt;take route eleven&lt;/s&gt;&lt;/p&gt;</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;break/&gt;</code></th>
+                    <td>Inserts a silent pause, either a length (<code>time="500ms"</code>, <code>time="1s"</code>) or a <code>strength</code> from <code>x-weak</code> to <code>x-strong</code>.</td>
+                    <td><code class="ex">Your bus leaves at ten. &lt;break time="1s"/&gt; From Tate.</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;emphasis&gt;</code></th>
+                    <td>Stresses the words inside: <code>level="strong"</code>, <code>"moderate"</code> (the default) or <code>"reduced"</code> (de-stressed). This is how you place prosodic focus.</td>
+                    <td><code class="ex">I said the &lt;emphasis level="strong"&gt;red&lt;/emphasis&gt; one.</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;prosody&gt;</code></th>
+                    <td>Sets <code>pitch</code>, <code>rate</code> and <code>volume</code> directly. Values are words (<code>x-low</code> to <code>x-high</code>, <code>x-slow</code> to <code>x-fast</code>, <code>x-soft</code> to <code>x-loud</code>) or changes such as <code>"+20%"</code> or <code>"-2st"</code> (semitones).</td>
+                    <td><code class="ex">That's &lt;prosody pitch="x-high" rate="slow"&gt;amazing&lt;/prosody&gt;.</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;say-as&gt;</code></th>
+                    <td>Says how to read numbers and abbreviations: <code>interpret-as="characters"</code> (spell it out), <code>"telephone"</code>, <code>"time"</code>, <code>"date"</code> (with <code>format="mdy"</code>) or <code>"ordinal"</code>.</td>
+                    <td><code class="ex">Call &lt;say-as interpret-as="telephone"&gt;706-555-0142&lt;/say-as&gt; about &lt;say-as interpret-as="characters"&gt;UGA&lt;/say-as&gt;.</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;sub alias="…"&gt;</code></th>
+                    <td>Says the alias instead of the written words.</td>
+                    <td><code class="ex">Meet me at &lt;sub alias="the Tate Student Center"&gt;Tate&lt;/sub&gt;.</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;phoneme&gt;</code></th>
+                    <td>Gives an exact pronunciation in IPA (<code>alphabet="ipa" ph="…"</code>). <em>Browser voices can't do this, so this applet reads the spelling.</em></td>
+                    <td><code class="ex">I say &lt;phoneme alphabet="ipa" ph="təˈmɑːtoʊ"&gt;tomato&lt;/phoneme&gt;.</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                  <tr>
+                    <th scope="row"><code>&lt;mark name="…"/&gt;</code></th>
+                    <td>A silent bookmark. Apps use it to time events to the speech. Here, use <code>&lt;mark name="TRP"/&gt;</code> to label where <em>you</em> think a TRP is; it shows as a flag in the prosody view.</td>
+                    <td><code class="ex">That's all. &lt;mark name="TRP"/&gt;</code><button type="button" class="btn-uga-outline listen" data-listen>Listen</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="explanation">
+              <strong>About this player.</strong> Your browser's voices don't read SSML themselves. This applet splits the script into chunks and plays each chunk with its own pitch, rate and volume, so a stressed word is spoken as a separate piece and you may hear a small gap around it. Engines that read SSML natively, such as Amazon Polly or Azure Speech, join the pieces more smoothly. The voices also sound different from browser to browser.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 2 -->
+      <section id="stage2" class="stage" aria-labelledby="stage2-title">
+        <div class="stage-num" aria-hidden="true">2</div>
+        <div class="stage-body">
+          <h3 id="stage2-title" class="stage-title" tabindex="-1">Listen to the sample conversation</h3>
+          <div class="stage-content">
+            <p>The script below is a short call to a campus bus line. Click <strong>Play the conversation</strong>, and follow along in the <strong>prosody view</strong> underneath the script. The view draws each chunk the way it will be spoken: higher on the line for higher pitch, larger for louder or stressed, and spread out for slower. Gaps are pauses.</p>
+            <p>The view also flags each <strong>possible TRP</strong>: every place where a sentence ends with <code>.</code>, <code>?</code> or <code>!</code>, so the voice gives it final intonation. The pause after it decides how strongly it invites the other speaker in. A red flag in the <em>middle</em> of a turn is a place where a real caller would be likely to start talking.</p>
+
+            <div class="field">
+              <label for="script">SSML script</label>
+              <textarea id="script" class="ssml-editor" rows="18" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="script-help"></textarea>
+              <p id="script-help" class="field-hint">Edit freely. The prosody view updates as you type. If a tag is broken, a message below says which line to fix.</p>
+            </div>
+            <div class="btn-row">
+              <button id="play" type="button" class="btn-uga">Play the conversation</button>
+              <button id="stop" type="button" class="btn-uga-outline" disabled>Stop</button>
+              <button id="reset" type="button" class="btn-reset">Restore the sample script</button>
+            </div>
+            <p id="status" class="chat-status" role="status" aria-live="polite"></p>
+            <div id="problems" class="problems" hidden>
+              <p id="parse-error" class="error-text" role="alert"></p>
+              <ul id="warnings" class="warning-list"></ul>
+            </div>
+
+            <div id="voice-picker" class="voice-picker" hidden>
+              <p class="voice-picker__title">Voices for each speaker</p>
+              <div id="voice-fields" class="voice-grid"></div>
+            </div>
+
+            <h4 class="score-heading" id="score-heading">Prosody view</h4>
+            <p class="score-legend field-hint" aria-hidden="true"><span class="legend-chunk is-emph">stressed</span> <span class="legend-chunk is-low">lower pitch</span> <span class="legend-pause"></span> pause <span class="trp trp--end">TRP</span> end of turn <span class="trp trp--mid">TRP</span> mid-turn, with a pause <span class="trp trp--weak">TRP</span> mid-turn, no pause <span class="mark-flag">mark</span> your label</p>
+            <div id="score" class="score" aria-labelledby="score-heading"></div>
+
+            <div class="discussion-box">
+              <h4>💬 Discussion question (group activity)</h4>
+              <p>Find one example of each tag in the script and say what it changed. Which assistant turn has a TRP in the middle? If you were the caller, would you have started talking there?</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 3 -->
+      <section id="stage3" class="stage" aria-labelledby="stage3-title">
+        <div class="stage-num" aria-hidden="true">3</div>
+        <div class="stage-body">
+          <h3 id="stage3-title" class="stage-title" tabindex="-1">Move the focus and the TRPs</h3>
+          <div class="stage-content">
+            <p>Now edit the script in Step 2. Change one thing at a time, play it, and click <strong>Save this version</strong> with a short label so you can come back and compare.</p>
+
+            <h4 class="task-heading">Task A: Move the prosodic focus</h4>
+            <ol class="task-list">
+              <li>In the assistant's third turn, <q>Right. Eleven, not ten.</q>, the focus is on <em>Eleven</em>. Move the <code>&lt;emphasis level="strong"&gt;</code> tag onto <em>not</em>, and then onto <em>ten</em>. What would the caller have had to say for each version to be the natural reply?</li>
+              <li>In <q>Take route eleven from the Tate Center</q>, the focus is on <em>eleven</em>. Move it to <em>Tate</em>. Now what does the assistant seem to be correcting?</li>
+              <li>Find a word that is <em>given</em> information (already said by the other speaker), stress it with <code>level="strong"</code>, and listen. Then try <code>level="reduced"</code> on it. Which sounds more natural, and why?</li>
+            </ol>
+
+            <h4 class="task-heading">Task B: Move the TRPs</h4>
+            <ol class="task-list">
+              <li>The assistant's second turn has a TRP in the middle, after <q>Take route eleven from the Tate Center.</q>, with a long break. Remove it: shorten or delete the <code>&lt;break&gt;</code> and change the full stop to a comma, so the turn holds the floor until the end.</li>
+              <li>Now do the opposite. In the last assistant turn, the phone number is buried at the end of one long sentence. Add a TRP <em>before</em> it: end the sentence after the date, add a <code>&lt;break time="800ms"/&gt;</code>, and continue with a new sentence for the number. Does the caller now get a chance to say “yes, go ahead” or “no thanks”?</li>
+              <li>Make a question with no TRP after it: put more speech right after <q>Where are you heading today?</q> with no pause. Does the question still sound like it wants an answer?</li>
+              <li>Label each TRP you intend with <code>&lt;mark name="TRP"/&gt;</code>. Do your labels line up with the TRP flags the prosody view finds?</li>
+            </ol>
+
+            <div class="field">
+              <label for="version-label">Label for this version <span class="field-optional">(optional)</span></label>
+              <input id="version-label" type="text" maxlength="80" placeholder="e.g. focus on “not”">
+            </div>
+            <div class="btn-row">
+              <button id="save-version" type="button" class="btn-uga-outline">Save this version</button>
+              <button id="download" type="button" class="btn-uga">Download my work</button>
+            </div>
+            <p class="field-hint">“Download my work” saves the current script and every saved version as a text file. Nothing is submitted, and saved versions are lost if you close or reload the page.</p>
+            <p id="save-status" class="field-hint" role="status" aria-live="polite"></p>
+            <div id="versions-panel" hidden>
+              <h4 class="task-heading">Saved versions</h4>
+              <ol id="versions" class="version-list"></ol>
+            </div>
+
+            <div class="discussion-box">
+              <h4>💬 Discussion question (group activity)</h4>
+              <p>Play your favourite version to a neighbour without showing them the script. Can they tell which word you put the focus on, and where you meant them to come in? Which was easier to control with SSML: focus or TRPs?</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section class="reflection-container" aria-labelledby="reflection-title">
+    <h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+    <ol>
+      <li>Choose one line where you moved the focus. Quote both versions and explain how the meaning, or the conversation it fits into, changed.</li>
+      <li>Which cues made a TRP sound strongest to you: the end of a sentence, the final pitch, or the length of the pause? Use one of your versions as evidence.</li>
+      <li>Voice assistants often pause mid-turn and then talk over a user who responds. Using what you found, how would you write the SSML for a long answer (such as directions) so the user knows when they are expected to speak?</li>
+      <li>SSML lets a designer choose stress and pauses in advance. What can't it do that a human speaker does during a conversation?</li>
+    </ol>
+    <div class="reflection-notes field">
+      <label for="reflection">Write down your thoughts</label>
+      <textarea id="reflection" rows="5" maxlength="4000"></textarea>
+      <div class="btn-row">
+        <button class="btn-uga" type="button" data-download-notes>Download my notes</button>
+        <span class="field-hint" role="status" data-download-status></span>
+      </div>
+      <p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p>
+    </div>
+  </section>
+</main>
+
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading">
+  <div class="applet-feedback-card__content">
+    <div>
+      <h2 id="applet-feedback-heading">Help us improve this applet</h2>
+      <a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a>
+    </div>
+    <a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2013A%3A%20Prosody%20with%20SSML&amp;applet=Activity%2013A%3A%20Prosody%20with%20SSML&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_13%2F13A_ssml_prosody.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a>
+  </div>
+</section>
+<footer class="source-card" aria-labelledby="sources-title">
+  <h3 id="sources-title">Sources &amp; permissions</h3>
+  <p>Tags follow the W3C <a href="https://www.w3.org/TR/speech-synthesis11/">Speech Synthesis Markup Language (SSML) Version 1.1</a> recommendation. Speech is produced by your browser's built-in voices through the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API">Web Speech API</a>; nothing is sent to a server. The sample conversation, route numbers and phone number were made up for this activity.</p>
+</footer>
+<script src="../reflection-notes.js" defer></script><script src="13a/core.js" defer></script><script src="13a/applet.js" defer></script>
+</body>
+</html>

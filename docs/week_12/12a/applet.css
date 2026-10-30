@@ -1,0 +1,13 @@
+.syco-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.stage[hidden] { display:none; }
+.stage:has(+ .stage[hidden])::after { display:none; }
+.syco-grid > * { min-width:0; }
+.syco-tools { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
+.syco-tools .field { flex:1 1 220px; }
+.syco-matches { max-height:320px; }
+.syco-evidence { max-height:260px; overflow:auto; padding-left:24px; }
+.syco-evidence > li { padding:10px 0; border-bottom:1px solid var(--line); }
+.syco-evidence p { margin:4px 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.syco-editnotice { min-height:1.5em; }
+.syco-caption { font:15px/1.6 "Merriweather Sans",sans-serif; }
+@media(max-width:700px) { .syco-grid { grid-template-columns:1fr; } }

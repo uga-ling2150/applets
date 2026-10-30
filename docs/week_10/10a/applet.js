@@ -34,7 +34,9 @@ function render(mode){
   });
   list.scrollTop=list.scrollHeight;controls(mode);
 }
+function setStage(n,status){$('stage'+n).classList.remove('active','done');if(status)$('stage'+n).classList.add(status);}
 function paint(){
+  setStage(1,'done');setStage(2,state.started?'done':'active');setStage(3,state.started?'active':null);setStage(4,state.started?'active':null);
   $('first-message').value=state.firstMessage;$('first-message').readOnly=state.started;$('start').disabled=state.started;
   $('prediction').value=state.prediction;
   for(const mode of modes){
