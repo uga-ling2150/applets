@@ -1,4 +1,4 @@
-/* Client for the shared Week 11 model service (services/week11-lab). 11A and 11B both load
+/* Client for the shared Week 11 model service (services/week11-lab). 11A, 11B and 12A all load
    this file; it exposes window.Week11Live = { connection, generate }. */
 (function () {
   'use strict';

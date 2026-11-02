@@ -1,6 +1,6 @@
 # Week 11 model service
 
-Shared, API-only Cloudflare Worker for Activity 11A (editable system prompts) and 11B (temperature, top-k and top-p). Static course pages remain in `docs/week_11/`. The worker forwards only the bounded prompt, optional system prompt and sampling parameters; annotations and reflection notes are never included in the API payload.
+Shared, API-only Cloudflare Worker for Activity 11A (editable system prompts), 11B (temperature, top-k and top-p) and 12A (editable system personas, sent in `persona` mode like 11A's system prompts, and user personas, sent as part of the prompt). Static course pages remain in `docs/week_11/`. The worker forwards only the bounded prompt, optional system prompt and sampling parameters; annotations and reflection notes are never included in the API payload.
 
 The account owner explicitly approved cloud resource use and possible costs on 2026-10-17. The service is deployed at https://ling2150-week11-lab.ling2150-query-rewrite.workers.dev. Four initial real-model checks succeeded (two personas and two sampling conditions). Browser-local simulation and authored practice examples remain available without the service. The frontend uses this endpoint by default; instructor settings can override it.
 

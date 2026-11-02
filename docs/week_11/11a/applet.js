@@ -4,7 +4,8 @@ const $ = id => document.getElementById(id);
 const live = window.Week11Live;
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const PERSONAS = ['a', 'b'];
-const SIDES = ['a', 'b', 'base']; // 'base' is the answer with no system prompt (Step 3)
+const SIDES = ['a', 'b', 'base']; // 'base' is the baseline answer (Step 3)
+const BASELINE_SYSTEM = 'You are a helpful assistant.';
 const SETTINGS = { temperature: 0.7, topk: 50, topp: 1 };
 
 let pair = null,
@@ -61,8 +62,8 @@ function setStage(n, status) {
   $(`stage${n}`).classList.remove('active', 'done');
   if (status) $(`stage${n}`).classList.add(status);
 }
-const label = side => (side === 'base' ? 'No system prompt' : 'Persona ' + side.toUpperCase());
-const answerOf = side => (side === 'base' ? 'the answer with no system prompt' : `the ${label(side)} answer`);
+const label = side => (side === 'base' ? 'Baseline' : 'Persona ' + side.toUpperCase());
+const answerOf = side => `the ${label(side)} answer`;
 const statusFor = side => (side === 'base' ? 'base-status' : 'annotate-status');
 
 // ---- Answers, with saved evidence in yellow and the phrase being annotated in green ----
@@ -129,7 +130,7 @@ function renderHistory() {
     for (const side of SIDES) {
       if (!p.outputs[side]) continue;
       details.append(node('h5', label(side)));
-      if (side !== 'base') details.append(node('p', 'System prompt: ' + p.systems[side]));
+      details.append(node('p', 'System prompt: ' + p.systems[side]));
       details.append(node('p', p.outputs[side]));
       const notes = p.annotations.filter(a => a.side === side);
       if (notes.length) {
@@ -193,7 +194,7 @@ function updateFeatureHint() {
 function openDialog(side, quote) {
   dialogSide = side;
   pending = null;
-  $('dialog-title').textContent = side === 'base' ? 'Annotate the answer with no system prompt' : 'Annotate ' + label(side);
+  $('dialog-title').textContent = side === 'base' ? 'Annotate the baseline answer' : 'Annotate ' + label(side);
   $('quote').value = quote || '';
   $('interpretation').value = '';
   $('annotation-error').textContent = '';
@@ -265,7 +266,7 @@ $('annotation-form').addEventListener('submit', e => {
   render();
   $('annotate-' + side).focus({ preventScroll: true });
   if (side === 'base') {
-    $('base-status').textContent = 'Annotation added to the answer with no system prompt.';
+    $('base-status').textContent = 'Annotation added to the baseline answer.';
     return;
   }
   const other = side === 'a' ? 'b' : 'a';
@@ -338,9 +339,10 @@ $('example').onclick = () => {
 };
 
 // The baseline answers the question the personas answered, even if the Step 1 box has been edited since.
-function setBaseline(text, model) {
+function setBaseline(text, model, system) {
   annotations = annotations.filter(a => a.side !== 'base');
   pair.outputs.base = text;
+  pair.systems.base = system;
   pair.model.base = model;
   render();
 }
@@ -348,11 +350,11 @@ $('generate-base').onclick = async () => {
   if (busy || !pair) return;
   setBusy(true);
   $('base-error').textContent = '';
-  $('base-status').textContent = 'Generating with no system prompt…';
+  $('base-status').textContent = 'Generating the baseline answer…';
   try {
-    const r = await live.generate({ mode: 'baseline', prompt: pair.prompt, ...SETTINGS });
-    setBaseline(r.reply, r.model);
-    $('base-status').textContent = 'The answer with no system prompt is ready. Compare it with both personas below.';
+    const r = await live.generate({ mode: 'persona', system: BASELINE_SYSTEM, prompt: pair.prompt, ...SETTINGS });
+    setBaseline(r.reply, r.model, BASELINE_SYSTEM);
+    $('base-status').textContent = 'The baseline answer is ready. Compare it with both personas below.';
   } catch (e) {
     $('base-error').textContent = e.message;
     $('base-status').textContent = 'Existing answers preserved.';
@@ -363,7 +365,7 @@ $('generate-base').onclick = async () => {
 $('example-base').onclick = () => {
   if (!pair) return;
   $('base-error').textContent = '';
-  setBaseline(examples.base, 'authored example');
+  setBaseline(examples.base, 'authored example', 'Authored to illustrate a plain helpful assistant.');
   $('base-status').textContent = 'Practice answer loaded. It was written by the course team to illustrate a typical default assistant style.';
 };
 $('baseline-comparison').addEventListener('input', () => {

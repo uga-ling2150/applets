@@ -97,11 +97,11 @@ $('compare').onclick = () => {
   notice(''); compared = true; renderRewrite();
 };
 $('download').onclick = () => {
-  const work = {activity:'Activity 12A: AI Sycophancy', sourceCommit:data.sourceCommit, combinedTarget:data.combinedTarget,
+  const work = {activity:'Activity 12B: AI Sycophancy', sourceCommit:data.sourceCommit, combinedTarget:data.combinedTarget,
     context:$('context').value, original:snapshot, prediction:$('prediction').value, dimension:titles[$('dimension').value],
     observations, rewrite:$('rewrite').value, rewriteCompared:compared, interpretation:'Word associations for contextual analysis.'};
   const url = URL.createObjectURL(new Blob([JSON.stringify(work,null,2)],{type:'application/json'}));
-  const link = element('a'); link.href = url; link.download = '12A-sycophancy-work.json'; link.click();
+  const link = element('a'); link.href = url; link.download = '12B-sycophancy-work.json'; link.click();
   setTimeout(()=>URL.revokeObjectURL(url),1000); $('work-status').textContent = 'Download requested. Reflection notes have their own download below.';
 };
 loadExample();

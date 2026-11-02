@@ -1,13 +1,30 @@
-.syco-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
-.stage[hidden] { display:none; }
-.stage:has(+ .stage[hidden])::after { display:none; }
-.syco-grid > * { min-width:0; }
-.syco-tools { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
-.syco-tools .field { flex:1 1 220px; }
-.syco-matches { max-height:320px; }
-.syco-evidence { max-height:260px; overflow:auto; padding-left:24px; }
-.syco-evidence > li { padding:10px 0; border-bottom:1px solid var(--line); }
-.syco-evidence p { margin:4px 0; white-space:pre-wrap; overflow-wrap:anywhere; }
-.syco-editnotice { min-height:1.5em; }
-.syco-caption { font:15px/1.6 "Merriweather Sans",sans-serif; }
-@media(max-width:700px) { .syco-grid { grid-template-columns:1fr; } }
+/* Only the four stance highlights. The layout comes from ../week_11/11a/applet.css, which this page also loads.
+   Each type differs by colour, underline style and label, so colour is never the only cue. */
+.stance-mark, .chat-turn__text mark.stance-mark {
+  padding: 1px 2px;
+  border-radius: 2px;
+  color: #1a1a1a;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.stance-mark[data-tag]:not([data-tag=""])::after {
+  content: attr(data-tag);
+  margin-left: 3px;
+  font: 600 10px/1 "IBM Plex Mono", monospace;
+  vertical-align: super;
+  text-decoration: none;
+  display: inline-block;
+}
+.stance-evaluative, .chat-turn__text mark.stance-evaluative { background: #ffe39b; text-decoration-style: solid; text-decoration-color: #6b4c00; }
+.stance-deontic, .chat-turn__text mark.stance-deontic { background: #bfe3f5; text-decoration-style: double; text-decoration-color: #004e60; }
+.stance-epistemic, .chat-turn__text mark.stance-epistemic { background: #e2d6f7; text-decoration-style: dashed; text-decoration-color: #4b2a85; }
+.stance-affective, .chat-turn__text mark.stance-affective { background: #ffd3dc; text-decoration-style: dotted; text-decoration-color: #8a1230; }
+/* A phrase with more than one type: applet.js stacks those types' colours as bands. */
+.chat-turn__text mark.stance-overlap { text-decoration-style: solid; text-decoration-color: #1a1a1a; }
+
+.persona-column .field + .field { margin-top: 12px; }
+.stance-key { margin: 8px 0 0; padding-left: 0; list-style: none; }
+.stance-key li { margin-bottom: 6px; }
+.stance-key .stance-mark { font-weight: 700; }
+.evidence-feature.stance-mark { display: inline-block; margin-left: 8px; color: #1a1a1a; }

@@ -5,7 +5,7 @@ import vm from 'node:vm';
 const context = {window:{}};
 vm.runInNewContext(fs.readFileSync(new URL('../docs/highlighter.js',import.meta.url),'utf8'),context);
 const H = context.window.Highlighter;
-const data = JSON.parse(fs.readFileSync(new URL('../docs/week_12/12a/weights.json',import.meta.url)));
+const data = JSON.parse(fs.readFileSync(new URL('../docs/week_12/12b/weights.json',import.meta.url)));
 test('all four exports retain lexical coefficients and explicitly audit non-text features',()=>{
   assert.equal(data.combinedTarget,'framing AND validation AND indirectness');
   for(const model of Object.values(data.models)) {

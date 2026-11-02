@@ -2,7 +2,7 @@
 
 Hi Ryan,
 
-This guide explains how Cloudflare supports Activities 5C, 7A, 7B, 10A, 11A and 11B. It also explains how to use the activities, update them, and move their services to your own Cloudflare account. Activity 9A uses audio files and browser JavaScript only; it has no Cloudflare service to transfer.
+This guide explains how Cloudflare supports Activities 5C, 7A, 7B, 10A, 11A, 11B and 12A. It also explains how to use the activities, update them, and move their services to your own Cloudflare account. Activity 9A uses audio files and browser JavaScript only; it has no Cloudflare service to transfer.
 
 The activities are already online. You do not need a Cloudflare account to use them in class. For 7A, use your GitHub account, `kayaulai`, to view the teacher tools. Students do not need accounts.
 
@@ -23,9 +23,9 @@ A **Cloudflare Worker** is a small program that runs on Cloudflare's computers. 
 | **7A: Backchannel Locations** | Saves classroom attempts, checks teacher sign-in, provides downloads, and shares class comparisons when the teacher chooses. It does not use AI. | Anonymous participant numbers, click times, attempts, task actions and submission times. Classroom records expire after 30 days. |
 | **7B: Presumptive Grounding** | Runs the same AI model with two different sets of instructions. One encourages an answer based on an interpretation. The other encourages a question when the meaning is unclear. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
 | **10A: Conversation Closing** | Continues the same completed task with the same model and settings. One instruction style tends to extend the interaction; the other tends to close after the task is done. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
-| **11A: Style and Persona / 11B: Temperature and Sampling** | One shared Worker runs real model comparisons with editable system prompts or sampling settings. The 11B toy distribution runs entirely in the browser. | Request counts and temporary capacity records only. Student annotations, reflections and conversation text are not saved in this storage. |
+| **11A: Style and Persona / 11B: Temperature and Sampling / 12A: Stance and User Persona** | One shared Worker runs real model comparisons with editable system prompts, sampling settings or user and system personas. The 11B toy distribution runs entirely in the browser. | Request counts and temporary capacity records only. Student annotations, reflections and conversation text are not saved in this storage. |
 
-5C, 7B, 10A, 11A and 11B use **Llama 3.1 8B Instruct Fast**. The model runs on Cloudflare, so students do not download it. Their conversation text is sent to the model when they ask for a reply. Their private notes and reflections are not sent. Use fictional examples rather than personal information.
+5C, 7B, 10A, 11A, 11B and 12A use **Llama 3.1 8B Instruct Fast**. The model runs on Cloudflare, so students do not download it. Their conversation text is sent to the model when they ask for a reply. Their private notes and reflections are not sent. Use fictional examples rather than personal information.
 
 The public GitHub repository holds the code. It does not hold 7A classroom submissions or private service keys.
 
@@ -141,6 +141,7 @@ The GitHub Pages settings were checked for this handover. The site publishes fro
 | 7B | `docs/week_7/7B_presumptive_grounding.html` | `docs/week_7/7b/` | `services/presumptive-grounding/` |
 | 10A | `docs/week_10/10A_conversation_opening_closing.html` | `docs/week_10/10a/` | `services/conversation-closing/` |
 | 11A / 11B | `docs/week_11/11A_style_persona.html` / `11B_temperature_sampling.html` | `docs/week_11/` | `services/week11-lab/` (shared) |
+| 12A | `docs/week_12/12A_stance_user_persona.html` | `docs/week_12/12a/` (layout and service client from `docs/week_11/11a/`) | `services/week11-lab/` (shared) |
 
 ### Cloudflare
 
@@ -152,7 +153,7 @@ The current Worker addresses are:
 | 7A | `ling2150-7a-classroom` | `https://ling2150-7a-classroom.ling2150-query-rewrite.workers.dev` |
 | 7B | `ling2150-7b-grounding` | `https://ling2150-7b-grounding.ling2150-query-rewrite.workers.dev` |
 | 10A | `ling2150-10a-closing` | `https://ling2150-10a-closing.ling2150-query-rewrite.workers.dev` |
-| 11A / 11B | `ling2150-week11-lab` | `https://ling2150-week11-lab.ling2150-query-rewrite.workers.dev` |
+| 11A / 11B / 12A | `ling2150-week11-lab` | `https://ling2150-week11-lab.ling2150-query-rewrite.workers.dev` |
 
 The existing service notes describe a Cloudflare Free plan. The 10A deployment was verified in the same Cloudflare account that lists the 5C, 7A and 7B Workers. Billing settings and remaining allowance were not checked. The address ending in `workers.dev` is a public service address, not an account login.
 
@@ -167,7 +168,7 @@ These private values must be set separately:
 | 5C | `SESSION_SECRET` | Signs temporary browser sessions so the backend can check them. |
 | 7B | `SESSION_SECRET` | Does the same for 7B. Use a different value from 5C. |
 | 10A | `SESSION_SECRET` | Does the same for 10A. Use a unique value, separate from 5C and 7B. |
-| 11A / 11B | `SESSION_SECRET` | Signs temporary sessions for their shared Worker. Generate a unique value. |
+| 11A / 11B / 12A | `SESSION_SECRET` | Signs temporary sessions for their shared Worker. Generate a unique value. |
 | 7A | `GITHUB_CLIENT_SECRET` | Lets the backend complete GitHub teacher sign-in. |
 
 A **secret** is a private value stored in Cloudflare. Do not put it in GitHub, HTML, this guide or Freedcamp. Existing secret values are not needed for a fresh installation; create new ones in your own account.
@@ -392,7 +393,7 @@ An **API address** is the address a page uses to reach its backend. Replace the 
 | `docs/week_7/7a/classroom.js` | `API` → new 7A address |
 | `docs/week_7/7b/applet.js` | `API` → new 7B address |
 | `docs/week_10/10a/applet.js` | `API` → new 10A address |
-| `docs/week_11/11a/live.js` | `DEFAULT` → new shared 11A/11B address (11B loads the same file). |
+| `docs/week_11/11a/live.js` | `DEFAULT` → new shared 11A/11B/12A address (11B and 12A load the same file). |
 
 Leave the student GitHub Pages URLs unchanged. The existing allowed website settings still apply because the pages remain on `https://uga-ling2150.github.io`.
 
@@ -447,6 +448,7 @@ The 5C, 7A and 7B service health checks passed during the September 23, 2026 rev
 | 7B | Send an opening message to both assistants and continue each conversation. Download the result. | Both assistants return replies, and the download contains the conversations and reflection. |
 | 10A | Send the same ending message to both assistants after the fixed exchange. Compare the first replies, continue at least one side, annotate evidence and download. | Both assistants return replies, both received the same fixed context, and the download contains the conversations and observations. |
 | 11A | Generate both persona replies, annotate a quotation and download the comparison. | Both replies are live, use the same task and model settings, and the download preserves the quotation and interpretation. |
+| 12A | Generate both persona replies, highlight a quotation with a stance type and download the comparison. | Both replies are live, use the same question and model settings, and the download preserves the quotation, stance type and interpretation. |
 | 11B | Change a toy sampling control, then request repeated real-model outputs and download. | The toy distribution updates without an Apply click; live replies and exports identify the actual settings used. |
 
 Use fictional test content. AI checks use some of the account's allowance. Before a large class, also try the pages on the intended classroom network.

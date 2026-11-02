@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import AxeBuilder from '@axe-core/playwright';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import {validate} from '../../services/week11-lab/src/core.mjs';
 const pages=process.argv.slice(2);
 await mkdir('a11y-results',{recursive:true});
 const browser=await chromium.launch(); let failed=false; const summary=[];
@@ -10,10 +11,10 @@ try {
   const response=await page.goto(`http://127.0.0.1:8765/${pathname.replace(/^docs\//,'')}`);if(!response?.ok())throw Error(`Preview failed to load ${pathname}: ${response?.status()}`);await page.locator('#main').waitFor();await page.waitForTimeout(1500);
   if(pathname.includes('Keyword')){await page.locator('iframe.defaults-check').scrollIntoViewIfNeeded();await page.frameLocator('iframe.defaults-check').locator('.h5p-content').waitFor();}
   const states=[['initial',async()=>{
-   if(pathname.includes('11A_')||pathname.includes('11B_')){
-    for(const id of ['stage2-lock','stage3-lock'])if(!await page.locator('#'+id).isVisible())throw Error('Locked stage is not shown as locked: '+id);
-    if(await page.locator('.rack > .stage').count()!==3)throw Error('Week 11 activity must use a three-stage rack.');
-    if(await page.locator('.lesson-container ol li').count()!==3)throw Error('Introduction must keep three steps matching the rack.');
+   if(pathname.includes('11A_')||pathname.includes('11B_')||pathname.includes('12A_stance')){
+    for(const id of pathname.includes('12A_stance')?['stage2-lock']:['stage2-lock','stage3-lock'])if(!await page.locator('#'+id).isVisible())throw Error('Locked stage is not shown as locked: '+id);
+    if(await page.locator('.rack > .stage').count()!==(pathname.includes('12A_stance')?2:3))throw Error('Activity has the wrong number of stages in its rack.');
+    if(await page.locator('.lesson-container ol li').count()!==(pathname.includes('12A_stance')?2:3))throw Error('Introduction must keep steps matching the rack.');
     const subtitle=await page.locator('.hero-text p').evaluate(n=>({height:n.getBoundingClientRect().height,line:parseFloat(getComputedStyle(n).lineHeight)}));
     if(subtitle.height>subtitle.line+1)throw Error('Short subtitle wraps early on desktop.');
    }
@@ -70,25 +71,32 @@ try {
    if(await page.locator('#annotations-b .evidence-item').count()!==1)throw Error('Persona B annotation missing.');
    if(await page.locator('#baseline-panel').isVisible())throw Error('Baseline comparison shown before a baseline answer exists.');
   }],['baseline-compared',async()=>{
-   if(!(await page.locator('#stage3').innerText()).toLowerCase().includes('no system prompt'))throw Error('Step 3 does not explain the no-system-prompt comparison.');
+   if(!(await page.locator('#stage3').innerText()).includes('You are a helpful assistant.'))throw Error('Step 3 does not name the baseline system prompt.');
+   const sent=[];
+   await page.route('**/api/session',r=>r.fulfill({json:{token:'test'},headers:{'Access-Control-Allow-Origin':'*'}}));
+   await page.route('**/api/chat',r=>{const body=r.request().postDataJSON();sent.push(body);validate(body);r.fulfill({json:{reply:'A live baseline answer.',model:'test-model'},headers:{'Access-Control-Allow-Origin':'*'}});});
+   await page.getByRole('button',{name:'Generate baseline answer',exact:true}).click();
+   await page.locator('#base-status',{hasText:'ready'}).waitFor();
+   if(sent.length!==1||sent[0].mode!=='persona'||sent[0].system!=='You are a helpful assistant.')throw Error('The baseline must be a persona request with the helpful-assistant prompt: '+JSON.stringify(sent));
+   await page.unroute('**/api/session');await page.unroute('**/api/chat');
    await page.getByRole('button',{name:'Use practice answer',exact:true}).click();
    for(const id of ['log-base','recap-a','recap-b'])if(!(await page.locator('#'+id).innerText()).trim())throw Error('Three-way comparison is missing an answer: '+id);
    if(await page.locator('#recap-a [data-side]').count())throw Error('Recap copies should not start new annotations.');
    if(!await page.locator('#recap-a mark').count())throw Error('Recap does not show saved evidence highlights.');
    await page.getByRole('button',{name:'Annotate a phrase',exact:true}).click();
-   if((await page.locator('#dialog-title').innerText())!=='Annotate the answer with no system prompt')throw Error('Baseline popup is mislabelled.');
+   if((await page.locator('#dialog-title').innerText())!=='Annotate the baseline answer')throw Error('Baseline popup is mislabelled.');
    await page.locator('#quote').fill('review your notes');
    await page.locator('#category').selectOption('politeness');
    await page.locator('#interpretation').fill('A bare instruction with no hedging: the default assistant is direct.');
    await page.locator('#annotate').click();
    if(await page.locator('#annotations-base .evidence-item').count()!==1)throw Error('Baseline annotation missing.');
-   await page.locator('#baseline-comparison').fill('Neither “You could” nor “Let’s” appears without a system prompt.');
+   await page.locator('#baseline-comparison').fill('Neither “You could” nor “Let’s” appears in the baseline.');
    await page.locator('#system-a').fill('You are a concise tutor.');
    const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
    const data=JSON.parse(await readFile(await file.path(),'utf8'));
    const c=data.comparisons[0];
    if(data.comparisons.length!==1||c.annotations.length!==3)throw Error('Export omitted annotations or duplicated the comparison.');
-   if(!c.outputs.base||!c.comparison.includes('Neither'))throw Error('Export omitted the baseline answer or written comparison.');
+   if(!c.outputs.base||!c.systems.base||!c.comparison.includes('Neither'))throw Error('Export omitted the baseline answer, its prompt or the written comparison.');
    if(!c.systems.a.includes('Authored'))throw Error('Export replaced source prompts with ungenerated edits.');
    await page.locator('#reflection').fill('Could sounds cautious, while Let’s sounds collaborative.');
    const [notes]=await Promise.all([page.waitForEvent('download'),page.getByRole('button',{name:'Download my notes',exact:true}).click()]);
@@ -116,6 +124,60 @@ try {
    const dims=await page.locator('#annotations-a').evaluate(n=>({height:n.clientHeight,scroll:n.scrollHeight}));
    if(dims.scroll<=dims.height||dims.height>300)throw Error('Evidence list is not constrained to a compact scrollable box.');
    if(!await page.locator('#log-a mark:not(.current-phrase)').count())throw Error('Saved evidence is not highlighted.');
+  }]);
+  if(pathname.includes('12A_stance'))states.push(['live-answers',async()=>{
+   const sent=[];
+   await page.route('**/api/session',r=>r.fulfill({json:{token:'test'},headers:{'Access-Control-Allow-Origin':'*'}}));
+   await page.route('**/api/chat',r=>{const body=r.request().postDataJSON();sent.push(body);validate(body);r.fulfill({json:{reply:'Reply '+sent.length+': you should rest.',model:'test-model'},headers:{'Access-Control-Allow-Origin':'*'}});});
+   const question=await page.locator('#prompt').inputValue(),a=await page.locator('#user-a').inputValue(),b=await page.locator('#user-b').inputValue(),system=await page.locator('#system-a').inputValue();
+   if(!system||system!==await page.locator('#system-b').inputValue())throw Error('The default system personas must match, so only the user differs.');
+   await page.locator('#generate').click();
+   await page.locator('#status',{hasText:'ready'}).waitFor();
+   if(sent.length!==2||sent.some(x=>x.mode!=='persona'||x.system!==system))throw Error('Every answer must use persona mode with its system persona.');
+   if(sent[0].prompt!==`${a}\n\n${question}`||sent[1].prompt!==`${b}\n\n${question}`)throw Error('The user persona and question were not sent as the user message.');
+   await page.locator('#system-a').fill('You are a blunt coach.');await page.locator('#user-b').fill('');
+   await page.locator('#generate').click();await page.locator('#status',{hasText:'ready'}).waitFor();
+   if(sent[2].system!=='You are a blunt coach.'||sent[2].prompt!==`${a}\n\n${question}`)throw Error('System and user personas were not both sent.');
+   if(sent[3].prompt!==question)throw Error('With no user persona, only the question should be sent.');
+   await page.locator('#system-b').fill('');await page.locator('#generate').click();
+   if(!(await page.locator('#error').innerText()).includes('a system persona'))throw Error('A conversation with no system persona was not rejected.');
+   if(sent.length!==4)throw Error('A conversation with no system persona was still sent.');
+   await page.locator('#error').evaluate(n=>{n.textContent='';});await page.locator('#system-a').fill(system);await page.locator('#system-b').fill(system);await page.locator('#user-b').fill(b);
+   await page.unroute('**/api/session');await page.unroute('**/api/chat');
+  }],['practice-loaded',async()=>{
+   await page.getByRole('button',{name:'Use practice answers',exact:true}).click();
+   if(!await page.locator('#stage2-content').isVisible())throw Error('Practice answers did not unlock step 2.');
+   if(await page.locator('#history details').count()!==2)throw Error('Earlier answers were not kept.');
+   if(JSON.stringify(await page.locator('#category option').evaluateAll(o=>o.map(x=>x.value)))!==JSON.stringify(['evaluative','deontic','epistemic','affective']))throw Error('The popup must offer exactly the four stance types.');
+  }],['four-stance-types',async()=>{
+   const add=async(side,quote,stance)=>{await page.locator('#annotate-'+side).click();await page.locator('#quote').fill(quote);await page.locator('#category').selectOption(stance);if(!(await page.locator('#feature-help').innerText()).trim())throw Error('Missing stance hint: '+stance);await page.locator('#interpretation').fill('Fits this user.');await page.locator('#annotate').click();};
+   await add('a','a really good first step','evaluative');await add('a','You should','deontic');await add('a','might','epistemic');await add('a','I’m so sorry','affective');
+   const looks={};
+   for(const [stance,tag] of [['evaluative','EVAL'],['deontic','DEON'],['epistemic','EPIS'],['affective','AFF']]){
+    const mark=page.locator(`#log-a mark.stance-${stance}`);
+    if(await mark.count()!==1)throw Error('Missing highlight: '+stance);
+    if(await mark.getAttribute('data-tag')!==tag)throw Error('Missing highlight label: '+stance);
+    looks[stance]=await mark.evaluate(n=>{const s=getComputedStyle(n);return [s.backgroundColor,s.textDecorationStyle];});
+   }
+   for(const part of [0,1])if(new Set(Object.values(looks).map(x=>x[part])).size!==4)throw Error('Stance types must differ in colour and underline style: '+JSON.stringify(looks));
+  }],['selection-across-a-highlight',async()=>{
+   const box=await page.locator('#log-a .chat-turn__text').evaluate(n=>{const marks=[...n.querySelectorAll('mark')];const m=marks.find(x=>x.textContent==='might');const r=m.getBoundingClientRect();return {x:r.x,y:r.y+r.height/2,width:r.width};});
+   await page.mouse.move(box.x-20,box.y);await page.mouse.down();await page.mouse.move(box.x+box.width+28,box.y,{steps:8});await page.mouse.up();
+   await page.locator('#annotation-dialog[open]').waitFor();
+   const quote=await page.locator('#quote').inputValue();
+   if(!quote.includes('might')||/EPIS/.test(quote))throw Error('The highlight label leaked into the selected phrase: '+quote);
+   if(!(await page.locator('#quote-check').innerText()).startsWith('Found'))throw Error('A phrase selected across a highlight should still match: '+quote);
+   await page.locator('#category').selectOption('deontic');await page.locator('#interpretation').fill('Overlaps the epistemic highlight.');await page.locator('#annotate').click();
+   if(!await page.locator('#log-a mark.stance-overlap').count())throw Error('Overlapping stance types are not shown as an overlap.');
+  }],['download',async()=>{
+   await page.locator('#annotate-b').click();await page.locator('#quote').fill('probably');await page.locator('#category').selectOption('epistemic');await page.locator('#interpretation').fill('Hedged for this user.');await page.locator('#annotate').click();
+   if(!await page.locator('#stage2.done').count())throw Error('Step 2 is not marked done with evidence from both answers.');
+   const [file]=await Promise.all([page.waitForEvent('download'),page.locator('#download').click()]);
+   const data=JSON.parse(await readFile(await file.path(),'utf8'));
+   const c=data.comparisons.at(-1);
+   if(data.activity!=='12A'||data.comparisons.length!==3||data.comparisons[1].personas.a.system!=='You are a blunt coach.'||c.annotations.length!==6||!c.annotations.every(a=>a.stance)||!c.personas.a.user)throw Error('Export is wrong: '+JSON.stringify(c));
+   await page.getByRole('button',{name:'Remove annotation 1 for Conversation A',exact:true}).click();
+   if(await page.locator('#log-a mark.stance-evaluative').count())throw Error('Removing an annotation left its highlight.');
   }]);
   if(pathname.includes('11B_'))states.push(['sentence',async()=>{
    await page.locator('#training-options summary').click();
@@ -230,9 +292,9 @@ try {
    await page.setViewportSize({width,height:844});
    const sizes=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,viewport:innerWidth}));
    if(sizes.scroll>sizes.viewport+1){failed=true;summary.push({page:pathname,error:`Page overflows at ${width}px`,sizes});}
-   if(pathname.includes('11A_')||pathname.includes('11B_')){
+   if(pathname.includes('11A_')||pathname.includes('11B_')||pathname.includes('12A_stance')){
     const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
-    await writeFile(`a11y-results/${pathname.includes('11B_')?'11B':'11A'}-mobile-${width}.json`,JSON.stringify(result,null,2));
+    await writeFile(`a11y-results/${pathname.includes('11B_')?'11B':pathname.includes('12A_')?'12A':'11A'}-mobile-${width}.json`,JSON.stringify(result,null,2));
     summary.push({page:pathname,state:`mobile-${width}`,violations:result.violations,manualReview:result.incomplete.map(x=>({id:x.id,description:x.description})),errors});
     if(result.violations.length||errors.length)failed=true;
    }

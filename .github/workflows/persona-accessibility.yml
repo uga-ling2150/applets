@@ -18,7 +18,7 @@ jobs:
       - run: npm install --prefix tools/a11y --no-package-lock
       - run: tools/a11y/node_modules/.bin/playwright install --with-deps chromium
       - run: python3 -m http.server 8765 --bind 127.0.0.1 --directory docs > /tmp/applet-server.log 2>&1 &
-      - run: node tools/a11y/check.mjs docs/week_11/11A_style_persona.html
+      - run: node tools/a11y/check.mjs docs/week_11/11A_style_persona.html docs/week_12/12A_stance_user_persona.html
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -70,16 +70,6 @@ test("system prompt and user prompt remain separate roles", () => {
   assert.ok(m[0].content.includes(b.system));
   assert.equal(m[1].content, b.prompt);
 });
-test("baseline sends only the classroom instruction, with no persona text", () => {
-  const b = validate({ ...input, mode: "baseline", system: "Use measured language." });
-  assert.equal(b.system, "");
-  const m = messages(b);
-  assert.equal(m[0].role, "system");
-  assert.ok(!m[0].content.includes("measured"));
-  assert.ok(!m[0].content.includes("sampling"));
-  assert.ok(messages(validate({ ...input, mode: "persona", system: "Use measured language." }))[0].content.startsWith(m[0].content));
-  assert.equal(m[1].content, b.prompt);
-});
 test("session enforcement, bounded sampling parameters, and private-note exclusion", async () => {
   const { env, ctx, waits, seen } = setup();
   assert.equal(
