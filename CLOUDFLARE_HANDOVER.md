@@ -8,6 +8,36 @@ The activities are already online. You do not need a Cloudflare account to use t
 
 Moving the services is a one-time setup. You can reuse the existing code. You do not need to write a new app or train an AI model. The move does require new account settings, private keys and service addresses. Section 5 gives the steps in order.
 
+## Zero-cost requirement and model retirement (2026-11-06)
+
+The owner's current requirement is **zero charges for every model**. This supersedes earlier permission for possible costs. Do not upgrade to Workers Paid, purchase AI Gateway credits, enable paid overages, or select a replacement model on the assumption that a low token price means free usage.
+
+Cloudflare [Workers AI pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/) provides 10,000 Neurons per day on Workers Free; further operations fail when the free allocation is exhausted. Workers Paid can bill usage above that allocation. The allowance is shared across the account, not assigned separately to each applet. Models can have published metered prices and still be available within the Free allowance; that does not make them unlimited or guarantee zero charges on an unverified account. Request-count caps in this repository do not establish a currency cap. AI Gateway spend limits are eventually consistent and are not a zero-charge guarantee ([official documentation](https://developers.cloudflare.com/ai-gateway/features/spend-limits/)).
+
+The owner has accepted quota-limited Free usage with service stopping after the daily allowance. On November 6, 2026, the account dashboard showed **Free / $0 / Current plan** and 10,000 Workers AI Neurons per day. The deployed shared service lists a Workers AI binding named `AI`; the repository inference call uses `env.AI.run(model, inputs)` without Gateway options. This local migration replaces `@cf/meta/llama-3.1-8b-instruct-fp8` (retiring November 20) with `@cf/ibm-granite/granite-4.0-h-micro` for 11A/11B/12A. It uses the Free allowance, not a paid route. **Deployment verified November 6, 2026:** shared Worker version `d9461a1e-b7d1-49c3-85be-2f27e606927d` reports Granite with `enabled: true`. Five short live requests succeeded for 11A tutor/critic, 11B top-k 1/50, and 12A system/user personas. This is a bounded smoke test, not a guarantee of classroom behavior; publishing GitHub files alone does not deploy the backend.
+
+### Repository-wide model audit
+
+All Workers AI calls in this repository were reviewed on November 6, 2026:
+
+| Activities | Worker | Model after this local change | Decision |
+| --- | --- | --- | --- |
+| 5C | `query-rewrite` | `@cf/meta/llama-3.1-8b-instruct-fast` | Retain: absent from the November retirement list; changing a working rewrite model would require separate quality validation. |
+| 7B | `presumptive-grounding` | `@cf/meta/llama-3.1-8b-instruct-fast` | Retain: absent from the retirement list. |
+| 10A | `conversation-closing` | `@cf/meta/llama-3.1-8b-instruct-fast` | Retain: absent from the retirement list. |
+| 11A, 11B, 12A | `week11-lab` | `@cf/ibm-granite/granite-4.0-h-micro` | Replace retiring FP8 model; preserve documented temperature, top-k and top-p support. |
+| 7A and browser-only activities | No Workers AI inference | None | No hosted model to replace. |
+
+The exact `-fast` and `-fp8` IDs are distinct; a shared Llama family name does not make every service affected. See the [official retirement notice](https://developers.cloudflare.com/changelog/post/2026-11-05-planned-model-deprecations/). Granite is a practical compatibility-and-free-quota choice, not a proven best model for classroom output quality. Its documented consumption is 1,542 input and 10,158 output Neurons per million tokens; all services still share the account allowance. No new paid service, external API key, fallback model or Gateway route is introduced. Live quality checks remain necessary before classroom use.
+
+Migration and deployment checks:
+
+1. Reconfirm in the Cloudflare dashboard that the target account still uses Workers Free and inference is not charged through prepaid AI Gateway credits. If zero charges cannot be established, keep inference paused rather than selecting a billable route. No account or deployment changes are authorized by this checklist.
+2. Confirm the replacement is available on Free, is not scheduled for retirement, and officially supports `temperature`, `top_k` (1–50) and `top_p`. Preserve 11B's actual parameter forwarding; do not silently ignore top-k or label browser-only simulation as hosted inference. `@cf/ibm-granite/granite-4.0-h-micro` is the selected Free-plan replacement and documents these parameters. It has metered pricing outside the Free allocation, so keeping the account on Workers Free is essential ([model schema](https://developers.cloudflare.com/workers-ai/models/granite-4.0-h-micro/)).
+3. Update both `services/week11-lab/wrangler.jsonc` (`vars.MODEL`) and `services/week11-lab/src/core.mjs` (fallback `MODEL`). Update model attribution and license links in `docs/week_11/11A_style_persona.html`, `docs/week_11/11B_temperature_sampling.html` and `docs/week_12/12A_stance_user_persona.html`, plus service/project READMEs and this guide. Audit other Workers separately; they share the account allowance.
+4. Run the service's offline tests, including the assertion that `topk` is forwarded as `top_k`; inspect a Wrangler dry run. An offline mock passing cannot prove the hosted model honors a parameter.
+5. Only after the free-plan conditions are verified and deployment is authorized, deploy the Worker and confirm the effective model via `/api/health`. Then test 11A persona comparisons, 11B sampling and exports, and 12A system/user personas within the free allocation. A GitHub Pages publication alone does not deploy the Worker. Keep the existing session secret when updating the existing service.
+
 ## 1. What Cloudflare does
 
 Each activity has two parts:
@@ -25,7 +55,7 @@ A **Cloudflare Worker** is a small program that runs on Cloudflare's computers. 
 | **10A: Conversation Closing** | Continues the same completed task with the same model and settings. One instruction style tends to extend the interaction; the other tends to close after the task is done. | Request counts and temporary records of requests in progress. It does not save transcripts in this storage. |
 | **11A: Style and Persona / 11B: Temperature and Sampling / 12A: Stance and User Persona** | One shared Worker runs real model comparisons with editable system prompts, sampling settings or user and system personas. The 11B toy distribution runs entirely in the browser. | Request counts and temporary capacity records only. Student annotations, reflections and conversation text are not saved in this storage. |
 
-5C, 7B, 10A, 11A, 11B and 12A use **Llama 3.1 8B Instruct Fast**. The model runs on Cloudflare, so students do not download it. Their conversation text is sent to the model when they ask for a reply. Their private notes and reflections are not sent. Use fictional examples rather than personal information.
+5C, 7B and 10A retain their existing Llama configuration. The local configuration for shared 11A/11B/12A now uses **IBM Granite 4.0 H Micro** under Apache 2.0; the shared live Worker now reports Granite after the November 6 deployment. The model runs on Cloudflare, so students do not download it. Their conversation text is sent to the model when they ask for a reply. Their private notes and reflections are not sent. Use fictional examples rather than personal information.
 
 The public GitHub repository holds the code. It does not hold 7A classroom submissions or private service keys.
 
