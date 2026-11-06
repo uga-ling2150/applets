@@ -1,5 +1,5 @@
 export { limitedJSON, admit } from "./budget.mjs";
-export const MODEL = "@cf/meta/llama-3.1-8b-instruct-fp8";
+export const MODEL = "@cf/ibm-granite/granite-4.0-h-micro";
 export const LIMITS = { output: 1024, perTurn: 12000, inferenceMs: 90000 };
 export function validate(b) {
   if (

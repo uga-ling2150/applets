@@ -22,7 +22,7 @@
     }
   ],
   "vars": {
-    "MODEL": "@cf/meta/llama-3.1-8b-instruct-fp8",
+    "MODEL": "@cf/ibm-granite/granite-4.0-h-micro",
     "ENABLED": "true",
     "DAILY_REQUEST_LIMIT": "0",
     "SESSION_REQUEST_LIMIT": "0",
