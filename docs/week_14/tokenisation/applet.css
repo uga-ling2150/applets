@@ -1,0 +1,30 @@
+/* Only the corpus, token and comparison widgets are page-specific. */
+.tk-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.tk-panel { min-width:0; padding:16px; border:1px solid var(--border-strong); border-radius:8px; background:var(--panel); }
+.tk-heading { font:700 1rem/1.5 "Merriweather Sans",sans-serif; margin:0 0 8px; }
+.tk-corpus { font:400 .9rem/1.8 "IBM Plex Mono",monospace; overflow-wrap:anywhere; margin:0; }
+.tk-corpus-list { padding-left:1.6rem; margin-top:12px; }
+.tk-corpus-list li { margin-bottom:6px; }
+.tk-controls { display:flex; flex-wrap:wrap; align-items:end; gap:14px; margin:16px 0; }
+.tk-controls .field { flex:1 1 230px; }
+.tk-stat { font:700 1.05rem/1.6 "Merriweather Sans",sans-serif; margin:10px 0; color:var(--olympic); }
+.tk-sentence { font-size:1rem; margin:8px 0; }
+.tk-tokens { display:flex; flex-wrap:wrap; gap:10px 16px; padding:12px 0; }
+.tk-word { display:inline-flex; flex-wrap:wrap; gap:3px; max-width:100%; }
+.tk-token { display:inline-block; border:1px solid var(--sanford); border-radius:4px; padding:3px 6px; color:var(--text); background:var(--panel-alt); font:500 .95rem/1.6 "IBM Plex Mono",monospace; overflow-wrap:anywhere; }
+.tk-token[data-tone="1"] { background:#e1eef0; }
+.tk-token[data-tone="2"] { background:#eee9de; }
+.tk-token[data-tone="3"] { background:#e6edf8; }
+.tk-table { width:100%; min-width:38rem; border-collapse:collapse; margin:12px 0; font:400 .9rem/1.6 "Merriweather Sans",sans-serif; }
+.tk-table caption { caption-side:top; color:var(--text); font-weight:700; }
+.tk-table th, .tk-table td { padding:10px; border-bottom:1px solid var(--border-strong); text-align:left; vertical-align:top; }
+.tk-table thead { background:var(--panel-alt); }
+.tk-table tr[aria-current="true"] { background:#e1eef0; }
+.tk-trace { margin-top:14px; }
+.tk-trace-line { padding:12px; border:1px solid var(--border-strong); border-radius:6px; background:var(--panel); }
+.tk-notice { padding:12px 0; margin:0; }
+@media (max-width:700px) { .tk-columns { grid-template-columns:1fr; } .tk-panel { padding:12px; } }
+@media (forced-colors:active) { .tk-token { border:1px solid CanvasText; } }
+
+.tk-merge-scroll { max-height:22rem; }
+.tk-word-comparison { min-width:10rem; position:relative; }

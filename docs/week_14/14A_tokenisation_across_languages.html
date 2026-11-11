@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity 14A: Tokenisation across languages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,800;1,400&family=Merriweather+Sans:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=14a-4">
+<link rel="stylesheet" href="tokenisation/applet.css?v=4">
+<script src="tokenisation/core.js?v=english-1" defer></script>
+<script src="tokenisation/applet.js?v=audited-2" defer></script>
+<script src="../reflection-notes.js" defer></script>
+</head>
+<body class="page--compact-end">
+<a class="skip-link" href="#main">Skip to activity</a>
+<header class="page-header">
+  <h1><a href="https://linguistics.uga.edu/">University of Georgia</a></h1>
+  <h2><a href="../index.html">Quantitative Linguistics Webapps</a></h2>
+</header>
+<main id="main" tabindex="-1">
+<section class="lesson-container" aria-labelledby="activity-title">
+<h3 id="activity-title" class="h3 mb-4">Activity 14A: Tokenisation across languages</h3>
+<h4 class="uga-accent">Learning Objectives</h4>
+<ul>
+<li><strong>Explain</strong> how the language balance of a training corpus affects the tokens a tokenizer learns.</li>
+<li><strong>Compare</strong> the same English words under tokenizers trained with different language proportions.</li>
+<li><strong>Distinguish</strong> frequent character sequences from meaningful language units.</li>
+</ul>
+<h4 class="uga-accent">Background</h4>
+<p>A <strong>tokenizer</strong> splits text into tokens: whole words or smaller pieces. Here, <strong>byte pair encoding (BPE)</strong> learns these pieces by repeatedly joining the most frequent neighbouring pair of letters or pieces in training text.</p>
+<p>What happens to <strong>English words</strong> when a tokenizer learns mostly from another language? Here, that language is Mandarin written in <strong>pinyin</strong> (Roman letters, without tone marks). You will investigate familiar English words; English meanings accompany the Mandarin examples. You do not need to read, pronounce or translate Mandarin. This is a small teaching experiment, not a commercial language model.</p>
+<h4 class="uga-accent">Instructions</h4>
+<ol>
+<li>Start with 90% pinyin and 10% English training text. Predict: will familiar English words stay whole or split into many pieces?</li>
+<li>Select <strong>Train tokenizer</strong>. Read the English test sentence and inspect its pieces. Each outlined block is one token.</li>
+<li>Change the training balance to 50/50, then 10/90, and train again. Keep the same test sentence while comparing your results.</li>
+<li>Compare one English word across your runs in step 2. Then follow each language’s token counts down the table; you do not need to read Mandarin. Try another sentence, then explain your observations in step 3.</li>
+</ol>
+</section>
+<section class="app-wrapper" aria-labelledby="applet-title">
+<div class="hero"><div class="hero-text"><h2 id="applet-title">Same words, <span>different pieces</span></h2><p>Change the training balance. Discover which patterns get a place in the vocabulary.</p></div></div>
+<noscript><p>This experiment needs JavaScript. Enable it to train a tokenizer; the background and reflection questions remain available.</p></noscript>
+<div class="rack">
+<section class="stage" aria-labelledby="training-title">
+<div class="stage-num" aria-hidden="true">1</div><div class="stage-body">
+<h3 id="training-title" class="stage-title stage-title--sentence-case">Predict and train</h3>
+<div class="stage-content">
+<p>English starts as the minority: only 10% of training text. Increasing its share changes how often the tokenizer encounters familiar English letter patterns.</p>
+<div class="tk-columns">
+<div class="tk-panel"><h4 class="tk-heading">English training example</h4><p class="tk-corpus">i like studying at school</p></div>
+<div class="tk-panel"><h4 class="tk-heading">Other training language: Mandarin</h4><p class="tk-corpus" lang="zh-Latn">wo xihuan zai xuexiao xuexi</p><p class="field-hint">English meaning: “I like studying at school.”</p></div>
+</div>
+<details id="training-corpus" class="glossary-box"><summary class="summary--sentence-case">See all training examples and English meanings (optional)</summary><p>Each item pairs a Mandarin training sentence with its approximate English meaning, which is also used as an English training sentence. These are sentence-level translations, not word-by-word alignments.</p><ol id="corpus-pairs" class="tk-corpus-list"></ol></details>
+<p><strong>Before you train:</strong> With just 10% English training text, do you expect an English word such as <em>library</em> to stay whole or split up? Share a guess and a reason.</p>
+<div class="tk-controls"><div class="field"><label for="balance">Training balance (pinyin / English)</label><select id="balance" aria-describedby="balance-hint"><option value="90">90% pinyin / 10% English</option><option value="50">50% pinyin / 50% English</option><option value="10">10% pinyin / 90% English</option></select></div><div class="btn-row"><button type="button" class="btn-uga" id="train">Train tokenizer</button><button type="button" class="btn-reset" id="reset">Reset experiment</button></div></div>
+<p id="balance-hint" class="field-hint">90/10 means 90 out of every 100 training-word occurrences are pinyin. Each run uses the same total amount of training text and 60 pair-joining steps.</p>
+
+
+<p id="training-status" role="status" aria-live="polite" aria-atomic="true" class="field-hint">Ready to train. All calculations run in your browser.</p>
+<p id="compare-link" hidden><a class="activity-link" href="#comparison-title">Continue to step 2: compare the pieces</a></p>
+</div></div></section>
+<section class="stage" aria-labelledby="comparison-title">
+<div class="stage-num" aria-hidden="true">2</div><div class="stage-body">
+<h3 id="comparison-title" tabindex="-1" class="stage-title stage-title--sentence-case">Investigate English words</h3>
+<div class="stage-content">
+<div class="field"><label for="example">English test sentence</label><select id="example"><option value="0">Studying at the library</option><option value="1">Going to school</option><option value="2">Reading with friends</option><option value="3">Unseen words: a new library</option></select></div>
+<p id="test-note" class="field-hint">This English sentence was not in the training data; its words were.</p>
+<p id="result-prompt" class="tk-notice">Train the tokenizer in step 1 to reveal the token boundaries.</p>
+<div id="saved-control" class="field" hidden><label for="saved-run">View a trained tokenizer</label><select id="saved-run" aria-describedby="saved-hint"></select><p id="saved-hint" class="field-hint">Switch between saved runs without training again.</p></div>
+<p id="comparison-status" role="status" aria-live="polite" aria-atomic="true" class="field-hint"></p>
+<div id="results" hidden>
+<p id="result-setting" class="tk-stat"></p>
+<p>One outlined block = one token. Larger gaps separate words; colours only distinguish neighbouring pieces.</p>
+<div class="tk-panel"><h4 class="tk-heading">English: inspect these pieces</h4><p id="sentence-english" class="tk-sentence"></p><p id="stats-english" class="tk-stat"></p><div id="tokens-english"></div></div>
+<details id="pinyin-results" class="glossary-box"><summary class="summary--sentence-case">Compare with Mandarin (optional; English meaning provided)</summary><p id="pinyin-meaning" class="field-hint"></p><p id="sentence-pinyin" class="tk-sentence" lang="zh-Latn"></p><p id="stats-pinyin" class="tk-stat"></p><div id="tokens-pinyin"></div><p class="field-hint">You can compare the number of pieces without knowing Mandarin. You are not asked to judge its word meanings or pronunciation.</p></details>
+<p class="field-hint">Counts exclude spaces. “Per word” means per space-separated unit in these teaching texts. Pinyin spacing is supplied for this exercise; it is not a claim about universal Chinese word boundaries.</p>
+</div>
+<div id="history-panel" hidden>
+<div class="field"><label for="compare-word">Compare one English word across runs</label><select id="compare-word" aria-describedby="word-hint"></select><p id="word-hint" class="field-hint">Read down the last column: how do the boundaries of this same word change? On a small screen, scroll the table sideways.</p></div>
+<div class="table-scroll" role="region" aria-labelledby="history-caption" tabindex="0"><table class="tk-table"><caption id="history-caption">Your runs for this test sentence pair</caption><thead><tr><th scope="col">Training balance<br>Pinyin / English</th><th scope="col">English<br>Total tokens (average per word)</th><th scope="col">Pinyin<br>Total tokens (average per word)</th><th scope="col" id="word-heading">Selected English word</th></tr></thead><tbody id="history"></tbody></table></div>
+<p><strong>Compare the two languages:</strong> Keep the same test sentence selected. Use the total before the parentheses in each cell. Read down the English column from 90/10 to 10/90, then read down the pinyin column. For each language, does the token count rise, fall or stay the same? Does one training balance give both languages their lowest token count? Use the numbers as evidence. You do not need to read, pronounce or translate Mandarin, or open its optional token view.</p>
+<p class="field-hint">Compare each language with itself across runs. Do not treat the difference between English and pinyin totals in a single row as a fairness score: the sentences have different numbers of words.</p>
+<p id="next-step"></p>
+</div>
+</div></div></section>
+<section class="stage" aria-labelledby="explanation-title">
+<div class="stage-num" aria-hidden="true">3</div><div class="stage-body">
+<h3 id="explanation-title" class="stage-title stage-title--sentence-case">Explain the difference</h3>
+<div class="stage-content"><p>Use an English word and the two token-count columns as evidence. What changed when English received more training text, and what happened to the pinyin count? Explain your prediction and observations to a partner, or write a short explanation below. No Mandarin knowledge is needed.</p><p>A longer token need not be meaningful, and fewer tokens do not prove better understanding. Use the optional replay to investigate how the pieces were chosen.</p>
+<details id="technical" class="glossary-box"><summary class="summary--sentence-case">How did BPE learn these pieces? (optional)</summary>
+<p>A <strong>merge</strong> joins two neighbouring pieces into one. Select <strong>Next merge</strong> and compare the example word before and after. The most frequent pair in the weighted training text is joined everywhere it occurs within a word; spaces are never crossed.</p>
+<p id="trace-prompt">Train a tokenizer to inspect its merges.</p>
+<div id="trace-panel" hidden>
+<p id="trace-setting" class="field-hint"></p>
+<div class="btn-row"><button type="button" class="btn-uga-outline" id="trace-next">Next merge</button><button type="button" class="btn-uga-dark" id="trace-finish">Finish replay</button><button type="button" class="btn-reset" id="trace-reset">Restart replay</button></div>
+<p id="trace-status" role="status" aria-live="polite" aria-atomic="true" class="tk-trace-line tk-trace"></p>
+<div id="trace-example"></div>
+<details id="merge-details" class="glossary-box"><summary class="summary--sentence-case">View the full merge list</summary><div class="table-scroll tk-merge-scroll" role="region" aria-labelledby="merge-caption" tabindex="0"><table class="tk-table"><caption id="merge-caption">Learned rules in application order</caption><thead><tr><th scope="col">Round</th><th scope="col">Pair</th><th scope="col">New piece</th><th scope="col">Weighted pair count</th></tr></thead><tbody id="merge-list"></tbody></table></div></details>
+</div>
+<p><strong>About this simulation:</strong> all input is lowercase, uses Roman letters, and has no punctuation or tone marks. The character-level implementation has no byte fallback or special word-end symbol. Training frequency counts include repetitions from the language weights, not just the 20 displayed sentences. Pairs are recounted after each merge; tied counts use a fixed ordering, so repeating a run gives the same rules. Test sentences never update the rules. Real tokenizers may use bytes, different boundaries, much larger corpora and larger vocabularies.</p>
+</details>
+</div></div></section>
+</div>
+</section>
+<section class="reflection-container" aria-labelledby="reflection-title">
+<h3 id="reflection-title" class="uga-accent mb-3">Reflection &amp; Discussion Guide</h3>
+<ol>
+<li>Compare the same English sentence under 90/10 and 10/90 training. Identify one word whose token boundaries changed. Explain why.</li>
+<li>Find a piece of an English word, such as a piece of studying or library. Does that piece have a meaning on its own? What does BPE count when it learns pieces?</li>
+<li>Keep the same test sentence selected. Compare the English token counts across 90/10, 50/50 and 10/90, then do the same for pinyin. Does one balance give both languages their lowest count? Support your answer with numbers from the table; you do not need to understand Mandarin.</li>
+<li>Imagine English were poorly represented in a real tokenizer’s training data. If a system charges per token or limits token counts, how might splitting familiar English words into more pieces affect you? What would you need to test before generalising from this small experiment?</li>
+</ol>
+<div class="reflection-notes field"><label for="reflection">Write down your thoughts</label><textarea id="reflection" rows="5" maxlength="4000"></textarea><div class="btn-row"><button class="btn-uga" type="button" data-download-notes>Download my notes</button><span class="field-hint" role="status" data-download-status></span></div><p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p></div>
+</section>
+</main>
+<section class="applet-feedback-card applet-feedback-card--followed" aria-labelledby="applet-feedback-heading"><div class="applet-feedback-card__content"><div><h2 id="applet-feedback-heading">Help us improve this applet</h2><a class="applet-feedback-card__tutorial" href="https://kaltura.uga.edu/media/t/1_bhor4qfq" target="_blank" rel="noopener noreferrer">New to GitHub? Watch the one-minute account setup guide <span class="visually-hidden">(opens in a new tab)</span></a></div><a class="applet-feedback-card__button" href="https://github.com/uga-ling2150/applets/issues/new?template=applet-feedback.yml&amp;title=%5BApplet%20feedback%5D%20Activity%2014A%3A%20Tokenisation%20across%20languages&amp;applet=Activity%2014A%3A%20Tokenisation%20across%20languages&amp;source-url=https%3A%2F%2Fuga-ling2150.github.io%2Fapplets%2Fweek_14%2F14A_tokenisation_across_languages.html" target="_blank" rel="noopener noreferrer">Report a problem or give feedback <span class="visually-hidden">(opens in a new tab)</span></a></div></section>
+<footer class="source-card" aria-labelledby="sources-title"><h3 id="sources-title">Sources &amp; Permissions</h3><p>Original synthetic teaching sentences were written for this activity. The algorithm demonstrates character-level subword BPE, described by Sennrich, Haddow and Birch (2016), <a href="https://aclanthology.org/P16-1162/">Neural Machine Translation of Rare Words with Subword Units</a>. For research on real multilingual tokenizers, see Petrov et al. (2023), <a href="https://arxiv.org/abs/2305.15425">Language Model Tokenizers Introduce Unfairness Between Languages</a>. No corpus, model weights or implementation code from those papers is redistributed here.</p></footer>
+</body>
+</html>

@@ -392,3 +392,13 @@ changes; put longer clip details, limitations and privacy notes in `<details>` *
 Don't build a page-local card, and don't hide the credit in a collapsed box in the app.
 (`.source-note`, a lighter inline variant, is used only inside 4A's closing note.) Applets with
 no third-party material omit it.
+
+## Optional instructional refinements
+
+Use `stage-title--sentence-case` with `stage-title` and `summary--sentence-case` on
+optional glossary summaries for calmer instructional headings. These shared modifiers
+are opt-in; existing pages keep their presentation. Use `activity-link` for in-content
+navigation on pale stage backgrounds to maintain link contrast.
+
+For an activity ending in a sources footer, `page--compact-end` on `body` provides
+a single 32px page-end gap by removing the footer’s trailing margin.

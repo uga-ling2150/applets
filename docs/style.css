@@ -1123,3 +1123,15 @@ code { color: inherit; }
 .hl-table th,.hl-table td { padding:8px; text-align:left; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
 .hl-table caption { caption-side:top; color:var(--text); }
 .hl-table th:last-child,.hl-table td:last-child { white-space:nowrap; overflow-wrap:normal; }
+
+/* Opt-in sentence case for instructional steps and optional supplementary headings. */
+.stage-title.stage-title--sentence-case,
+.glossary-box > summary.summary--sentence-case { text-transform: none; letter-spacing: normal; }
+
+/* Readable in-content navigation on the shared pale stage background. */
+.activity-link, .activity-link:visited { color:#0055a4; text-underline-offset:3px; }
+.activity-link:hover { color:#003e78; }
+
+/* One page-end spacing budget when a sources footer finishes the activity. */
+body.page--compact-end { padding-bottom:32px; }
+body.page--compact-end > footer.source-card { margin-bottom:0; }
