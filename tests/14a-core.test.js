@@ -1,18 +1,20 @@
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const lab = require('../docs/week_14/tokenisation/core.js');
-test('weighted corpora preserve exact language balance and total size', () => {
- const data = {pinyin:['aa bb'],english:['cc dd ee']};
- const totals=[];
- for(const share of [90,50,10]) {
-  const v=lab.createVocabulary(data,share), total=v.reduce((s,w)=>s+w.weight,0);
-  assert.equal(v.filter(w=>['aa','bb'].includes(w.word)).reduce((s,w)=>s+w.weight,0)/total,share/100);totals.push(total);
+test('displayed sentence corpora are exactly the training input, without hidden weights', () => {
+ for (const share of [90,50,10]) {
+  const data=lab.selectCorpus(share), model=lab.train(share);
+  assert.equal(data.pinyin.length,share/10);assert.equal(data.english.length,10-share/10);
+  assert.deepEqual(model.data,data);
+  const actual=new Map();
+  for(const sentence of [...data.pinyin,...data.english])for(const word of lab.words(sentence))actual.set(word,(actual.get(word)||0)+1);
+  const v=lab.createVocabulary(data);
+  assert.deepEqual(new Map(v.map(w=>[w.word,w.weight])),actual);
  }
- assert.equal(new Set(totals).size,1);
 });
 test('identical spellings from both languages contribute, rather than overwrite', () => {
- const v=lab.createVocabulary({pinyin:['aa bb'],english:['aa cc']},90);
- assert.equal(v.find(w=>w.word==='aa').weight,200);
+ const v=lab.createVocabulary({pinyin:['aa bb'],english:['aa cc']});
+ assert.equal(v.find(w=>w.word==='aa').weight,2);
 });
 test('known merge, overlap and ranked rule application', () => {
  assert.deepEqual(lab.merge(['a','a','a'],['a','a']),['aa','a']);

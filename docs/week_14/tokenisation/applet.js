@@ -50,7 +50,7 @@
     const next = [90,50,10].find(share => !models.has(share));
     $('next-step').textContent = next === undefined
       ? 'All three balances are ready. Compare an English word and both token-count columns above, try another test sentence, then explain your observations in step 3.'
-      : `Next: choose ${next}% pinyin / ${100-next}% English in step 1 and train. Keep this test sentence unchanged to compare the effect of training balance.`;
+      : `Next: choose ${next}% pinyin / ${100-next}% English in step 1 and train. Keep this test sentence unchanged to compare these training corpora.`;
   }
   function refreshWords() {
     const example = lab.examples[Number($('example').value)];
@@ -59,6 +59,27 @@
       const option = el('option',word); option.value=word; return option;
     }));
     $('compare-word').value = words.includes('library') ? 'library' : words[words.length-1];
+  }
+  function renderTraining() {
+    const share = Number($('balance').value), data = lab.selectCorpus(share);
+    $('corpus-summary').textContent = `Selected for training: ${share}% pinyin / ${100-share}% English (${data.pinyin.length} + ${data.english.length} sentences).`;
+    for (const language of ['pinyin','english']) {
+      $(''+language+'-corpus-title').textContent = `${language === 'pinyin' ? 'Mandarin in pinyin' : 'English'}: ${data[language].length} ${data[language].length === 1 ? 'sentence' : 'sentences'}`;
+      const items = data[language].map((sentence,index) => {
+        const item=el('li'), original=el('p',sentence,'tk-corpus');
+        if (language === 'pinyin') {
+          original.lang='zh-Latn';
+          item.append(original,el('p',`English meaning: ${lab.corpus.english[index]}`, 'field-hint'));
+        } else item.append(original);
+        return item;
+      });
+      $('corpus-'+language).replaceChildren(...items);
+    }
+    $('run-progress').replaceChildren(...[90,50,10].map(ratio => {
+      const state=models.has(ratio) ? 'Trained' : 'Not trained';
+      return el('li',`${ratio}% pinyin / ${100-ratio}% English: ${state}${active && active.share === ratio ? ' (viewing now)' : ''}`);
+    }));
+    $('active-run').textContent = active ? `Results currently show the ${active.share}/${100-active.share} tokenizer.` : `No tokenizer is currently displayed. Select Train tokenizer to train the selected corpus${models.size ? ', or view a saved run in step 2' : ''}.`;
   }
   function refreshSavedRuns() {
     $('saved-control').hidden = models.size === 0;
@@ -111,7 +132,7 @@
       $('trace-example').replaceChildren(); return;
     }
     const step = active.trace[replay-1];
-    $('trace-status').textContent = `Round ${replay} of ${active.rules.length}: ${step.pair[0]} + ${step.pair[1]} becomes ${step.pair.join('')}. This pair occurred ${step.count.toLocaleString('en-US')} times in the weighted training text (including repetitions).`;
+    $('trace-status').textContent = `Round ${replay} of ${active.rules.length}: ${step.pair[0]} + ${step.pair[1]} becomes ${step.pair.join('')}. This pair occurred ${step.count.toLocaleString('en-US')} ${step.count === 1 ? 'time' : 'times'} in the displayed training corpus.`;
     $('trace-example').replaceChildren(el('p',pinyinMeanings[step.word] ? `Mandarin example: ${step.word}. English meaning: ${pinyinMeanings[step.word]}. Follow the letter groups below; you do not need to pronounce the word.` : `English example word: ${step.word}`),el('p',`Before: ${step.before.join(' | ')}`,'tk-corpus'),el('p',`After: ${step.after.join(' | ')}`,'tk-corpus'));
   }
   function renderMergeList() {
@@ -129,11 +150,11 @@
     $('compare-link').hidden = true;
     $('comparison-status').textContent = '';
     $('training-status').textContent = `Balance changed to ${share}% pinyin / ${100-share}% English. Select Train tokenizer to apply it. Previous runs remain in the comparison table.`;
-    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns();
+    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns(); renderTraining();
   }
   $('train').addEventListener('click', () => {
     active = lab.train(Number($('balance').value)); models.set(active.share,active); replay = 0;
-    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns();
+    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns(); renderTraining();
     $('compare-link').hidden = false;
     $('comparison-status').textContent = '';
     $('training-status').textContent = `Training complete: ${active.share}% pinyin / ${100-active.share}% English, ${active.rules.length} merges. Compare word boundaries and both languages’ token counts in step 2.`;
@@ -151,7 +172,7 @@
   $('saved-run').addEventListener('change', () => {
     active=models.get(Number($('saved-run').value)); replay=0;
     $('balance').value=String(active.share);
-    renderResults(); renderReplay(); renderMergeList();
+    renderResults(); renderReplay(); renderMergeList(); renderTraining();
     $('compare-link').hidden=false;
     $('training-status').textContent=`Viewing the saved ${active.share}/${100-active.share} tokenizer. No retraining was needed.`;
     $('comparison-status').textContent=`Showing saved ${active.share}% pinyin / ${100-active.share}% English token boundaries. The comparison table still includes all trained balances.`;
@@ -161,14 +182,9 @@
   $('trace-reset').addEventListener('click', () => {replay=0;renderReplay();});
   $('reset').addEventListener('click', () => {
     models.clear(); $('balance').value='90'; $('example').value='0'; $('technical').open=false;
-    $('training-corpus').open=false; $('merge-details').open=false; $('pinyin-results').open=false;
+    $('merge-details').open=false; $('pinyin-results').open=false;
     refreshWords();
     updateBalance(); $('training-status').textContent='Experiment reset to 90% pinyin / 10% English. Your reflection notes have been kept.';
   });
-  lab.corpus.pinyin.forEach((sentence,index) => {
-    const item=el('li'), original=el('p',sentence,'tk-corpus'); original.lang='zh-Latn';
-    item.append(original,el('p',`English meaning / training sentence: ${lab.corpus.english[index]}`));
-    $('corpus-pairs').append(item);
-  });
-  refreshWords(); renderResults();
+  refreshWords(); renderResults(); renderTraining();
 })();

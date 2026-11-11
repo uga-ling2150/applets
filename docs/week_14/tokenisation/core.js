@@ -18,9 +18,9 @@
       'teachers and students are at the library', 'i am reading with friends today']
   };
   const examples = [
-    {name:'Studying at the library', pinyin:'women jintian zai tushuguan xuexi', english:'we are studying at the library today', note:'This English sentence was not in the training data; its words were.'},
-    {name:'Going to school', pinyin:'wo mingtian he pengyou qu xuexiao', english:'i will go to school with friends tomorrow', note:'This English sentence was not in the training data; its words were.'},
-    {name:'Reading with friends', pinyin:'xuesheng he pengyou zai tushuguan kanshu', english:'students are reading with friends at the library', note:'This English sentence was not in the training data; its words were.'},
+    {name:'Studying at the library', pinyin:'women jintian zai tushuguan xuexi', english:'we are studying at the library today', note:'This sentence is held out from training. Some of its words may also be unseen in your selected corpus.'},
+    {name:'Going to school', pinyin:'wo mingtian he pengyou qu xuexiao', english:'i will go to school with friends tomorrow', note:'This sentence is held out from training. Some of its words may also be unseen in your selected corpus.'},
+    {name:'Reading with friends', pinyin:'xuesheng he pengyou zai tushuguan kanshu', english:'students are reading with friends at the library', note:'This sentence is held out from training. Some of its words may also be unseen in your selected corpus.'},
     {name:'Unseen words: a new library', pinyin:'women zai xin de tushuguan xuexi', english:'we are studying at the new library', note:'The English word new never occurred in training. Look at how the learned pieces apply to it. Its Mandarin counterpart, xin, means new and was also held out.'}
   ];
   const words = text => text.trim() ? text.trim().split(/\s+/u) : [];
@@ -32,26 +32,24 @@
     }
     return result;
   }
-  function createVocabulary(data, share) {
-    if (!Number.isInteger(share) || share < 0 || share > 100) throw new RangeError('Share must be an integer from 0 to 100.');
-    const lists = [words(data.pinyin.join(' ')), words(data.english.join(' '))];
-    if (lists.some(list => !list.length)) throw new Error('Both corpora need words.');
+  function selectCorpus(share) {
+    if (![90,50,10].includes(share)) throw new RangeError('Choose 90, 50 or 10 percent pinyin.');
+    return {pinyin:corpus.pinyin.slice(0,share/10), english:corpus.english.slice(0,10-share/10)};
+  }
+  function createVocabulary(data) {
+    if (!data.pinyin.length || !data.english.length) throw new Error('Both corpora need sentences.');
     const vocabulary = new Map();
-    // Integer weights keep the total fixed at 100 * Np * Ne and the requested
-    // language shares exact. Add shared spellings instead of overwriting them.
-    lists.forEach((list, lang) => {
-      const weight = (lang === 0 ? share : 100 - share) * lists[1 - lang].length;
-      if (!weight) return;
-      for (const word of list) {
+    for (const sentence of [...data.pinyin,...data.english]) {
+      for (const word of words(sentence)) {
         if (!vocabulary.has(word)) vocabulary.set(word, {word, symbols:Array.from(word), weight:0});
-        vocabulary.get(word).weight += weight;
+        vocabulary.get(word).weight += 1;
       }
-    });
+    }
     return [...vocabulary.values()];
   }
-  function train(share, budget = 60, data = corpus) {
+  function train(share, budget = 60, data = selectCorpus(share)) {
     if (!Number.isInteger(budget) || budget < 0 || budget > 200) throw new RangeError('Merge budget must be 0–200.');
-    let vocabulary = createVocabulary(data, share);
+    let vocabulary = createVocabulary(data);
     const trace = [], rules = [];
     for (let round = 0; round < budget; round++) {
       const pairs = new Map();
@@ -71,7 +69,7 @@
       rules.push(best.pair);
       vocabulary = vocabulary.map(v => ({...v, symbols:merge(v.symbols, best.pair)}));
     }
-    return {share, budget, rules, trace};
+    return {share, budget, rules, trace, data};
   }
   function encode(text, model, limit = model.rules.length) {
     return words(text).map(word => {
@@ -84,5 +82,5 @@
     const count = encoded.reduce((sum,w) => sum + w.tokens.length,0);
     return {tokens:count, words:encoded.length, perWord:encoded.length ? count/encoded.length : 0};
   }
-  return {corpus, examples, words, merge, createVocabulary, train, encode, metrics};
+  return {corpus, examples, words, merge, selectCorpus, createVocabulary, train, encode, metrics};
 });
