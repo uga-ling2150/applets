@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="../style.css?v=14a-6">
 <link rel="stylesheet" href="tokenisation/applet.css?v=5">
 <script src="tokenisation/core.js?v=english-1" defer></script>
-<script src="tokenisation/applet.js?v=audited-2" defer></script>
+<script src="tokenisation/applet.js?v=audited-3" defer></script>
 <script src="../reflection-notes.js" defer></script>
 </head>
 <body class="page--compact-end page--responsive-cards">
@@ -26,7 +26,7 @@
 <h4 class="uga-accent">Learning Objectives</h4>
 <ul>
 <li><strong>Explain</strong> how the language balance of a training corpus affects the tokens a tokenizer learns.</li>
-<li><strong>Compare</strong> the same English words under tokenizers trained with different language proportions.</li>
+<li><strong>Compare</strong> English word boundaries and both languages’ token counts across different training balances.</li>
 <li><strong>Distinguish</strong> frequent character sequences from meaningful language units.</li>
 </ul>
 <h4 class="uga-accent">Background</h4>
@@ -37,7 +37,7 @@
 <li>Start with 90% pinyin and 10% English training text. Predict: will familiar English words stay whole or split into many pieces?</li>
 <li>Select <strong>Train tokenizer</strong>. Read the English test sentence and inspect its pieces. Each outlined block is one token.</li>
 <li>Change the training balance to 50/50, then 10/90, and train again. Keep the same test sentence while comparing your results.</li>
-<li>Compare one English word across your runs in step 2. Then follow each language’s token counts down the table; you do not need to read Mandarin. Try another sentence, then explain your observations in step 3.</li>
+<li>Compare one English word across your runs in step 2. Then follow each language’s token counts down the table. Try another sentence, then explain your observations in step 3.</li>
 </ol>
 </section>
 <section class="app-wrapper" aria-labelledby="applet-title">
@@ -64,7 +64,7 @@
 </div></div></section>
 <section class="stage" aria-labelledby="comparison-title">
 <div class="stage-num" aria-hidden="true">2</div><div class="stage-body">
-<h3 id="comparison-title" tabindex="-1" class="stage-title stage-title--sentence-case">Investigate English words</h3>
+<h3 id="comparison-title" tabindex="-1" class="stage-title stage-title--sentence-case">Compare words and languages</h3>
 <div class="stage-content">
 <div class="field"><label for="example">English test sentence</label><select id="example"><option value="0">Studying at the library</option><option value="1">Going to school</option><option value="2">Reading with friends</option><option value="3">Unseen words: a new library</option></select></div>
 <p id="test-note" class="field-hint">This English sentence was not in the training data; its words were.</p>
@@ -75,13 +75,13 @@
 <p id="result-setting" class="tk-stat"></p>
 <p>One outlined block = one token. Larger gaps separate words; colours only distinguish neighbouring pieces.</p>
 <div class="tk-panel"><h4 class="tk-heading">English: inspect these pieces</h4><p id="sentence-english" class="tk-sentence"></p><p id="stats-english" class="tk-stat"></p><div id="tokens-english"></div></div>
-<details id="pinyin-results" class="glossary-box"><summary class="summary--sentence-case">Compare with Mandarin (optional; English meaning provided)</summary><p id="pinyin-meaning" class="field-hint"></p><p id="sentence-pinyin" class="tk-sentence" lang="zh-Latn"></p><p id="stats-pinyin" class="tk-stat"></p><div id="tokens-pinyin"></div><p class="field-hint">You can compare the number of pieces without knowing Mandarin. You are not asked to judge its word meanings or pronunciation.</p></details>
+<details id="pinyin-results" class="glossary-box"><summary class="summary--sentence-case">Compare with Mandarin (optional; English meaning provided)</summary><p id="pinyin-meaning" class="field-hint"></p><p id="sentence-pinyin" class="tk-sentence" lang="zh-Latn"></p><p id="stats-pinyin" class="tk-stat"></p><div id="tokens-pinyin"></div></details>
 <p class="field-hint">Counts exclude spaces. “Per word” means per space-separated unit in these teaching texts. Pinyin spacing is supplied for this exercise; it is not a claim about universal Chinese word boundaries.</p>
 </div>
 <div id="history-panel" hidden>
 <div class="field"><label for="compare-word">Compare one English word across runs</label><select id="compare-word" aria-describedby="word-hint"></select><p id="word-hint" class="field-hint">Read down the last column: how do the boundaries of this same word change? On a small screen, scroll the table sideways.</p></div>
 <div class="table-scroll" role="region" aria-labelledby="history-caption" tabindex="0"><table class="tk-table"><caption id="history-caption">Your runs for this test sentence pair</caption><thead><tr><th scope="col">Training balance<br>Pinyin / English</th><th scope="col">English<br>Total tokens (average per word)</th><th scope="col">Pinyin<br>Total tokens (average per word)</th><th scope="col" id="word-heading">Selected English word</th></tr></thead><tbody id="history"></tbody></table></div>
-<p><strong>Compare the two languages:</strong> Keep the same test sentence selected. Use the total before the parentheses in each cell. Read down the English column from 90/10 to 10/90, then read down the pinyin column. For each language, does the token count rise, fall or stay the same? Does one training balance give both languages their lowest token count? Use the numbers as evidence. You do not need to read, pronounce or translate Mandarin, or open its optional token view.</p>
+<p><strong>Compare the two languages:</strong> Keep the same test sentence selected. Use the total before the parentheses in each cell. Read down the English column from 90/10 to 10/90, then read down the pinyin column. For each language, does the token count rise, fall or stay the same? Does one training balance give both languages their lowest token count? Use the numbers as evidence. You only need the counts; reading Mandarin or opening its token view is not required.</p>
 <p class="field-hint">Compare each language with itself across runs. Do not treat the difference between English and pinyin totals in a single row as a fairness score: the sentences have different numbers of words.</p>
 <p id="next-step"></p>
 </div>
@@ -89,7 +89,7 @@
 <section class="stage" aria-labelledby="explanation-title">
 <div class="stage-num" aria-hidden="true">3</div><div class="stage-body">
 <h3 id="explanation-title" class="stage-title stage-title--sentence-case">Explain the difference</h3>
-<div class="stage-content"><p>Use an English word and the two token-count columns as evidence. What changed when English received more training text, and what happened to the pinyin count? Explain your prediction and observations to a partner, or write a short explanation below. No Mandarin knowledge is needed.</p><p>A longer token need not be meaningful, and fewer tokens do not prove better understanding. Use the optional replay to investigate how the pieces were chosen.</p>
+<div class="stage-content"><p>Use an English word and the two token-count columns as evidence. What changed when English received more training text, and what happened to the pinyin count? Explain your prediction and observations to a partner, or write a short explanation below.</p><p>A longer token need not be meaningful, and fewer tokens do not prove better understanding. Use the optional replay to investigate how the pieces were chosen.</p>
 <details id="technical" class="glossary-box"><summary class="summary--sentence-case">How did BPE learn these pieces? (optional)</summary>
 <p>A <strong>merge</strong> joins two neighbouring pieces into one. Select <strong>Next merge</strong> and compare the example word before and after. The most frequent pair in the weighted training text is joined everywhere it occurs within a word; spaces are never crossed.</p>
 <p id="trace-prompt">Train a tokenizer to inspect its merges.</p>
@@ -110,7 +110,7 @@
 <ol>
 <li>Compare the same English sentence under 90/10 and 10/90 training. Identify one word whose token boundaries changed. Explain why.</li>
 <li>Find a piece of an English word, such as a piece of studying or library. Does that piece have a meaning on its own? What does BPE count when it learns pieces?</li>
-<li>Keep the same test sentence selected. Compare the English token counts across 90/10, 50/50 and 10/90, then do the same for pinyin. Does one balance give both languages their lowest count? Support your answer with numbers from the table; you do not need to understand Mandarin.</li>
+<li>Keep the same test sentence selected. Compare the English token counts across 90/10, 50/50 and 10/90, then do the same for pinyin. Does one balance give both languages their lowest count? Support your answer with numbers from the table.</li>
 <li>Imagine English were poorly represented in a real tokenizer’s training data. If a system charges per token or limits token counts, how might splitting familiar English words into more pieces affect you? What would you need to test before generalising from this small experiment?</li>
 </ol>
 <div class="reflection-notes field"><label for="reflection">Write down your thoughts</label><textarea id="reflection" rows="5" maxlength="4000"></textarea><div class="btn-row"><button class="btn-uga" type="button" data-download-notes>Download my notes</button><span class="field-hint" role="status" data-download-status></span></div><p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p></div>

@@ -136,9 +136,7 @@
     renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns();
     $('compare-link').hidden = false;
     $('comparison-status').textContent = '';
-    const e = lab.examples[Number($('example').value)];
-    const n = lab.metrics(lab.encode(e.english,active)).tokens;
-    $('training-status').textContent = `Training complete: ${active.share}% pinyin / ${100-active.share}% English, ${active.rules.length} merges. The English test sentence uses ${n} tokens. Inspect its word boundaries in step 2.`;
+    $('training-status').textContent = `Training complete: ${active.share}% pinyin / ${100-active.share}% English, ${active.rules.length} merges. Compare word boundaries and both languages’ token counts in step 2.`;
   });
   $('balance').addEventListener('change',updateBalance);
   $('example').addEventListener('change', () => {
