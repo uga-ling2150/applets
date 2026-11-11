@@ -28,3 +28,7 @@
 
 .tk-merge-scroll { max-height:22rem; }
 .tk-word-comparison { min-width:10rem; position:relative; }
+
+/* Parent gap owns control spacing; keep a compared word on a single row. */
+.tk-controls > .field, .tk-controls > .btn-row { margin:0; }
+.tk-word-comparison .tk-word { flex-wrap:nowrap; max-width:none; }

@@ -405,3 +405,6 @@ a single 32px page-end gap by removing the footer’s trailing margin.
 
 Use `hero--text-only` alongside `hero` when there is no side widget: the subtitle
 uses the available card width and wraps naturally on smaller screens.
+
+`page--responsive-cards` on `body` reduces card gutters on phones while preserving
+desktop spacing. Text-only heroes use one compact spacing budget beneath the subtitle.

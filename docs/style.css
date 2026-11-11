@@ -1137,5 +1137,17 @@ body.page--compact-end { padding-bottom:32px; }
 body.page--compact-end > footer.source-card { margin-bottom:0; }
 
 /* Text-only heroes can use the full card width without a side widget. */
+.hero--text-only { padding-bottom:16px; margin-bottom:16px; }
 .hero--text-only .hero-text { width:100%; min-width:0; }
-.hero--text-only .hero-text p { max-width:none; }
+.hero--text-only .hero-text p { max-width:none; margin-bottom:0; }
+
+/* Opt-in narrower card gutters keep reading space on phones. */
+@media (max-width:640px) {
+  body.page--responsive-cards { padding-left:12px; padding-right:12px; }
+  .page--responsive-cards .lesson-container,
+  .page--responsive-cards .reflection-container,
+  .page--responsive-cards .applet-feedback-card,
+  .page--responsive-cards .source-card { padding:20px; }
+  .page--responsive-cards .app-wrapper { padding:16px; }
+  .page--responsive-cards .stage-body { padding:16px 12px; }
+}
