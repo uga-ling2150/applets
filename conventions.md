@@ -402,3 +402,6 @@ navigation on pale stage backgrounds to maintain link contrast.
 
 For an activity ending in a sources footer, `page--compact-end` on `body` provides
 a single 32px page-end gap by removing the footer’s trailing margin.
+
+Use `hero--text-only` alongside `hero` when there is no side widget: the subtitle
+uses the available card width and wraps naturally on smaller screens.
