@@ -60,26 +60,69 @@
     }));
     $('compare-word').value = words.includes('library') ? 'library' : words[words.length-1];
   }
-  function renderTraining() {
-    const share = Number($('balance').value), data = lab.selectCorpus(share);
-    $('corpus-summary').textContent = `Selected for training: ${share}% pinyin / ${100-share}% English (${data.pinyin.length} + ${data.english.length} sentences).`;
-    for (const language of ['pinyin','english']) {
-      $(''+language+'-corpus-title').textContent = `${language === 'pinyin' ? 'Mandarin in pinyin' : 'English'}: ${data[language].length} ${data[language].length === 1 ? 'sentence' : 'sentences'}`;
-      const items = data[language].map((sentence,index) => {
-        const item=el('li'), original=el('p',sentence,'tk-corpus');
-        if (language === 'pinyin') {
-          original.lang='zh-Latn';
-          item.append(original,el('p',`English meaning: ${lab.corpus.english[index]}`, 'field-hint'));
-        } else item.append(original);
-        return item;
+  const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const runRows = new Map();
+  function corpusPanel(language, data) {
+    const panel = el('div', undefined, 'tk-panel');
+    panel.append(el('h5', `${language === 'pinyin' ? 'Mandarin in pinyin' : 'English'}: ${data[language].length} ${data[language].length === 1 ? 'sentence' : 'sentences'}`, 'tk-heading'));
+    const list = el('ol', undefined, 'tk-corpus-list');
+    data[language].forEach((sentence,index) => {
+      const item=el('li'), original=el('p',sentence,'tk-corpus');
+      if (language === 'pinyin') {
+        original.lang='zh-Latn';
+        item.append(original,el('p',`English meaning: ${lab.corpus.english[index]}`, 'field-hint'));
+      } else item.append(original);
+      list.append(item);
+    });
+    panel.append(list);
+    return panel;
+  }
+  function buildRuns() {
+    for (const share of [90,50,10]) {
+      const data = lab.selectCorpus(share), row = el('tr'), dataRow = el('tr', undefined, 'tk-data-row');
+      const label = el('th'); label.scope = 'row';
+      const see = el('button', 'See data', 'btn-uga-outline'); see.type = 'button';
+      see.setAttribute('aria-expanded','false'); see.setAttribute('aria-controls',`corpus-${share}`);
+      const train = el('button', 'Train', 'btn-uga'); train.type = 'button';
+      const trained = el('span', 'Trained', 'tk-trained'); trained.hidden = true;
+      const dataCell = el('td'); dataCell.colSpan = 4; dataCell.id = `corpus-${share}`;
+      dataCell.append(corpusPanel('pinyin',data), corpusPanel('english',data));
+      dataRow.hidden = true; dataRow.append(dataCell);
+      const seeCell = el('td'); seeCell.append(see);
+      const trainCell = el('td', undefined, 'tk-train-cell'); trainCell.append(train, trained);
+      row.append(label, el('td',`${data.pinyin.length} + ${data.english.length}`), seeCell, trainCell);
+      $('runs').append(row, dataRow);
+      runRows.set(share, {row, label, see, train, trained, dataRow});
+      see.addEventListener('click', () => {
+        const open = dataRow.hidden;
+        dataRow.hidden = !open; see.setAttribute('aria-expanded', String(open));
+        see.textContent = open ? 'Hide data' : 'See data';
       });
-      $('corpus-'+language).replaceChildren(...items);
+      train.addEventListener('click', () => trainRun(share));
     }
-    $('run-progress').replaceChildren(...[90,50,10].map(ratio => {
-      const state=models.has(ratio) ? 'Trained' : 'Not trained';
-      return el('li',`${ratio}% pinyin / ${100-ratio}% English: ${state}${active && active.share === ratio ? ' (viewing now)' : ''}`);
-    }));
-    $('active-run').textContent = active ? `Results currently show the ${active.share}/${100-active.share} tokenizer.` : `No tokenizer is currently displayed. Select Train tokenizer to train the selected corpus${models.size ? ', or view a saved run in step 2' : ''}.`;
+  }
+  function renderTraining() {
+    for (const [share, r] of runRows) {
+      const current = Boolean(active && active.share === share);
+      r.label.textContent = `${share}% / ${100-share}%${current ? ' (shown in step 2)' : ''}`;
+      if (current) r.row.setAttribute('aria-current','true'); else r.row.removeAttribute('aria-current');
+    }
+  }
+  function trainRun(share) {
+    if (models.has(share)) return;
+    const r = runRows.get(share);
+    active = lab.train(share); models.set(share,active); replay = 0;
+    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns(); renderTraining();
+    $('compare-link').hidden = false;
+    $('comparison-status').textContent = '';
+    $('training-status').textContent = `Training complete: ${share}% pinyin / ${100-share}% English, ${active.rules.length} merges. Compare word boundaries and both languages’ token counts in step 2.`;
+    // Fade the button out, then swap in the static label; move focus on so it isn't lost.
+    const hadFocus = document.activeElement === r.train;
+    r.train.disabled = true; r.train.classList.add('tk-fading');
+    setTimeout(() => {
+      r.train.hidden = true; r.train.classList.remove('tk-fading'); r.trained.hidden = false;
+      if (hadFocus) $('compare-link').querySelector('a').focus();
+    }, reduced() ? 0 : 400);
   }
   function refreshSavedRuns() {
     $('saved-control').hidden = models.size === 0;
@@ -144,22 +187,6 @@
       $('merge-list').append(row);
     }
   }
-  function updateBalance() {
-    const share = Number($('balance').value);
-    active = null; replay = 0;
-    $('compare-link').hidden = true;
-    $('comparison-status').textContent = '';
-    $('training-status').textContent = `Balance changed to ${share}% pinyin / ${100-share}% English. Select Train tokenizer to apply it. Previous runs remain in the comparison table.`;
-    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns(); renderTraining();
-  }
-  $('train').addEventListener('click', () => {
-    active = lab.train(Number($('balance').value)); models.set(active.share,active); replay = 0;
-    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns(); renderTraining();
-    $('compare-link').hidden = false;
-    $('comparison-status').textContent = '';
-    $('training-status').textContent = `Training complete: ${active.share}% pinyin / ${100-active.share}% English, ${active.rules.length} merges. Compare word boundaries and both languages’ token counts in step 2.`;
-  });
-  $('balance').addEventListener('change',updateBalance);
   $('example').addEventListener('change', () => {
     refreshWords();
     renderResults();
@@ -171,7 +198,6 @@
   });
   $('saved-run').addEventListener('change', () => {
     active=models.get(Number($('saved-run').value)); replay=0;
-    $('balance').value=String(active.share);
     renderResults(); renderReplay(); renderMergeList(); renderTraining();
     $('compare-link').hidden=false;
     $('training-status').textContent=`Viewing the saved ${active.share}/${100-active.share} tokenizer. No retraining was needed.`;
@@ -181,10 +207,17 @@
   $('trace-finish').addEventListener('click', () => { if (active) {replay = active.rules.length;renderReplay();} });
   $('trace-reset').addEventListener('click', () => {replay=0;renderReplay();});
   $('reset').addEventListener('click', () => {
-    models.clear(); $('balance').value='90'; $('example').value='0'; $('technical').open=false;
+    models.clear(); active = null; replay = 0;
+    $('example').value='0'; $('technical').open=false;
     $('merge-details').open=false; $('pinyin-results').open=false;
+    for (const r of runRows.values()) {
+      r.train.hidden = false; r.train.disabled = false; r.trained.hidden = true;
+      r.dataRow.hidden = true; r.see.setAttribute('aria-expanded','false'); r.see.textContent = 'See data';
+    }
     refreshWords();
-    updateBalance(); $('training-status').textContent='Experiment reset to 90% pinyin / 10% English. Your reflection notes have been kept.';
+    $('compare-link').hidden = true; $('comparison-status').textContent = '';
+    renderResults(); renderReplay(); renderMergeList(); refreshSavedRuns(); renderTraining();
+    $('training-status').textContent='Experiment reset. Your reflection notes have been kept.';
   });
-  refreshWords(); renderResults(); renderTraining();
+  buildRuns(); refreshWords(); renderResults(); renderTraining();
 })();

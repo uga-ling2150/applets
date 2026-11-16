@@ -1,12 +1,9 @@
 /* Only the corpus, token and comparison widgets are page-specific. */
-.tk-columns { display:block; }
 .tk-panel { min-width:0; padding:16px; border:1px solid var(--border-strong); border-radius:8px; background:var(--panel); }
 .tk-heading { font:700 1rem/1.5 "Merriweather Sans",sans-serif; margin:0 0 8px; }
 .tk-corpus { font:400 .9rem/1.8 "IBM Plex Mono",monospace; overflow-wrap:anywhere; margin:0; }
 .tk-corpus-list { padding-left:1.6rem; margin:12px 0 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 28px; }
 .tk-corpus-list li { margin-bottom:6px; }
-.tk-controls { display:flex; flex-wrap:wrap; align-items:end; gap:14px; margin:16px 0; }
-.tk-controls .field { flex:1 1 230px; }
 .tk-stat { font:700 1.05rem/1.6 "Merriweather Sans",sans-serif; margin:10px 0; color:var(--olympic); }
 .tk-sentence { font-size:1rem; margin:8px 0; }
 .tk-tokens { display:flex; flex-wrap:wrap; gap:10px 16px; padding:12px 0; }
@@ -30,11 +27,19 @@
 .tk-word-comparison { min-width:10rem; position:relative; }
 
 /* Parent gap owns control spacing; keep a compared word on a single row. */
-.tk-controls > .field, .tk-controls > .btn-row { margin:0; }
 .tk-word-comparison .tk-word { flex-wrap:nowrap; max-width:none; }
 
-.tk-training-corpus, .tk-run-progress { margin:16px 0; }
 .tk-corpus-list li:last-child, .tk-corpus-list .field-hint { margin-bottom:0; }
-.tk-run-progress ul { display:flex; flex-wrap:wrap; gap:8px 24px; padding-left:20px; }
 
-.tk-training-corpus .tk-panel + .tk-panel { margin-top:12px; }
+/* Step 1 run table: Train fades out and is replaced by a static "Trained" label. */
+.tk-runs th, .tk-runs td { vertical-align:middle; }
+.tk-runs [hidden] { display:none !important; }
+.tk-runs .tk-data-row td { background:var(--panel-alt); }
+.tk-runs .tk-panel + .tk-panel { margin-top:12px; }
+.tk-train-cell { min-width:8rem; }
+.tk-runs .btn-uga { transition:opacity .4s ease; }
+.tk-runs .btn-uga.tk-fading { opacity:0; }
+.tk-trained { display:inline-block; font-weight:700; color:var(--olympic); animation:tk-fade-in .4s ease; }
+.tk-trained::before { content:"\2713\00a0"; }
+@keyframes tk-fade-in { from { opacity:0; } to { opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .tk-runs .btn-uga { transition:none; } .tk-trained { animation:none; } }
