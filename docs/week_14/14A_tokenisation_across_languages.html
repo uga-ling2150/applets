@@ -31,7 +31,9 @@
 </ul>
 <h4 class="uga-accent">Background</h4>
 <p>A <strong>tokenizer</strong> splits text into tokens: whole words or smaller pieces. Here, <strong>byte pair encoding (BPE)</strong> learns these pieces by repeatedly joining the most frequent neighbouring pair of letters or pieces in training text.</p>
-<p>What happens to <strong>English words</strong> when a tokenizer learns mostly from another language? Here, that language is Mandarin written in <strong>pinyin</strong> (Roman letters, without tone marks). You will investigate familiar English words; English meanings accompany the Mandarin examples. You do not need to read, pronounce or translate Mandarin. This is a small teaching experiment, not a commercial language model.</p>
+<p>What happens to <strong>English words</strong> when a tokenizer learns mostly from another language? Here, that language is Mandarin written in <strong>pinyin</strong> (Roman letters, without tone marks).
+  You will investigate familiar English words; English meanings accompany the Mandarin examples.
+  You do not need to read, pronounce or translate Mandarin.</p>
 <h4 class="uga-accent">Instructions</h4>
 <ol>
 <li>Start with 90% pinyin and 10% English training sentences. Predict: will familiar English words stay whole or split into many pieces?</li>
@@ -121,7 +123,9 @@
 <li>Compare the same English sentence under 90/10 and 10/90 training. Identify one word whose token boundaries changed. Explain why.</li>
 <li>Find a piece of an English word, such as a piece of studying or library. Does that piece have a meaning on its own? What does BPE count when it learns pieces?</li>
 <li>Keep the same test sentence selected. Compare the English token counts across 90/10, 50/50 and 10/90, then do the same for pinyin. Does one balance give both languages their lowest count? Support your answer with numbers from the table.</li>
-<li>Imagine English were poorly represented in a real tokenizer’s training data. If a system charges per token or limits token counts, how might splitting familiar English words into more pieces affect you? What would you need to test before generalising from this small experiment?</li>
+<li>Imagine English were poorly represented in a real tokenizer’s training data. 
+  If a system charges per token or limits token counts, how might splitting familiar English words into more pieces affect you?
+  Do you think there would be effects on the quality of the language model?</li>
 </ol>
 <div class="reflection-notes field"><label for="reflection">Write down your thoughts</label><textarea id="reflection" rows="5" maxlength="4000"></textarea><div class="btn-row"><button class="btn-uga" type="button" data-download-notes>Download my notes</button><span class="field-hint" role="status" data-download-status></span></div><p class="field-hint">Your notes stay in this browser and are not submitted to your instructor. Download them before you close this page.</p></div>
 </section>
